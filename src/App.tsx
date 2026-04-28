@@ -20,6 +20,7 @@ import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import FloatingLogo from "@/components/site/FloatingLogo";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <FloatingLogo />
           <Routes>
             {/* Public */}
             <Route path="/" element={<Index />} />
