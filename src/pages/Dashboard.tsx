@@ -541,16 +541,8 @@ type MediaItem = {
   usage: MediaUsage;
 };
 
-const SEED_MEDIA: MediaItem[] = [
-  { id: "m1", title: "Studio portrait — session 01", url: portfolio1, type: "image", category: "Portrait", alt: "Studio portrait", tags: ["studio", "portrait"], uploaded_at: "2026-04-12", size_kb: 842, usage: "in_use", attached_to: "Inside the Studio" },
-  { id: "m2", title: "Midnight Chicago skyline", url: portfolio2, type: "image", category: "City", alt: "Chicago at night", tags: ["chicago", "night"], uploaded_at: "2026-04-15", size_kb: 1024, usage: "in_use" },
-  { id: "m3", title: "Music video — director cut", url: portfolio3, type: "video", category: "Music Video", alt: "Music video still", tags: ["music", "behind the scenes"], uploaded_at: "2026-04-18", size_kb: 23400, usage: "in_use" },
-  { id: "m4", title: "Live show — front row", url: portfolio4, type: "image", category: "Live", alt: "Live show", tags: ["live", "concert"], uploaded_at: "2026-04-20", size_kb: 980, usage: "unused" },
-  { id: "m5", title: "Cover — new wave feature", url: storyMusic, type: "image", category: "Cover Art", alt: "Music cover", tags: ["cover", "music"], uploaded_at: "2026-04-22", size_kb: 1180, usage: "in_use", attached_to: "Chicago's New Wave" },
-  { id: "m6", title: "Black cinema still", url: storyFilm, type: "image", category: "Film", alt: "Cinema still", tags: ["film", "cinema"], uploaded_at: "2026-04-23", size_kb: 990, usage: "in_use" },
-  { id: "m7", title: "Fashion editorial 03", url: storyFashion, type: "image", category: "Fashion", alt: "Fashion editorial", tags: ["fashion", "editorial"], uploaded_at: "2026-04-24", size_kb: 1340, usage: "unused" },
-  { id: "m8", title: "Breakdown thumbnail", url: storyBreakdown, type: "image", category: "Thumbnail", alt: "Breakdown thumb", tags: ["breakdown", "thumbnail"], uploaded_at: "2026-04-25", size_kb: 720, usage: "in_use" },
-];
+// Media library starts empty — assets are added via the upload dialog.
+const SEED_MEDIA: MediaItem[] = [];
 
 const MEDIA_CATEGORIES = ["All", "Portrait", "City", "Music Video", "Live", "Cover Art", "Film", "Fashion", "Thumbnail", "Other"];
 
@@ -747,8 +739,8 @@ const MediaLibrary = () => {
       {filtered.length === 0 ? (
         <EmptyState
           icon={ImageIcon}
-          title={items.length === 0 ? "Upload your first media asset." : "No media matches your filters."}
-          body={items.length === 0 ? "Drag & drop, or use the upload button to add photos, videos, and audio to your library." : "Try clearing search or changing the category."}
+          title={items.length === 0 ? "No media uploaded yet" : "No media matches your filters."}
+          body={items.length === 0 ? "Upload your first asset to begin." : "Try clearing search or changing the category."}
           action={items.length === 0 ? (
             <Button size="sm" onClick={() => setUploadOpen(true)} className="rounded-sm uppercase tracking-widest text-[10px] h-8 px-4 bg-primary text-primary-foreground">
               <Upload className="h-3 w-3 mr-1.5" /> Upload Media
