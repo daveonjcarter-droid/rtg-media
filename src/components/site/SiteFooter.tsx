@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Instagram, Youtube, Twitter } from "lucide-react";
-import logo from "@/assets/rtg-logo.png";
+import Logo from "./Logo";
 
 const SiteFooter = () => (
   <footer className="border-t border-border bg-ink mt-24">
