@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Camera, Video, Music, Film, Scissors, Radio, Mic, Sparkles, Play } from "lucide-react";
 import SiteLayout from "@/components/site/SiteLayout";
 import ArticleCard from "@/components/site/ArticleCard";
+import NewsletterForm from "@/components/site/NewsletterForm";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import heroImg from "@/assets/hero-videographer.jpg";
 import breakdownBg from "@/assets/breakdown-bg.jpg";
 import servicesStudio from "@/assets/services-studio.jpg";
@@ -237,21 +237,8 @@ const Index = () => {
               <Link to="/book">Book a Consultation</Link>
             </Button>
           </div>
-          <form
-            onSubmit={(e) => { e.preventDefault(); }}
-            className="bg-surface border border-border p-8 md:p-10"
-          >
-            <div className="font-display text-2xl uppercase mb-1">Join the movement</div>
-            <div className="text-sm text-muted-foreground mb-6">Newsletter · Weekly</div>
-            <div className="space-y-3">
-              <Input placeholder="Your name" className="h-12 bg-background border-border rounded-sm" />
-              <Input type="email" placeholder="Email address" className="h-12 bg-background border-border rounded-sm" />
-              <Button type="submit" className="w-full h-12 rounded-sm uppercase tracking-widest text-xs bg-primary text-primary-foreground hover:bg-primary/90">
-                Subscribe
-              </Button>
-            </div>
-            <p className="mt-4 text-xs text-muted-foreground">By subscribing you agree to receive emails from RTG Media.</p>
-          </form>
+          <NewsletterForm />
+
         </div>
       </section>
     </SiteLayout>

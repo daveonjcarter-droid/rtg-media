@@ -1,9 +1,12 @@
+import { useState } from "react";
 import SiteLayout from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 const PACKAGES = [
   { t: "Sponsored Articles", d: "Long-form editorial features written by RTG journalists." },
@@ -14,12 +17,34 @@ const PACKAGES = [
   { t: "Newsletter Placement", d: "Reach our subscribed culture audience directly." },
 ];
 
+const schema = z.object({
+  brand: z.string().trim().min(2).max(120),
+  name: z.string().trim().min(2).max(80),
+  email: z.string().trim().email().max(255),
+  budget: z.string().trim().max(120).optional().or(z.literal("")),
+  message: z.string().trim().min(10).max(2000),
+});
+
 const Advertise = () => {
-  const onSubmit = (e: React.FormEvent) => {
+  const [form, setForm] = useState({ brand: "", name: "", email: "", budget: "", message: "" });
+  const [busy, setBusy] = useState(false);
+
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const parsed = schema.safeParse(form);
+    if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
+    setBusy(true);
+    const { error } = await supabase.from("advertise_inquiries").insert({ ...parsed.data, budget: parsed.data.budget || null } as any);
+    if (!error) {
+      await supabase.from("leads").insert({ name: parsed.data.name, email: parsed.data.email, source: "advertise" });
+    }
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
     toast.success("Inquiry received. Our partnerships team will reply soon.");
-    (e.target as HTMLFormElement).reset();
+    setForm({ brand: "", name: "", email: "", budget: "", message: "" });
   };
+
+  const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
   return (
     <SiteLayout>
@@ -44,17 +69,17 @@ const Advertise = () => {
         <form onSubmit={onSubmit} className="bg-surface/40 border border-border p-8 md:p-10 max-w-3xl mx-auto">
           <div className="font-display text-3xl uppercase mb-6">Inquiry Form</div>
           <div className="grid sm:grid-cols-2 gap-5">
-            <F label="Brand / Company" name="brand" required />
-            <F label="Contact Name" name="name" required />
-            <F label="Email" name="email" type="email" required />
-            <F label="Budget Range" name="budget" />
+            <F label="Brand / Company" required value={form.brand} onChange={(v) => set("brand", v)} />
+            <F label="Contact Name" required value={form.name} onChange={(v) => set("name", v)} />
+            <F label="Email" type="email" required value={form.email} onChange={(v) => set("email", v)} />
+            <F label="Budget Range" value={form.budget} onChange={(v) => set("budget", v)} />
             <div className="sm:col-span-2">
               <Label className="eyebrow mb-2 block">Tell us about your campaign *</Label>
-              <Textarea name="msg" rows={5} required className="bg-background border-border rounded-sm" />
+              <Textarea value={form.message} onChange={(e) => set("message", e.target.value)} rows={5} required className="bg-background border-border rounded-sm" />
             </div>
           </div>
-          <Button type="submit" className="mt-6 h-12 px-8 rounded-sm uppercase tracking-widest text-xs bg-primary text-primary-foreground hover:bg-primary/90">
-            Submit Inquiry
+          <Button type="submit" disabled={busy} className="mt-6 h-12 px-8 rounded-sm uppercase tracking-widest text-xs bg-primary text-primary-foreground hover:bg-primary/90">
+            {busy ? "Sending…" : "Submit Inquiry"}
           </Button>
         </form>
       </section>
@@ -62,10 +87,10 @@ const Advertise = () => {
   );
 };
 
-const F = ({ label, name, type = "text", required }: { label: string; name: string; type?: string; required?: boolean }) => (
+const F = ({ label, type = "text", required, value, onChange }: { label: string; type?: string; required?: boolean; value: string; onChange: (v: string) => void }) => (
   <div>
-    <Label htmlFor={name} className="eyebrow mb-2 block">{label}{required && " *"}</Label>
-    <Input id={name} name={name} type={type} required={required} className="h-12 bg-background border-border rounded-sm" />
+    <Label className="eyebrow mb-2 block">{label}{required && " *"}</Label>
+    <Input type={type} required={required} value={value} onChange={(e) => onChange(e.target.value)} className="h-12 bg-background border-border rounded-sm" />
   </div>
 );
 

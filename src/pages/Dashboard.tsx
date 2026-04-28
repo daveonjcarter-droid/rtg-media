@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LayoutDashboard, FileEdit, Inbox, RotateCcw, CheckCircle2, Calendar, Image as ImageIcon, Users, Plus, Copy, Instagram, Twitter, LogOut, Send, ArrowRight } from "lucide-react";
+import { LayoutDashboard, FileEdit, Inbox, RotateCcw, CheckCircle2, Calendar, Image as ImageIcon, Users, Plus, Copy, Instagram, Twitter, LogOut, Send, ArrowRight, Briefcase, Mail, Archive, Youtube } from "lucide-react";
 import logo from "@/assets/rtg-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,7 +34,7 @@ type Article = {
   updated_at: string;
 };
 
-type SectionId = "overview" | "drafts" | "submitted" | "revisions" | "published" | "calendar" | "media" | "social" | "users";
+type SectionId = "overview" | "drafts" | "submitted" | "revisions" | "published" | "calendar" | "media" | "social" | "bookings" | "leads" | "users";
 
 const ALL_NAV: { id: SectionId; label: string; icon: any; roles: AppRole[] }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard, roles: ["admin", "editor", "writer", "social_manager"] },
@@ -45,6 +45,8 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; roles: AppRole[] }[] =
   { id: "calendar", label: "Calendar", icon: Calendar, roles: ["admin", "editor", "social_manager"] },
   { id: "media", label: "Media Library", icon: ImageIcon, roles: ["admin", "editor", "writer"] },
   { id: "social", label: "Social", icon: Instagram, roles: ["admin", "editor", "social_manager"] },
+  { id: "bookings", label: "Bookings", icon: Briefcase, roles: ["admin", "editor"] },
+  { id: "leads", label: "Leads", icon: Mail, roles: ["admin", "editor"] },
   { id: "users", label: "Users", icon: Users, roles: ["admin"] },
 ];
 
@@ -174,6 +176,8 @@ const Dashboard = () => {
               {section === "calendar" && <CalendarView articles={filtered(["approved", "published"])} />}
               {section === "media" && <MediaLibrary />}
               {section === "social" && <SocialKit articles={filtered(["published"])} />}
+              {section === "bookings" && <BookingsView />}
+              {section === "leads" && <LeadsView />}
               {section === "users" && <UsersView />}
             </>
           )}
@@ -346,12 +350,73 @@ const MediaLibrary = () => (
   </div>
 );
 
+type Platform = "instagram" | "tiktok" | "x" | "youtube";
+type SocialPostStatus = "draft" | "ready" | "posted";
+type SocialPost = { id: string; article_id: string; platform: Platform; caption: string | null; status: SocialPostStatus; posted_at: string | null };
+
+const PLATFORMS: { id: Platform; label: string; icon: any }[] = [
+  { id: "instagram", label: "Instagram", icon: Instagram },
+  { id: "tiktok", label: "TikTok", icon: Send },
+  { id: "x", label: "X", icon: Twitter },
+  { id: "youtube", label: "YouTube", icon: Youtube },
+];
+
+const SOCIAL_STATUS_COLOR: Record<SocialPostStatus, string> = {
+  draft: "bg-muted text-muted-foreground",
+  ready: "bg-gold/20 text-gold",
+  posted: "bg-emerald-500/20 text-emerald-400",
+};
+
+const defaultCaption = (a: Article, p: Platform) => {
+  const base = a.excerpt ?? a.title;
+  const tag = "#RTGMedia #Chicago";
+  if (p === "x") return `${a.title}\n\nrtgmedia.com/articles/${a.id}\n${tag}`;
+  if (p === "youtube") return `${a.title}\n\n${base}\n\nWatch & read more at rtgmedia.com.`;
+  return `${base}\n\nFull story → rtgmedia.com/articles/${a.id}\n\n${tag}`;
+};
+
 const SocialKit = ({ articles }: { articles: Article[] }) => {
   const [selected, setSelected] = useState<Article | null>(articles[0] ?? null);
-  useEffect(() => { if (!selected && articles[0]) setSelected(articles[0]); }, [articles, selected]);
-  if (!selected) return <div className="border border-dashed border-border p-16 text-center text-muted-foreground">Publish an article to generate social content.</div>;
+  const [posts, setPosts] = useState<SocialPost[]>([]);
+  const [platform, setPlatform] = useState<Platform>("instagram");
+  const [caption, setCaption] = useState("");
+  const [status, setStatus] = useState<SocialPostStatus>("draft");
+  const [busy, setBusy] = useState(false);
 
-  const caption = `${selected.excerpt ?? selected.title}\n\nFull story at rtgmedia.com/articles/${selected.id}\n\n#RTGMedia #Chicago`;
+  useEffect(() => { if (!selected && articles[0]) setSelected(articles[0]); }, [articles, selected]);
+
+  const loadPosts = async (articleId: string) => {
+    const { data } = await supabase.from("social_posts").select("*").eq("article_id", articleId);
+    setPosts((data ?? []) as SocialPost[]);
+  };
+
+  useEffect(() => { if (selected) loadPosts(selected.id); }, [selected]);
+
+  // Hydrate the editor with the post for the active article+platform (or default caption)
+  useEffect(() => {
+    if (!selected) return;
+    const existing = posts.find((p) => p.platform === platform);
+    setCaption(existing?.caption ?? defaultCaption(selected, platform));
+    setStatus(existing?.status ?? "draft");
+  }, [selected, platform, posts]);
+
+  if (!selected) return <div className="border border-dashed border-border p-16 text-center text-muted-foreground">Publish an article to start the social pipeline.</div>;
+
+  const save = async (newStatus?: SocialPostStatus) => {
+    setBusy(true);
+    const finalStatus = newStatus ?? status;
+    const payload: any = {
+      article_id: selected.id, platform, caption, status: finalStatus,
+      posted_at: finalStatus === "posted" ? new Date().toISOString() : null,
+    };
+    const { error } = await supabase.from("social_posts").upsert(payload, { onConflict: "article_id,platform" });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success(newStatus ? `Marked ${newStatus}` : "Saved");
+    if (newStatus) setStatus(newStatus);
+    loadPosts(selected.id);
+  };
+
   const variations = [
     selected.title,
     `Inside: ${selected.title}`,
@@ -359,10 +424,11 @@ const SocialKit = ({ articles }: { articles: Article[] }) => {
   ];
 
   return (
-    <div className="grid lg:grid-cols-[260px_1fr_320px] gap-6">
+    <div className="grid lg:grid-cols-[260px_1fr_300px] gap-6">
+      {/* Article picker */}
       <div>
         <SectionTitle title="Published" />
-        <div className="border border-border divide-y divide-border">
+        <div className="border border-border divide-y divide-border max-h-[70vh] overflow-y-auto">
           {articles.map((a) => (
             <button key={a.id} onClick={() => setSelected(a)} className={`w-full text-left p-3 ${selected.id === a.id ? "bg-surface" : "hover:bg-surface/40"}`}>
               <div className="text-sm font-medium truncate">{a.title}</div>
@@ -371,25 +437,47 @@ const SocialKit = ({ articles }: { articles: Article[] }) => {
           ))}
         </div>
       </div>
+
+      {/* Editor */}
       <div>
-        <SectionTitle title="Auto-Generated Caption" />
-        <div className="border border-border p-6 bg-surface/40">
-          {selected.cover_image_url && <img src={selected.cover_image_url} alt="" className="aspect-square w-full object-cover mb-4" />}
-          <div className="font-display text-xl uppercase">{selected.title}</div>
-          <div className="eyebrow mt-4 mb-2">Caption</div>
-          <pre className="bg-background border border-border p-4 text-sm whitespace-pre-wrap font-sans rounded-sm">{caption}</pre>
-          <div className="flex flex-wrap gap-2 mt-4">
+        <SectionTitle title={selected.title} />
+        {/* Platform tabs */}
+        <div className="flex gap-2 mb-4 flex-wrap">
+          {PLATFORMS.map((p) => {
+            const post = posts.find((x) => x.platform === p.id);
+            return (
+              <button key={p.id} onClick={() => setPlatform(p.id)}
+                className={`flex items-center gap-2 px-4 h-10 rounded-sm text-xs uppercase tracking-widest border transition-colors ${
+                  platform === p.id ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-foreground"
+                }`}>
+                <p.icon className="h-3.5 w-3.5" /> {p.label}
+                {post && <span className={`text-[9px] px-1.5 py-0.5 rounded-sm ${SOCIAL_STATUS_COLOR[post.status]}`}>{post.status}</span>}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="border border-border p-6 bg-surface/40 space-y-4">
+          {selected.cover_image_url && <img src={selected.cover_image_url} alt="" className="aspect-video w-full object-cover" />}
+          <div>
+            <Label className="eyebrow mb-2 block">Caption ({platform})</Label>
+            <Textarea rows={6} value={caption} onChange={(e) => setCaption(e.target.value)} className="bg-background border-border rounded-sm font-sans text-sm" />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={() => save()} disabled={busy} className="rounded-sm uppercase tracking-widest text-xs bg-secondary text-foreground hover:bg-secondary/80">Save Draft</Button>
+            <Button onClick={() => save("ready")} disabled={busy} className="rounded-sm uppercase tracking-widest text-xs bg-gold text-ink hover:bg-gold/90">Mark Ready</Button>
+            <Button onClick={() => save("posted")} disabled={busy} className="rounded-sm uppercase tracking-widest text-xs bg-primary text-primary-foreground hover:bg-primary/90">Mark Posted</Button>
             <Button onClick={() => { navigator.clipboard.writeText(caption); toast.success("Copied"); }} variant="outline" className="rounded-sm uppercase tracking-widest text-xs">
               <Copy className="h-3.5 w-3.5 mr-1.5" /> Copy
             </Button>
-            <Button onClick={() => toast.success("Marked posted on IG")} variant="outline" className="rounded-sm uppercase tracking-widest text-xs"><Instagram className="h-3.5 w-3.5 mr-1.5" /> IG</Button>
-            <Button onClick={() => toast.success("Marked posted on TikTok")} variant="outline" className="rounded-sm uppercase tracking-widest text-xs">TikTok</Button>
-            <Button onClick={() => toast.success("Marked posted on X")} variant="outline" className="rounded-sm uppercase tracking-widest text-xs"><Twitter className="h-3.5 w-3.5 mr-1.5" /> X</Button>
           </div>
+          <div className="text-[10px] text-muted-foreground uppercase tracking-widest">Pipeline: Draft → Ready → Posted</div>
         </div>
       </div>
+
+      {/* Headline variations */}
       <div>
-        <SectionTitle title="Headline Variations" />
+        <SectionTitle title="Headlines" />
         <ul className="space-y-3 text-sm">
           {variations.map((h) => (
             <li key={h} className="border border-border p-4 flex items-center gap-3">
@@ -401,6 +489,239 @@ const SocialKit = ({ articles }: { articles: Article[] }) => {
           ))}
         </ul>
       </div>
+    </div>
+  );
+};
+
+// ---------- Bookings ----------
+type BookingStatus = "new" | "contacted" | "negotiating" | "booked" | "completed" | "declined";
+type Booking = {
+  id: string; name: string; email: string; phone: string; service: string | null;
+  shoot_type: "studio" | "location" | "hybrid" | null; budget: string | null;
+  project_date: string | null; description: string | null; location_detail: string | null;
+  studio_preference: string | null; reference_link: string | null; preferred_contact: string;
+  status: BookingStatus; notes: string | null; archived: boolean;
+  base_cost: number; studio_cost: number; travel_cost: number; equipment_cost: number;
+  created_at: string;
+};
+
+const BOOKING_STATUS_COLOR: Record<BookingStatus, string> = {
+  new: "bg-primary/20 text-primary",
+  contacted: "bg-gold/20 text-gold",
+  negotiating: "bg-cream/20 text-cream",
+  booked: "bg-emerald-500/20 text-emerald-400",
+  completed: "bg-emerald-500/30 text-emerald-300",
+  declined: "bg-muted text-muted-foreground",
+};
+
+const BookingsView = () => {
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showArchived, setShowArchived] = useState(false);
+  const [active, setActive] = useState<Booking | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.from("bookings").select("*").order("created_at", { ascending: false });
+    if (error) toast.error(error.message);
+    setBookings((data ?? []) as Booking[]);
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, []);
+
+  const update = async (id: string, patch: Partial<Booking>) => {
+    const { error } = await supabase.from("bookings").update(patch as any).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Updated");
+    load();
+    if (active?.id === id) setActive((a) => (a ? { ...a, ...patch } : a));
+  };
+
+  const visible = bookings.filter((b) => b.archived === showArchived);
+
+  if (loading) return <div className="text-muted-foreground">Loading…</div>;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <SectionTitle title={showArchived ? "Archived Bookings" : "Bookings"} />
+        <div className="flex gap-2">
+          <Button onClick={() => setShowArchived(false)} variant={showArchived ? "outline" : "default"} size="sm" className="rounded-sm text-xs uppercase tracking-widest">Active ({bookings.filter((b) => !b.archived).length})</Button>
+          <Button onClick={() => setShowArchived(true)} variant={showArchived ? "default" : "outline"} size="sm" className="rounded-sm text-xs uppercase tracking-widest">Archived</Button>
+        </div>
+      </div>
+
+      {visible.length === 0 ? (
+        <div className="border border-dashed border-border p-16 text-center text-muted-foreground">No bookings here.</div>
+      ) : (
+        <div className="border border-border divide-y divide-border">
+          {visible.map((b) => (
+            <div key={b.id} className="p-4 flex items-center gap-4 flex-wrap hover:bg-surface/40 transition-colors">
+              <div className="flex-1 min-w-[220px]">
+                <div className="font-display text-base uppercase">{b.name}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">{b.service ?? "—"} · {b.shoot_type ?? "—"} · {b.budget ?? "—"}</div>
+                <div className="text-xs text-muted-foreground">{b.email} · {b.phone}</div>
+              </div>
+              <span className={`text-[10px] uppercase tracking-widest px-2 py-1 rounded-sm ${BOOKING_STATUS_COLOR[b.status]}`}>{b.status}</span>
+              <div className="text-xs text-muted-foreground">{new Date(b.created_at).toLocaleDateString()}</div>
+              <Button size="sm" variant="outline" onClick={() => setActive(b)} className="rounded-sm text-xs uppercase tracking-widest">Open</Button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {active && <BookingDrawer booking={active} onClose={() => setActive(null)} onUpdate={(patch) => update(active.id, patch)} />}
+    </div>
+  );
+};
+
+const BookingDrawer = ({ booking, onClose, onUpdate }: { booking: Booking; onClose: () => void; onUpdate: (patch: Partial<Booking>) => void }) => {
+  const [notes, setNotes] = useState(booking.notes ?? "");
+  const [costs, setCosts] = useState({
+    base_cost: booking.base_cost, studio_cost: booking.studio_cost,
+    travel_cost: booking.travel_cost, equipment_cost: booking.equipment_cost,
+  });
+  const total = Object.values(costs).reduce((s, v) => s + Number(v || 0), 0);
+
+  return (
+    <div className="fixed inset-0 bg-ink/80 backdrop-blur z-50 flex items-stretch justify-end">
+      <div className="w-full max-w-2xl bg-background border-l border-border overflow-y-auto">
+        <div className="sticky top-0 bg-background border-b border-border p-5 flex items-center justify-between z-10">
+          <div>
+            <div className="eyebrow">Booking</div>
+            <div className="font-display text-2xl uppercase">{booking.name}</div>
+          </div>
+          <Button variant="outline" onClick={onClose} className="rounded-sm uppercase tracking-widest text-xs">Close</Button>
+        </div>
+        <div className="p-6 space-y-6">
+          {/* Status */}
+          <div>
+            <Label className="eyebrow mb-2 block">Status</Label>
+            <div className="flex flex-wrap gap-2">
+              {(["new", "contacted", "negotiating", "booked", "completed", "declined"] as BookingStatus[]).map((s) => (
+                <button key={s} onClick={() => onUpdate({ status: s })}
+                  className={`text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-sm border ${
+                    booking.status === s ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-foreground"
+                  }`}>{s}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Client */}
+          <div className="border border-border p-4 bg-surface/40 text-sm space-y-1">
+            <div><span className="eyebrow mr-2">Email</span>{booking.email}</div>
+            <div><span className="eyebrow mr-2">Phone</span>{booking.phone}</div>
+            <div><span className="eyebrow mr-2">Prefers</span>{booking.preferred_contact}</div>
+          </div>
+
+          {/* Project */}
+          <div className="border border-border p-4 bg-surface/40 text-sm space-y-1">
+            <div><span className="eyebrow mr-2">Service</span>{booking.service ?? "—"}</div>
+            <div><span className="eyebrow mr-2">Shoot</span>{booking.shoot_type ?? "—"}</div>
+            <div><span className="eyebrow mr-2">Date</span>{booking.project_date ?? "—"}</div>
+            <div><span className="eyebrow mr-2">Budget</span>{booking.budget ?? "—"}</div>
+            {booking.location_detail && <div><span className="eyebrow mr-2">Location</span>{booking.location_detail}</div>}
+            {booking.studio_preference && <div><span className="eyebrow mr-2">Studio</span>{booking.studio_preference}</div>}
+            {booking.reference_link && <div><span className="eyebrow mr-2">Reference</span><a className="text-primary underline" href={booking.reference_link} target="_blank" rel="noreferrer">link</a></div>}
+            <div className="pt-2"><span className="eyebrow mr-2">Brief</span><p className="mt-1 whitespace-pre-wrap text-muted-foreground">{booking.description}</p></div>
+          </div>
+
+          {/* Pricing */}
+          <div>
+            <Label className="eyebrow mb-2 block">Pricing Breakdown</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {(["base_cost", "studio_cost", "travel_cost", "equipment_cost"] as const).map((k) => (
+                <div key={k}>
+                  <Label className="text-xs text-muted-foreground capitalize">{k.replace("_", " ").replace(" cost", "")}</Label>
+                  <Input type="number" min="0" value={costs[k]} onChange={(e) => setCosts((c) => ({ ...c, [k]: Number(e.target.value) }))} className="h-10 bg-background border-border rounded-sm" />
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+              <span className="font-display text-lg uppercase">Total</span>
+              <span className="font-display text-2xl text-primary">${total.toLocaleString()}</span>
+            </div>
+            <Button onClick={() => onUpdate(costs)} className="mt-3 rounded-sm uppercase tracking-widest text-xs bg-secondary text-foreground hover:bg-secondary/80">Save Pricing</Button>
+          </div>
+
+          {/* Notes */}
+          <div>
+            <Label className="eyebrow mb-2 block">Internal Notes</Label>
+            <Textarea rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} className="bg-background border-border rounded-sm" />
+            <Button onClick={() => onUpdate({ notes })} className="mt-2 rounded-sm uppercase tracking-widest text-xs bg-secondary text-foreground hover:bg-secondary/80">Save Notes</Button>
+          </div>
+
+          {/* Archive */}
+          <div className="border-t border-border pt-4 flex justify-end">
+            <Button onClick={() => { onUpdate({ archived: !booking.archived }); onClose(); }} variant="outline" className="rounded-sm uppercase tracking-widest text-xs">
+              <Archive className="h-3.5 w-3.5 mr-1.5" /> {booking.archived ? "Unarchive" : "Archive"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ---------- Leads ----------
+type Lead = { id: string; name: string | null; email: string; phone: string | null; source: string; notes: string | null; archived: boolean; created_at: string };
+
+const LeadsView = () => {
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filterSource, setFilterSource] = useState<string>("all");
+
+  const load = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.from("leads").select("*").eq("archived", false).order("created_at", { ascending: false });
+    if (error) toast.error(error.message);
+    setLeads((data ?? []) as Lead[]);
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, []);
+
+  const archive = async (id: string) => {
+    const { error } = await supabase.from("leads").update({ archived: true } as any).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Archived");
+    load();
+  };
+
+  const sources = ["all", "booking", "newsletter", "advertise", "contact", "other"];
+  const visible = filterSource === "all" ? leads : leads.filter((l) => l.source === filterSource);
+
+  if (loading) return <div className="text-muted-foreground">Loading…</div>;
+
+  return (
+    <div>
+      <SectionTitle title="Leads & Contacts" />
+      <div className="flex flex-wrap gap-2 mb-4">
+        {sources.map((s) => (
+          <button key={s} onClick={() => setFilterSource(s)}
+            className={`px-3 py-1.5 text-[10px] uppercase tracking-widest border rounded-sm ${
+              filterSource === s ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-foreground"
+            }`}>{s} {s !== "all" && `(${leads.filter((l) => l.source === s).length})`}</button>
+        ))}
+      </div>
+      {visible.length === 0 ? (
+        <div className="border border-dashed border-border p-16 text-center text-muted-foreground">No leads yet.</div>
+      ) : (
+        <div className="border border-border divide-y divide-border">
+          {visible.map((l) => (
+            <div key={l.id} className="flex items-center gap-4 p-4 flex-wrap hover:bg-surface/40 transition-colors">
+              <div className="flex-1 min-w-[200px]">
+                <div className="font-medium">{l.name ?? "—"}</div>
+                <div className="text-xs text-muted-foreground">{l.email}{l.phone && ` · ${l.phone}`}</div>
+              </div>
+              <span className="text-[10px] uppercase tracking-widest bg-secondary px-2 py-1 rounded-sm">{l.source}</span>
+              <div className="text-xs text-muted-foreground">{new Date(l.created_at).toLocaleDateString()}</div>
+              <Button size="sm" variant="outline" onClick={() => archive(l.id)} className="rounded-sm text-xs uppercase tracking-widest">
+                <Archive className="h-3 w-3 mr-1" /> Archive
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
