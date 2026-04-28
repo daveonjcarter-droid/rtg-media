@@ -277,6 +277,3 @@
   }
 }
 
-@layer utilities {
-  .task task::-webkit-scrollbar { display: none; }
-}
