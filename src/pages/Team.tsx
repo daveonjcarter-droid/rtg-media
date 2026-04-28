@@ -15,7 +15,7 @@ const Team = () => (
   <SiteLayout>
     <section className="container-rtg pt-16 md:pt-20 pb-10 border-b border-border">
       <div className="eyebrow mb-3">The People Behind The Brand</div>
-      <h1 className="font-display text-5xl md:text-7xl uppercase leading-none">The Team</h1>
+      <h1 className="text-5xl md:text-7xl uppercase leading-none font-mono">The Team</h1>
       <p className="mt-5 max-w-xl text-muted-foreground">A collective of writers, directors, photographers, and producers building the next great cultural media brand out of Chicago.</p>
     </section>
 

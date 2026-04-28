@@ -50,7 +50,7 @@ const Advertise = () => {
     <SiteLayout>
       <section className="container-rtg pt-16 md:pt-20 pb-10 border-b border-border">
         <div className="eyebrow mb-3">Partnerships</div>
-        <h1 className="font-display text-5xl md:text-7xl uppercase leading-none">Advertise<br />With RTG.</h1>
+        <h1 className="text-5xl md:text-7xl uppercase leading-none font-mono">Advertise<br />With RTG.</h1>
         <p className="mt-5 max-w-xl text-muted-foreground">Reach a culture-driven audience through editorial, video, and live experiences. Built for brands that want to move with the moment.</p>
       </section>
 
