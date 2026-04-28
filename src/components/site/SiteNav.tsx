@@ -73,6 +73,9 @@ const SiteNav = () => {
         </nav>
 
         <div className="flex items-center gap-3">
+          <Link to="/login" className="hidden md:inline-flex text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
+            Studio
+          </Link>
           <Button asChild variant="default" size="sm" className="hidden md:inline-flex bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm uppercase tracking-wider">
             <Link to="/book">Book Now</Link>
           </Button>
