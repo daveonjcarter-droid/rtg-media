@@ -32,7 +32,7 @@ const NewsletterForm = () => {
 
   return (
     <form onSubmit={onSubmit} className="bg-surface border border-border p-8 md:p-10">
-      <div className="font-display text-2xl uppercase mb-1">Join the movement</div>
+      <div className="text-2xl uppercase mb-1 font-mono">Join the movement</div>
       <div className="text-sm text-muted-foreground mb-6">Newsletter · Weekly</div>
       <div className="space-y-3">
         <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" className="h-12 bg-background border-border rounded-sm" />
