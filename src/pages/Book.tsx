@@ -78,7 +78,7 @@ const Book = () => {
     <SiteLayout>
       <section className="container-rtg pt-16 md:pt-20 pb-10 border-b border-border">
         <div className="eyebrow mb-3">Book RTG Media</div>
-        <h1 className="font-display text-5xl md:text-7xl uppercase leading-none">Start Your<br />Project.</h1>
+        <h1 className="text-5xl md:text-7xl uppercase leading-none font-mono">Start Your<br />Project.</h1>
         <p className="mt-5 max-w-xl text-muted-foreground">Tell us about your vision. From music videos and brand films to live events and editorial — we'll build the right team for the job.</p>
       </section>
 

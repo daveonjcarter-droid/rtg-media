@@ -12,7 +12,7 @@ const Portfolio = () => {
     <SiteLayout>
       <section className="container-rtg pt-16 md:pt-20 pb-10 border-b border-border">
         <div className="eyebrow mb-3">Selected Work</div>
-        <h1 className="font-display text-5xl md:text-7xl uppercase leading-none">Portfolio</h1>
+        <h1 className="text-5xl md:text-7xl uppercase leading-none font-mono">Portfolio</h1>
       </section>
 
       <section className="container-rtg py-8">
