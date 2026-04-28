@@ -34,7 +34,7 @@ type Article = {
   updated_at: string;
 };
 
-type SectionId = "overview" | "drafts" | "submitted" | "revisions" | "published" | "calendar" | "media" | "social" | "users";
+type SectionId = "overview" | "drafts" | "submitted" | "revisions" | "published" | "calendar" | "media" | "social" | "bookings" | "leads" | "users";
 
 const ALL_NAV: { id: SectionId; label: string; icon: any; roles: AppRole[] }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard, roles: ["admin", "editor", "writer", "social_manager"] },
@@ -45,6 +45,8 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; roles: AppRole[] }[] =
   { id: "calendar", label: "Calendar", icon: Calendar, roles: ["admin", "editor", "social_manager"] },
   { id: "media", label: "Media Library", icon: ImageIcon, roles: ["admin", "editor", "writer"] },
   { id: "social", label: "Social", icon: Instagram, roles: ["admin", "editor", "social_manager"] },
+  { id: "bookings", label: "Bookings", icon: Briefcase, roles: ["admin", "editor"] },
+  { id: "leads", label: "Leads", icon: Mail, roles: ["admin", "editor"] },
   { id: "users", label: "Users", icon: Users, roles: ["admin"] },
 ];
 
