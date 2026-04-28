@@ -26,15 +26,8 @@ const Index = () => {
     <SiteLayout>
       {/* ============ HERO — cinematic, asymmetric ============ */}
       <section className="relative min-h-[100svh] overflow-hidden bg-ink grain-heavy light-leak">
-        <img
-          src={heroImg}
-          alt="RTG Media videographer documenting Chicago at night"
-          className="absolute inset-0 w-full h-full object-cover ken-burns"
-          width={1600}
-          height={1280}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-ink/30" />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink/80 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-ink via-background to-ink" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,hsl(var(--primary)/0.18),transparent_60%)]" />
 
         {/* Side vertical label */}
         <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 right-6 z-20 items-center gap-3 text-cream/60">
