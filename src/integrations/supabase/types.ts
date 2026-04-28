@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      advertise_inquiries: {
+        Row: {
+          archived: boolean
+          brand: string
+          budget: string | null
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          status: Database["public"]["Enums"]["advertise_status"]
+        }
+        Insert: {
+          archived?: boolean
+          brand: string
+          budget?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          status?: Database["public"]["Enums"]["advertise_status"]
+        }
+        Update: {
+          archived?: boolean
+          brand?: string
+          budget?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          status?: Database["public"]["Enums"]["advertise_status"]
+        }
+        Relationships: []
+      }
       articles: {
         Row: {
           author_id: string
@@ -23,6 +59,9 @@ export type Database = {
           created_at: string
           excerpt: string | null
           id: string
+          is_featured: boolean
+          is_rtg_pick: boolean
+          is_trending: boolean
           published_at: string | null
           seo_description: string | null
           seo_title: string | null
@@ -40,6 +79,9 @@ export type Database = {
           created_at?: string
           excerpt?: string | null
           id?: string
+          is_featured?: boolean
+          is_rtg_pick?: boolean
+          is_trending?: boolean
           published_at?: string | null
           seo_description?: string | null
           seo_title?: string | null
@@ -57,6 +99,9 @@ export type Database = {
           created_at?: string
           excerpt?: string | null
           id?: string
+          is_featured?: boolean
+          is_rtg_pick?: boolean
+          is_trending?: boolean
           published_at?: string | null
           seo_description?: string | null
           seo_title?: string | null
@@ -65,6 +110,138 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      bookings: {
+        Row: {
+          archived: boolean
+          base_cost: number | null
+          budget: string | null
+          created_at: string
+          description: string | null
+          duration: string | null
+          email: string
+          equipment_cost: number | null
+          id: string
+          location_detail: string | null
+          name: string
+          notes: string | null
+          phone: string
+          preferred_contact: Database["public"]["Enums"]["contact_method"]
+          project_date: string | null
+          reference_link: string | null
+          service: string | null
+          shoot_type: Database["public"]["Enums"]["shoot_type"] | null
+          status: Database["public"]["Enums"]["booking_status"]
+          studio_cost: number | null
+          studio_preference: string | null
+          travel_cost: number | null
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          base_cost?: number | null
+          budget?: string | null
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          email: string
+          equipment_cost?: number | null
+          id?: string
+          location_detail?: string | null
+          name: string
+          notes?: string | null
+          phone: string
+          preferred_contact?: Database["public"]["Enums"]["contact_method"]
+          project_date?: string | null
+          reference_link?: string | null
+          service?: string | null
+          shoot_type?: Database["public"]["Enums"]["shoot_type"] | null
+          status?: Database["public"]["Enums"]["booking_status"]
+          studio_cost?: number | null
+          studio_preference?: string | null
+          travel_cost?: number | null
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          base_cost?: number | null
+          budget?: string | null
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          email?: string
+          equipment_cost?: number | null
+          id?: string
+          location_detail?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string
+          preferred_contact?: Database["public"]["Enums"]["contact_method"]
+          project_date?: string | null
+          reference_link?: string | null
+          service?: string | null
+          shoot_type?: Database["public"]["Enums"]["shoot_type"] | null
+          status?: Database["public"]["Enums"]["booking_status"]
+          studio_cost?: number | null
+          studio_preference?: string | null
+          travel_cost?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      leads: {
+        Row: {
+          archived: boolean
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          notes: string | null
+          phone: string | null
+          source: Database["public"]["Enums"]["lead_source"]
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          notes?: string | null
+          phone?: string | null
+          source?: Database["public"]["Enums"]["lead_source"]
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          notes?: string | null
+          phone?: string | null
+          source?: Database["public"]["Enums"]["lead_source"]
+        }
+        Relationships: []
+      }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
         }
         Relationships: []
       }
@@ -94,6 +271,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      social_posts: {
+        Row: {
+          article_id: string
+          caption: string | null
+          created_at: string
+          id: string
+          platform: Database["public"]["Enums"]["social_platform"]
+          posted_at: string | null
+          status: Database["public"]["Enums"]["social_status"]
+          updated_at: string
+        }
+        Insert: {
+          article_id: string
+          caption?: string | null
+          created_at?: string
+          id?: string
+          platform: Database["public"]["Enums"]["social_platform"]
+          posted_at?: string | null
+          status?: Database["public"]["Enums"]["social_status"]
+          updated_at?: string
+        }
+        Update: {
+          article_id?: string
+          caption?: string | null
+          created_at?: string
+          id?: string
+          platform?: Database["public"]["Enums"]["social_platform"]
+          posted_at?: string | null
+          status?: Database["public"]["Enums"]["social_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_posts_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -134,6 +352,7 @@ export type Database = {
       }
     }
     Enums: {
+      advertise_status: "new" | "in_review" | "accepted" | "declined"
       app_role: "admin" | "editor" | "writer" | "social_manager"
       article_status:
         | "draft"
@@ -141,6 +360,18 @@ export type Database = {
         | "revisions"
         | "approved"
         | "published"
+      booking_status:
+        | "new"
+        | "contacted"
+        | "negotiating"
+        | "booked"
+        | "completed"
+        | "declined"
+      contact_method: "email" | "phone" | "text"
+      lead_source: "booking" | "newsletter" | "advertise" | "contact" | "other"
+      shoot_type: "studio" | "location" | "hybrid"
+      social_platform: "instagram" | "tiktok" | "x" | "youtube"
+      social_status: "draft" | "ready" | "posted"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -268,6 +499,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      advertise_status: ["new", "in_review", "accepted", "declined"],
       app_role: ["admin", "editor", "writer", "social_manager"],
       article_status: [
         "draft",
@@ -276,6 +508,19 @@ export const Constants = {
         "approved",
         "published",
       ],
+      booking_status: [
+        "new",
+        "contacted",
+        "negotiating",
+        "booked",
+        "completed",
+        "declined",
+      ],
+      contact_method: ["email", "phone", "text"],
+      lead_source: ["booking", "newsletter", "advertise", "contact", "other"],
+      shoot_type: ["studio", "location", "hybrid"],
+      social_platform: ["instagram", "tiktok", "x", "youtube"],
+      social_status: ["draft", "ready", "posted"],
     },
   },
 } as const
