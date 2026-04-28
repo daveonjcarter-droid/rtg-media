@@ -29,9 +29,7 @@ const SiteNav = () => {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <div className="container-rtg flex h-16 items-center justify-between gap-6">
-        <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="RTG Media">
-          <img src={logo} alt="RTG Media" className="h-9 w-auto invert" width={80} height={36} />
-        </Link>
+        <Logo tone="auto" className="h-9" to="/" ariaLabel="RTG Media" />
 
         <nav className="hidden lg:flex items-center gap-7 text-sm">
           {NAV.map((n) => (
