@@ -115,14 +115,22 @@
   }
 }
 
+@font-face {
+  font-family: "Iceland Winterstorm";
+  src: url("/src/assets/fonts/IcelandWinterstorm.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer utilities {
   .font-gothic {
-    font-family: "UnifrakturCook", serif;
+    font-family: "Iceland Winterstorm", "UnifrakturCook", serif;
     letter-spacing: 0.02em;
   }
   .font-display {
-    font-family: "Bebas Neue", sans-serif;
-    letter-spacing: 0.01em;
+    font-family: "Iceland Winterstorm", "Bebas Neue", sans-serif;
+    letter-spacing: 0.04em;
   }
 
   .container-rtg {
