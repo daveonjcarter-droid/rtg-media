@@ -6,7 +6,7 @@ import {
   Youtube, Search, Bell, ChevronsLeft, ChevronsRight, MoreHorizontal, Eye, Pencil, Trash2,
   Replace, Link as LinkIcon, Upload, Filter, ArrowUpDown, X, Tag, FolderInput, CheckSquare,
 } from "lucide-react";
-import logo from "@/assets/rtg-logo.png";
+import logoLight from "@/assets/rtg-logo-light.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -149,7 +149,7 @@ const Dashboard = () => {
         className={`${collapsed ? "w-[64px]" : "w-[220px]"} shrink-0 border-r border-border bg-sidebar hidden lg:flex flex-col transition-[width] duration-200`}
       >
         <Link to="/" className={`h-14 border-b border-border flex items-center gap-2 ${collapsed ? "justify-center px-0" : "px-4"}`}>
-          <img src={logo} alt="RTG" className="h-6 invert" />
+          <img src={logoLight} alt="RTG" className="h-6 " />
           {!collapsed && <span className="font-display text-xs uppercase tracking-[0.25em]">Studio</span>}
         </Link>
 

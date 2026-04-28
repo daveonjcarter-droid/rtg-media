@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import logo from "@/assets/rtg-logo.png";
+import logoLight from "@/assets/rtg-logo-light.png";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -19,7 +19,7 @@ const ForgotPassword = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-8">
       <form onSubmit={onSubmit} className="w-full max-w-sm space-y-6">
-        <Link to="/" className="flex justify-center mb-4"><img src={logo} alt="RTG" className="h-10 invert" /></Link>
+        <Link to="/" className="flex justify-center mb-4"><img src={logoLight} alt="RTG" className="h-10 " /></Link>
         <div className="text-center">
           <div className="eyebrow text-primary">Reset</div>
           <h2 className="font-display text-3xl uppercase mt-1">Forgot Password</h2>
