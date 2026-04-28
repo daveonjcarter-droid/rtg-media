@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LayoutDashboard, FileEdit, Inbox, RotateCcw, CheckCircle2, Calendar, Image as ImageIcon, Users, Plus, Copy, Instagram, Twitter, LogOut, Send, ArrowRight } from "lucide-react";
+import { LayoutDashboard, FileEdit, Inbox, RotateCcw, CheckCircle2, Calendar, Image as ImageIcon, Users, Plus, Copy, Instagram, Twitter, LogOut, Send, ArrowRight, Briefcase, Mail, Archive, Youtube } from "lucide-react";
 import logo from "@/assets/rtg-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
