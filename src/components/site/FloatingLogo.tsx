@@ -16,7 +16,7 @@ const FloatingLogo = () => {
         <span className="font-display text-[1.45rem] md:text-[2.05rem] leading-[0.82] tracking-[0.08em]">MEDIA</span>
         <span className="mt-1 font-gothic text-[0.82rem] md:text-[1.04rem] leading-[0.9] tracking-normal whitespace-nowrap">Runners To Greatness</span>
         <span className="mt-1 flex w-full items-center justify-between font-display text-[0.62rem] md:text-[0.78rem] leading-none tracking-[0.12em] uppercase">
-          <span>Est. 2024</span>
+          <span> </span>
           <span>Chicago</span>
         </span>
       </span>
