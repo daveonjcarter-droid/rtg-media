@@ -176,6 +176,8 @@ const Dashboard = () => {
               {section === "calendar" && <CalendarView articles={filtered(["approved", "published"])} />}
               {section === "media" && <MediaLibrary />}
               {section === "social" && <SocialKit articles={filtered(["published"])} />}
+              {section === "bookings" && <BookingsView />}
+              {section === "leads" && <LeadsView />}
               {section === "users" && <UsersView />}
             </>
           )}
