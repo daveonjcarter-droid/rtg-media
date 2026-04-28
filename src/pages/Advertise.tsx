@@ -34,7 +34,7 @@ const Advertise = () => {
     const parsed = schema.safeParse(form);
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     setBusy(true);
-    const { error } = await supabase.from("advertise_inquiries").insert({ ...parsed.data, budget: parsed.data.budget || null });
+    const { error } = await supabase.from("advertise_inquiries").insert({ ...parsed.data, budget: parsed.data.budget || null } as any);
     if (!error) {
       await supabase.from("leads").insert({ name: parsed.data.name, email: parsed.data.email, source: "advertise" });
     }

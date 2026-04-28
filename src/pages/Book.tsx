@@ -60,7 +60,7 @@ const Book = () => {
       studio_preference: shootType === "location" ? null : parsed.data.studio_preference || null,
     };
 
-    const { error } = await supabase.from("bookings").insert(payload);
+    const { error } = await supabase.from("bookings").insert(payload as any);
     if (!error) {
       // Best-effort lead capture (non-blocking)
       await supabase.from("leads").insert({
