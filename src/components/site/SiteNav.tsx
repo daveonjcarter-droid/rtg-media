@@ -1,7 +1,7 @@
 import { Link, NavLink } from "react-router-dom";
 import { useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
-import logo from "@/assets/rtg-logo.png";
+import Logo from "./Logo";
 import { Button } from "@/components/ui/button";
 
 const NAV = [
