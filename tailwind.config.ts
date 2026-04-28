@@ -16,6 +16,9 @@ export default {
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         display: ['"Bebas Neue"', 'Inter', 'sans-serif'],
+        condensed: ['Anton', '"Bebas Neue"', 'sans-serif'],
+        wide: ['"Archivo Black"', 'Archivo', 'Inter', 'sans-serif'],
+        editorial: ['Archivo', 'Inter', 'sans-serif'],
         gothic: ['"UnifrakturCook"', 'serif'],
       },
       colors: {
