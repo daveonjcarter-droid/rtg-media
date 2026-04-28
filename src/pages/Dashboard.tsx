@@ -739,8 +739,8 @@ const MediaLibrary = () => {
       {filtered.length === 0 ? (
         <EmptyState
           icon={ImageIcon}
-          title={items.length === 0 ? "Upload your first media asset." : "No media matches your filters."}
-          body={items.length === 0 ? "Drag & drop, or use the upload button to add photos, videos, and audio to your library." : "Try clearing search or changing the category."}
+          title={items.length === 0 ? "No media uploaded yet" : "No media matches your filters."}
+          body={items.length === 0 ? "Upload your first asset to begin." : "Try clearing search or changing the category."}
           action={items.length === 0 ? (
             <Button size="sm" onClick={() => setUploadOpen(true)} className="rounded-sm uppercase tracking-widest text-[10px] h-8 px-4 bg-primary text-primary-foreground">
               <Upload className="h-3 w-3 mr-1.5" /> Upload Media
