@@ -107,6 +107,16 @@
   body {
     @apply bg-background text-foreground font-sans;
     font-feature-settings: "ss01", "cv11";
+    font-size: 17px;
+    line-height: 1.65;
+  }
+
+  p {
+    line-height: 1.7;
+  }
+
+  p + p {
+    margin-top: 1em;
   }
 
   ::selection {
@@ -124,13 +134,16 @@
 }
 
 @layer utilities {
+  /* RTG branding only — logos, stamps, drops. Never for body or labels. */
   .font-gothic {
     font-family: "Iceland Winterstorm", "UnifrakturCook", serif;
     letter-spacing: 0.02em;
   }
+  /* Headline display font — cinematic, condensed, readable. */
   .font-display {
-    font-family: "Iceland Winterstorm", "Bebas Neue", sans-serif;
+    font-family: 'Bebas Neue', 'Anton', 'Archivo Black', Inter, sans-serif;
     letter-spacing: 0.04em;
+    font-weight: 400;
   }
 
   .container-rtg {
