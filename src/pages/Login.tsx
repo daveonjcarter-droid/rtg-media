@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import logo from "@/assets/rtg-logo.png";
+import logoLight from "@/assets/rtg-logo-light.png";
 
 const Login = () => {
   const { signIn, user } = useAuth();
@@ -36,7 +36,7 @@ const Login = () => {
       <div className="hidden lg:flex flex-col justify-between p-12 bg-ink relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-transparent" />
         <Link to="/" className="relative flex items-center gap-3">
-          <img src={logo} alt="RTG Media" className="h-10 invert" />
+          <img src={logoLight} alt="RTG Media" className="h-10 " />
         </Link>
         <div className="relative">
           <div className="eyebrow text-primary mb-3">RTG Studio</div>
@@ -49,7 +49,7 @@ const Login = () => {
       <div className="flex items-center justify-center p-8">
         <form onSubmit={onSubmit} className="w-full max-w-sm space-y-6">
           <div className="lg:hidden flex justify-center mb-4">
-            <img src={logo} alt="RTG" className="h-10 invert" />
+            <img src={logoLight} alt="RTG" className="h-10 " />
           </div>
           <div>
             <div className="eyebrow text-primary">Sign in</div>
