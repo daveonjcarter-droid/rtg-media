@@ -6,7 +6,7 @@ const SiteFooter = () => (
   <footer className="border-t border-border bg-ink mt-24">
     <div className="container-rtg py-16 grid grid-cols-2 md:grid-cols-5 gap-10">
       <div className="col-span-2">
-        <img src={logo} alt="RTG Media" className="h-14 w-auto invert" width={120} height={56} />
+        <Logo tone="light" className="h-14" />
         <p className="mt-5 max-w-sm text-sm text-muted-foreground leading-relaxed">
           Runners To Greatness. A Black-owned Chicago media & production company documenting culture and creating visual stories that last.
         </p>
