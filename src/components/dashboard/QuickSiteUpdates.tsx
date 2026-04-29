@@ -77,7 +77,7 @@ export const DEFAULT_HOMEPAGE: HomepageContent = {
     headline: "Manifesto",
     body:
       "We are not waiting for permission. We document the South Side at midnight, the studios at 4am, the designers cutting silhouettes you'll see in Paris next year. If you're not on RTG, you're missing what's next.",
-    signatures: "— Daveon J. Carter, Founder\n— Brendan Shields, Co-CEO",
+    signatures: "— Daveon J. Carter, Founder\n— Brendyn Shields, Co-CEO",
     locationDate: "Chicago · 2026",
   },
   featured: {
