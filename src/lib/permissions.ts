@@ -28,6 +28,7 @@ export type SectionId =
   | "trends"
   | "community"
   | "permissions"
+  | "invites"
   | "settings";
 
 export type Group = "Content" | "Pipeline" | "Studio" | "Ops" | "Ecosystem" | "Admin";
@@ -40,6 +41,7 @@ export const ROLE_LABELS: Record<AppRole, string> = {
   social_manager: "Social Manager",
   booking_manager: "Booking Manager",
   media_manager: "Media Manager",
+  social_articles_lead: "Social / Articles Lead",
 };
 
 export const ROLE_DESCRIPTIONS: Record<AppRole, string> = {
@@ -50,23 +52,24 @@ export const ROLE_DESCRIPTIONS: Record<AppRole, string> = {
   social_manager: "Distribute and schedule social posts.",
   booking_manager: "Sales and inquiries. Manage clients and bookings.",
   media_manager: "Asset library. Upload and manage all media.",
+  social_articles_lead: "Lead for social + editorial. Combines Social Manager + Editor + analytics access.",
 };
 
 const HEAD = "head_admin" as const;
 
 /** Sections each role can access. head_admin sees everything. */
 export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
-  overview:           [HEAD, "admin", "editor", "writer", "social_manager", "booking_manager", "media_manager"],
-  drafts:             [HEAD, "admin", "editor", "writer"],
-  submitted:          [HEAD, "admin", "editor", "writer"],
-  revisions:          [HEAD, "admin", "editor", "writer"],
-  scheduled:          [HEAD, "admin", "editor", "writer", "social_manager"],
-  published:          [HEAD, "admin", "editor", "writer", "social_manager"],
-  archived:           [HEAD, "admin", "editor"],
-  calendar:           [HEAD, "admin", "editor", "social_manager"],
-  media:              [HEAD, "admin", "editor", "writer", "media_manager", "social_manager"],
-  import:             [HEAD, "admin", "editor", "writer"],
-  social:             [HEAD, "admin", "editor", "social_manager"],
+  overview:           [HEAD, "admin", "editor", "writer", "social_manager", "booking_manager", "media_manager", "social_articles_lead"],
+  drafts:             [HEAD, "admin", "editor", "writer", "social_articles_lead"],
+  submitted:          [HEAD, "admin", "editor", "writer", "social_articles_lead"],
+  revisions:          [HEAD, "admin", "editor", "writer", "social_articles_lead"],
+  scheduled:          [HEAD, "admin", "editor", "writer", "social_manager", "social_articles_lead"],
+  published:          [HEAD, "admin", "editor", "writer", "social_manager", "social_articles_lead"],
+  archived:           [HEAD, "admin", "editor", "social_articles_lead"],
+  calendar:           [HEAD, "admin", "editor", "social_manager", "social_articles_lead"],
+  media:              [HEAD, "admin", "editor", "writer", "media_manager", "social_manager", "social_articles_lead"],
+  import:             [HEAD, "admin", "editor", "writer", "social_articles_lead"],
+  social:             [HEAD, "admin", "editor", "social_manager", "social_articles_lead"],
   bookings:           [HEAD, "admin", "editor", "booking_manager"],
   leads:              [HEAD, "admin", "editor", "booking_manager"],
   production:         [HEAD, "admin", "booking_manager"],
@@ -77,11 +80,12 @@ export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
   chicago:            [HEAD, "admin", "editor"],
   "content-managers": [HEAD, "admin", "editor"],
   users:              [HEAD, "admin"],
+  invites:            [HEAD, "admin"],
   "site-updates":     [HEAD, "admin", "media_manager"],
-  analytics:          [HEAD, "admin", "editor", "social_manager", "booking_manager"],
-  audience:           [HEAD, "admin", "editor", "social_manager"],
-  trends:             [HEAD, "admin", "editor", "writer", "social_manager"],
-  community:          [HEAD, "admin", "editor", "social_manager"],
+  analytics:          [HEAD, "admin", "editor", "social_manager", "booking_manager", "social_articles_lead"],
+  audience:           [HEAD, "admin", "editor", "social_manager", "social_articles_lead"],
+  trends:             [HEAD, "admin", "editor", "writer", "social_manager", "social_articles_lead"],
+  community:          [HEAD, "admin", "editor", "social_manager", "social_articles_lead"],
   permissions:        [HEAD],
   settings:           [HEAD, "admin"],
 };
@@ -108,6 +112,6 @@ export const canManageUsers = (roles: AppRole[]) =>
 export const canManageBilling = (roles: AppRole[]) => roles.includes("head_admin");
 
 export const primaryRole = (roles: AppRole[]): AppRole => {
-  const order: AppRole[] = ["head_admin", "admin", "editor", "writer", "booking_manager", "social_manager", "media_manager"];
+  const order: AppRole[] = ["head_admin", "admin", "social_articles_lead", "editor", "writer", "booking_manager", "social_manager", "media_manager"];
   return order.find((r) => roles.includes(r)) ?? "writer";
 };

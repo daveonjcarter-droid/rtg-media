@@ -16,6 +16,8 @@ import QuickSiteUpdates from "@/components/dashboard/QuickSiteUpdates";
 import ContentManagers from "@/components/dashboard/ContentManagers";
 import ImportArticleDialog from "@/components/dashboard/ImportArticleDialog";
 import UniversalEditor from "@/components/dashboard/UniversalEditor";
+import InvitesManager from "@/components/dashboard/InvitesManager";
+import WorkspaceSettingsPanel from "@/components/dashboard/WorkspaceSettingsPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -123,6 +125,7 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "staff",             label: "Staff & Crew",     icon: Users,           group: "Ops" },
   { id: "analytics",         label: "Analytics",        icon: BarChart3,       group: "Ops" },
   { id: "users",             label: "Users & Roles",    icon: Users,           group: "Admin" },
+  { id: "invites",           label: "Invites & Roles",  icon: Mail,            group: "Admin" },
   { id: "permissions",       label: "Role Permissions", icon: ShieldCheck,     group: "Admin" },
   { id: "site-updates",      label: "Quick Site Updates", icon: Wand2,         group: "Admin" },
   { id: "settings",          label: "Settings",         icon: SettingsIcon,    group: "Admin" },
@@ -414,12 +417,13 @@ const Dashboard = () => {
               {section === "social" && <SocialKit articles={filtered(["published"])} />}
               {section === "bookings" && <BookingsDashboard />}
               {section === "leads" && <LeadsView />}
-             {section === "users" && <UsersView />}
-             {section === "site-updates" && <QuickSiteUpdates />}
-             {section === "content-managers" && <ContentManagers />}
-             {section === "import" && <ArticleImportView onOpenImport={() => setImportOpen(true)} />}
-             {section === "analytics" && <AnalyticsView />}
-             {section === "settings" && <SettingsView canBilling={canManageBilling(roles)} />}
+            {section === "users" && <UsersView />}
+            {section === "invites" && <InvitesManager />}
+            {section === "site-updates" && <QuickSiteUpdates />}
+            {section === "content-managers" && <ContentManagers />}
+            {section === "import" && <ArticleImportView onOpenImport={() => setImportOpen(true)} />}
+            {section === "analytics" && <AnalyticsView />}
+            {section === "settings" && <WorkspaceSettingsPanel />}
              {section === "permissions" && <PermissionsManager isHeadAdmin={isHeadAdmin(roles)} />}
              {section === "production" && <ServicesManager />}
              {section === "portfolio" && <PortfolioWorksManager />}
@@ -1584,17 +1588,30 @@ const LeadsView = () => {
    USERS
    ============================================================ */
 
+type UserRow = { id: string; display_name: string | null; roles: AppRole[]; reports_to: string | null; internal_title: string | null };
+
 const UsersView = () => {
-  const [users, setUsers] = useState<{ id: string; display_name: string | null; roles: AppRole[] }[]>([]);
+  const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
     setLoading(true);
-    const { data: profiles } = await supabase.from("profiles").select("id, display_name");
-    const { data: roleRows } = await supabase.from("user_roles").select("user_id, role");
+    const [{ data: profiles }, { data: roleRows }, { data: hier }] = await Promise.all([
+      supabase.from("profiles").select("id, display_name"),
+      supabase.from("user_roles").select("user_id, role"),
+      supabase.from("user_hierarchy" as any).select("user_id, reports_to, internal_title"),
+    ]);
     const map: Record<string, AppRole[]> = {};
     (roleRows ?? []).forEach((r) => { (map[r.user_id] ||= []).push(r.role as AppRole); });
-    setUsers((profiles ?? []).map((p) => ({ id: p.id, display_name: p.display_name, roles: map[p.id] ?? [] })));
+    const hMap: Record<string, { reports_to: string | null; internal_title: string | null }> = {};
+    ((hier as any) ?? []).forEach((h: any) => { hMap[h.user_id] = { reports_to: h.reports_to, internal_title: h.internal_title }; });
+    setUsers((profiles ?? []).map((p) => ({
+      id: p.id,
+      display_name: p.display_name,
+      roles: map[p.id] ?? [],
+      reports_to: hMap[p.id]?.reports_to ?? null,
+      internal_title: hMap[p.id]?.internal_title ?? null,
+    })));
     setLoading(false);
   };
 
@@ -1612,7 +1629,17 @@ const UsersView = () => {
     load();
   };
 
+  const updateHierarchy = async (userId: string, patch: { reports_to?: string | null; internal_title?: string | null }) => {
+    // Upsert
+    const { error } = await supabase.from("user_hierarchy" as any).upsert({ user_id: userId, ...patch }, { onConflict: "user_id" });
+    if (error) return toast.error(error.message);
+    toast.success("Hierarchy updated");
+    load();
+  };
+
   if (loading) return <div className="text-muted-foreground text-sm">Loading…</div>;
+
+  const ALL = ["head_admin", "admin", "editor", "writer", "social_manager", "booking_manager", "media_manager", "social_articles_lead"] as AppRole[];
 
   return (
     <div>
@@ -1621,31 +1648,71 @@ const UsersView = () => {
         <EmptyState icon={Users} title="No team members yet" body="Invite teammates to start collaborating." />
       ) : (
         <div className="border border-border rounded-sm divide-y divide-border overflow-hidden">
-          {users.map((u) => (
-            <div key={u.id} className="flex items-center gap-3 p-3 flex-wrap hover:bg-surface/40 transition-colors">
-              <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary to-ink flex items-center justify-center text-[10px] font-semibold border border-border">
-                {(u.display_name ?? "?").slice(0, 2).toUpperCase()}
+          {users.map((u) => {
+            const supervisor = users.find((x) => x.id === u.reports_to);
+            return (
+              <div key={u.id} className="p-3 sm:p-4 hover:bg-surface/40 transition-colors space-y-2.5">
+                <div className="flex items-start gap-3 flex-wrap">
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-ink flex items-center justify-center text-[11px] font-semibold border border-border shrink-0">
+                    {(u.display_name ?? "?").slice(0, 2).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-[180px]">
+                    <div className="font-medium text-sm">{u.display_name ?? "Unnamed"}</div>
+                    {u.internal_title && <div className="text-[11px] text-muted-foreground italic">{u.internal_title}</div>}
+                    {supervisor && (
+                      <div className="text-[10px] text-muted-foreground mt-0.5">
+                        Reports to <span className="text-foreground">{supervisor.display_name ?? supervisor.id.slice(0,8)}</span>
+                      </div>
+                    )}
+                    <div className="text-[9px] text-muted-foreground/70 font-mono truncate mt-0.5">{u.id}</div>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {ALL.map((r) => {
+                    const has = u.roles.includes(r);
+                    return (
+                      <button key={r} onClick={() => toggleRole(u.id, r, has)}
+                        title={ROLE_DESCRIPTIONS[r]}
+                        className={`text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-sm border transition-colors ${
+                          has ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:text-foreground"
+                        }`}>
+                        {ROLE_LABELS[r]}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-2 pt-2 border-t border-border/60">
+                  <div>
+                    <Label className="text-[9px] uppercase tracking-widest text-muted-foreground">Internal Title</Label>
+                    <Input
+                      defaultValue={u.internal_title ?? ""}
+                      onBlur={(e) => {
+                        if ((e.target.value || null) !== u.internal_title) {
+                          updateHierarchy(u.id, { internal_title: e.target.value.trim() || null, reports_to: u.reports_to });
+                        }
+                      }}
+                      placeholder="e.g. Owner / Head Admin"
+                      className="h-8 text-xs bg-background border-border rounded-sm mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-[9px] uppercase tracking-widest text-muted-foreground">Reports To</Label>
+                    <Select value={u.reports_to ?? "none"} onValueChange={(v) => updateHierarchy(u.id, { reports_to: v === "none" ? null : v, internal_title: u.internal_title })}>
+                      <SelectTrigger className="h-8 text-xs rounded-sm bg-background mt-1"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none" className="text-xs">— No supervisor —</SelectItem>
+                        {users.filter((x) => x.id !== u.id).map((p) => (
+                          <SelectItem key={p.id} value={p.id} className="text-xs">{p.display_name ?? p.id.slice(0,8)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </div>
-              <div className="flex-1 min-w-[180px]">
-                <div className="font-medium text-sm">{u.display_name ?? "Unnamed"}</div>
-                <div className="text-[10px] text-muted-foreground font-mono truncate">{u.id}</div>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {(["head_admin", "admin", "editor", "writer", "social_manager", "booking_manager", "media_manager"] as AppRole[]).map((r) => {
-                  const has = u.roles.includes(r);
-                  return (
-                    <button key={r} onClick={() => toggleRole(u.id, r, has)}
-                      title={ROLE_DESCRIPTIONS[r]}
-                      className={`text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-sm border transition-colors ${
-                        has ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:text-foreground"
-                      }`}>
-                      {ROLE_LABELS[r]}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

@@ -9,7 +9,8 @@ export type AppRole =
   | "writer"
   | "social_manager"
   | "booking_manager"
-  | "media_manager";
+  | "media_manager"
+  | "social_articles_lead";
 
 type AuthContextValue = {
   user: User | null;
