@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Newspaper, ArrowLeft, ArrowUpRight, Star, Award, Clock, Calendar as CalendarIcon, Film as FilmIcon, User, AlertTriangle, Check, X, Music, Mic, Layers, Radio, MapPin } from "lucide-react";
+import { Newspaper, ArrowLeft, ArrowUpRight, Star, Award, Clock, Calendar as CalendarIcon, Film as FilmIcon, User, AlertTriangle, Check, X, Music, Mic, Layers, Radio, MapPin, Gamepad2, Building2, Tv2 } from "lucide-react";
 import SiteLayout from "@/components/site/SiteLayout";
 import EmptyState from "@/components/site/EmptyState";
 import { supabase } from "@/integrations/supabase/client";
