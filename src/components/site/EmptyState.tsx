@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { LucideIcon } from "lucide-react";
 
 type EmptyStateProps = {
-  eyebrow?: string;
+  eyebrow?: ReactNode;
   title: string;
   description?: string;
   icon?: LucideIcon;
