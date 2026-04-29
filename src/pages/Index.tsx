@@ -261,15 +261,23 @@ const Index = () => {
       <section className="relative bg-background py-24 md:py-32 overflow-hidden">
         <div className="container-rtg relative">
           <div className="text-center">
-            <div className="font-gothic text-3xl md:text-4xl text-primary mb-6">RTG Drops</div>
+            <div className="font-gothic text-3xl md:text-4xl text-primary mb-6">{content.drops.headline}</div>
+            {content.drops.image && (
+              <div className="mx-auto mb-8 max-w-md aspect-square overflow-hidden rounded-sm">
+                <img src={content.drops.image} alt={content.drops.headline} className="w-full h-full object-cover" />
+              </div>
+            )}
             <h2 className="type-mega text-[20vw] md:text-[14vw] lg:text-[12rem] leading-[0.85]">
               Coming
               <br />
               <span className="text-hollow">Soon.</span>
             </h2>
             <p className="mt-8 max-w-md mx-auto text-muted-foreground">
-              Apparel, hats, and limited drops built around the brand. Sign up for first access.
+              {content.drops.text}
             </p>
+            {content.drops.ctaText && (
+              <div className="mt-6 text-xs uppercase tracking-[0.3em] text-primary">{content.drops.ctaText} ↓</div>
+            )}
           </div>
         </div>
         {/* Marquee promo */}
