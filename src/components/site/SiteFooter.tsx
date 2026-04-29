@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Instagram, Youtube, Twitter } from "lucide-react";
+import { Instagram, Youtube, Twitter as X } from "lucide-react";
 import Logo from "./Logo";
 
 const SiteFooter = () => (
