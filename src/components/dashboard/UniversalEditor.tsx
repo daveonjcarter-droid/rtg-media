@@ -429,11 +429,19 @@ const UniversalEditor = ({
             <div className="text-[9px] uppercase tracking-[0.3em] text-primary">{TYPE_LABEL[type]}</div>
             <div className="font-display text-lg uppercase">{article?.id ? "Edit Article" : "New Article"}</div>
           </div>
-          <div className="flex gap-1.5">
+          <div className="flex gap-1.5 items-center">
+            {article?.status && (
+              <span className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground border border-border rounded-sm px-2 py-1">
+                {article.status}
+              </span>
+            )}
             <Button type="button" variant="outline" size="sm" onClick={onClose} className="rounded-sm uppercase tracking-widest text-[10px] h-8">Close</Button>
             <Button type="button" size="sm" disabled={busy} onClick={() => save("draft")} className="rounded-sm uppercase tracking-widest text-[10px] h-8 bg-secondary text-foreground hover:bg-secondary/80">Save Draft</Button>
-            <Button type="button" size="sm" disabled={busy} onClick={() => save("submitted")} className="rounded-sm uppercase tracking-widest text-[10px] h-8 bg-primary text-primary-foreground hover:bg-primary/90">
-              <Send className="h-3 w-3 mr-1" /> Submit
+            <Button type="button" size="sm" disabled={busy} onClick={() => save()} className="rounded-sm uppercase tracking-widest text-[10px] h-8 bg-primary text-primary-foreground hover:bg-primary/90">
+              {publishMode === "publish_now" ? <><Globe className="h-3 w-3 mr-1" /> Publish</> :
+               publishMode === "schedule" ? <><CalendarClock className="h-3 w-3 mr-1" /> Schedule</> :
+               publishMode === "submit" ? <><Send className="h-3 w-3 mr-1" /> Submit</> :
+               <><DraftIcon className="h-3 w-3 mr-1" /> Save</>}
             </Button>
           </div>
         </div>
