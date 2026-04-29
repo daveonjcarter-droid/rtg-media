@@ -417,12 +417,13 @@ const Dashboard = () => {
               {section === "social" && <SocialKit articles={filtered(["published"])} />}
               {section === "bookings" && <BookingsDashboard />}
               {section === "leads" && <LeadsView />}
-             {section === "users" && <UsersView />}
-             {section === "site-updates" && <QuickSiteUpdates />}
-             {section === "content-managers" && <ContentManagers />}
-             {section === "import" && <ArticleImportView onOpenImport={() => setImportOpen(true)} />}
-             {section === "analytics" && <AnalyticsView />}
-             {section === "settings" && <SettingsView canBilling={canManageBilling(roles)} />}
+            {section === "users" && <UsersView />}
+            {section === "invites" && <InvitesManager />}
+            {section === "site-updates" && <QuickSiteUpdates />}
+            {section === "content-managers" && <ContentManagers />}
+            {section === "import" && <ArticleImportView onOpenImport={() => setImportOpen(true)} />}
+            {section === "analytics" && <AnalyticsView />}
+            {section === "settings" && <WorkspaceSettingsPanel />}
              {section === "permissions" && <PermissionsManager isHeadAdmin={isHeadAdmin(roles)} />}
              {section === "production" && <ServicesManager />}
              {section === "portfolio" && <PortfolioWorksManager />}
