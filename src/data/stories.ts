@@ -31,7 +31,7 @@ export const STORIES: Story[] = [
     id: "future-black-cinema",
     title: "The Future of Black Cinema Is Here",
     category: "Film",
-    author: "Brendan Shields",
+    author: "BRENDYN SHIELDS",
     date: "May 18, 2026",
     image: storyFilm,
     excerpt: "Independent Black filmmakers are no longer waiting for permission. Inside the rise of a new cinematic era.",
