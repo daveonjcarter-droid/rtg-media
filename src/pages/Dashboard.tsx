@@ -5,8 +5,10 @@ import {
   Users, Plus, Copy, Instagram, Twitter, LogOut, Send, ArrowRight, Briefcase, Mail, Archive,
   Youtube, Search, Bell, ChevronsLeft, ChevronsRight, MoreHorizontal, Eye, Pencil, Trash2,
   Replace, Link as LinkIcon, Upload, Filter, ArrowUpDown, X, Tag, FolderInput, CheckSquare,
-  Wand2, Film,
+  Wand2, Film, BarChart3, Settings as SettingsIcon, Globe, Camera, Lock, FileText, ShoppingBag,
 } from "lucide-react";
+import { SECTION_ACCESS, ROLE_LABELS, ROLE_DESCRIPTIONS, can, primaryRole, canManageUsers, canManageBilling, type SectionId, type Group } from "@/lib/permissions";
+import { AnalyticsView, SettingsView, ProductionServicesView, PortfolioManager, RtgFilmsManager, RtgFestManager, ArticleImportView } from "@/components/dashboard/AdminSections";
 import QuickSiteUpdates from "@/components/dashboard/QuickSiteUpdates";
 import ContentManagers from "@/components/dashboard/ContentManagers";
 import ImportArticleDialog from "@/components/dashboard/ImportArticleDialog";
@@ -95,26 +97,31 @@ type Article = {
   game_screenshots?: any;
 };
 
-type SectionId =
-  | "overview" | "drafts" | "submitted" | "revisions" | "scheduled" | "published" | "archived"
-  | "calendar" | "media" | "social" | "bookings" | "leads" | "users" | "site-updates" | "content-managers";
+// SectionId imported from @/lib/permissions
 
-const ALL_NAV: { id: SectionId; label: string; icon: any; roles: AppRole[]; group: "Content" | "Pipeline" | "Ops" | "Admin" }[] = [
-  { id: "overview", label: "Overview", icon: LayoutDashboard, roles: ["admin", "editor", "writer", "social_manager"], group: "Content" },
-  { id: "drafts", label: "Drafts", icon: FileEdit, roles: ["admin", "editor", "writer"], group: "Pipeline" },
-  { id: "submitted", label: "Submitted", icon: Inbox, roles: ["admin", "editor", "writer"], group: "Pipeline" },
-  { id: "revisions", label: "Revisions", icon: RotateCcw, roles: ["admin", "editor", "writer"], group: "Pipeline" },
-  { id: "scheduled", label: "Scheduled", icon: Calendar, roles: ["admin", "editor", "writer", "social_manager"], group: "Pipeline" },
-  { id: "published", label: "Published", icon: CheckCircle2, roles: ["admin", "editor", "writer", "social_manager"], group: "Pipeline" },
-  { id: "archived", label: "Archived", icon: Inbox, roles: ["admin", "editor"], group: "Pipeline" },
-  { id: "calendar", label: "Calendar", icon: Calendar, roles: ["admin", "editor", "social_manager"], group: "Content" },
-  { id: "media", label: "Media Library", icon: ImageIcon, roles: ["admin", "editor", "writer"], group: "Content" },
-  { id: "social", label: "Social", icon: Instagram, roles: ["admin", "editor", "social_manager"], group: "Content" },
-  { id: "content-managers", label: "Pillars (Breakdown / Picks)", icon: Film, roles: ["admin", "editor"], group: "Content" },
-  { id: "bookings", label: "Bookings", icon: Briefcase, roles: ["admin", "editor"], group: "Ops" },
-  { id: "leads", label: "Leads", icon: Mail, roles: ["admin", "editor"], group: "Ops" },
-  { id: "users", label: "Users", icon: Users, roles: ["admin"], group: "Admin" },
-  { id: "site-updates", label: "Quick Site Updates", icon: Wand2, roles: ["admin"], group: "Admin" },
+const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
+  { id: "overview",          label: "Overview",         icon: LayoutDashboard, group: "Content" },
+  { id: "drafts",            label: "Drafts",           icon: FileEdit,        group: "Pipeline" },
+  { id: "submitted",         label: "Submitted",        icon: Inbox,           group: "Pipeline" },
+  { id: "revisions",         label: "Revisions",        icon: RotateCcw,       group: "Pipeline" },
+  { id: "scheduled",         label: "Scheduled",        icon: Calendar,        group: "Pipeline" },
+  { id: "published",         label: "Published",        icon: CheckCircle2,    group: "Pipeline" },
+  { id: "archived",          label: "Archived",         icon: Inbox,           group: "Pipeline" },
+  { id: "calendar",          label: "Editorial Calendar", icon: Calendar,      group: "Content" },
+  { id: "media",             label: "Media Library",    icon: ImageIcon,       group: "Studio" },
+  { id: "import",            label: "Article Import",   icon: Upload,          group: "Studio" },
+  { id: "social",            label: "Social Studio",    icon: Instagram,       group: "Studio" },
+  { id: "content-managers",  label: "Pillars",          icon: Film,            group: "Ecosystem" },
+  { id: "films",             label: "RTG Films",        icon: Film,            group: "Ecosystem" },
+  { id: "fest",              label: "RTG Fest",         icon: ShoppingBag,     group: "Ecosystem" },
+  { id: "portfolio",         label: "Portfolio",        icon: Camera,          group: "Ecosystem" },
+  { id: "bookings",          label: "Bookings",         icon: Briefcase,       group: "Ops" },
+  { id: "leads",             label: "Leads",            icon: Mail,            group: "Ops" },
+  { id: "production",        label: "Production Services", icon: Camera,       group: "Ops" },
+  { id: "analytics",         label: "Analytics",        icon: BarChart3,       group: "Ops" },
+  { id: "users",             label: "Users & Roles",    icon: Users,           group: "Admin" },
+  { id: "site-updates",      label: "Quick Site Updates", icon: Wand2,         group: "Admin" },
+  { id: "settings",          label: "Settings",         icon: SettingsIcon,    group: "Admin" },
 ];
 
 const STATUS_COLOR: Record<Status, string> = {
@@ -134,7 +141,7 @@ const STATUS_LABEL: Record<Status, string> = {
 const Dashboard = () => {
   const { user, roles, signOut, hasRole } = useAuth();
   const navigate = useNavigate();
-  const navItems = useMemo(() => ALL_NAV.filter((n) => n.roles.some((r) => roles.includes(r))), [roles]);
+  const navItems = useMemo(() => ALL_NAV.filter((n) => can(roles, n.id)), [roles]);
   const [section, setSection] = useState<SectionId>("overview");
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState<Article | null>(null);
@@ -144,7 +151,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
 
-  const primaryRole: AppRole = roles[0] ?? "writer";
+  const primary: AppRole = primaryRole(roles);
 
   const loadArticles = async () => {
     setLoading(true);
@@ -247,7 +254,7 @@ const Dashboard = () => {
               <div className="flex flex-wrap gap-1 mt-1">
                 {roles.length ? roles.map((r) => (
                   <span key={r} className="text-[8px] uppercase tracking-widest bg-background/60 text-foreground/80 px-1.5 py-0.5 rounded-sm">
-                    {r.replace("_", " ")}
+                    {ROLE_LABELS[r]}
                   </span>
                 )) : <span className="text-[8px] uppercase tracking-widest text-muted-foreground">No role</span>}
               </div>
@@ -276,7 +283,7 @@ const Dashboard = () => {
           <div className="flex items-center gap-3 min-w-0">
             <div className="min-w-0">
               <div className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground leading-none">
-                {primaryRole.replace("_", " ")}
+                {ROLE_LABELS[primary]}
               </div>
               <div className="font-display text-base uppercase leading-tight truncate">
                 {currentNav?.label}
@@ -357,6 +364,13 @@ const Dashboard = () => {
              {section === "users" && <UsersView />}
              {section === "site-updates" && <QuickSiteUpdates />}
              {section === "content-managers" && <ContentManagers />}
+             {section === "import" && <ArticleImportView onOpenImport={() => setImportOpen(true)} />}
+             {section === "analytics" && <AnalyticsView />}
+             {section === "settings" && <SettingsView canBilling={canManageBilling(roles)} />}
+             {section === "production" && <ProductionServicesView />}
+             {section === "portfolio" && <PortfolioManager />}
+             {section === "films" && <RtgFilmsManager />}
+             {section === "fest" && <RtgFestManager />}
             </>
           )}
         </div>
@@ -1743,14 +1757,15 @@ const UsersView = () => {
                 <div className="text-[10px] text-muted-foreground font-mono truncate">{u.id}</div>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {(["admin", "editor", "writer", "social_manager"] as AppRole[]).map((r) => {
+                {(["head_admin", "admin", "editor", "writer", "social_manager", "booking_manager", "media_manager"] as AppRole[]).map((r) => {
                   const has = u.roles.includes(r);
                   return (
                     <button key={r} onClick={() => toggleRole(u.id, r, has)}
+                      title={ROLE_DESCRIPTIONS[r]}
                       className={`text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-sm border transition-colors ${
                         has ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:text-foreground"
                       }`}>
-                      {r.replace("_", " ")}
+                      {ROLE_LABELS[r]}
                     </button>
                   );
                 })}

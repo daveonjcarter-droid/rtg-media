@@ -50,6 +50,41 @@ export type Database = {
         }
         Relationships: []
       }
+      article_revisions: {
+        Row: {
+          article_id: string
+          created_at: string
+          id: string
+          reason: string | null
+          saved_by: string
+          snapshot: Json
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          saved_by: string
+          snapshot: Json
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          saved_by?: string
+          snapshot?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_revisions_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       articles: {
         Row: {
           article_type: Database["public"]["Enums"]["article_type"]
@@ -527,6 +562,38 @@ export type Database = {
         }
         Relationships: []
       }
+      editor_notes: {
+        Row: {
+          article_id: string
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          article_id: string
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          article_id?: string
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "editor_notes_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           archived: boolean
@@ -758,7 +825,14 @@ export type Database = {
     }
     Enums: {
       advertise_status: "new" | "in_review" | "accepted" | "declined"
-      app_role: "admin" | "editor" | "writer" | "social_manager"
+      app_role:
+        | "admin"
+        | "editor"
+        | "writer"
+        | "social_manager"
+        | "head_admin"
+        | "booking_manager"
+        | "media_manager"
       article_status:
         | "draft"
         | "submitted"
@@ -918,7 +992,15 @@ export const Constants = {
   public: {
     Enums: {
       advertise_status: ["new", "in_review", "accepted", "declined"],
-      app_role: ["admin", "editor", "writer", "social_manager"],
+      app_role: [
+        "admin",
+        "editor",
+        "writer",
+        "social_manager",
+        "head_admin",
+        "booking_manager",
+        "media_manager",
+      ],
       article_status: [
         "draft",
         "submitted",
