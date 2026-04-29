@@ -191,6 +191,150 @@ export type Database = {
         }
         Relationships: []
       }
+      breakdown_episodes: {
+        Row: {
+          breakdown_body: string | null
+          category: string
+          cover_image_url: string | null
+          created_at: string
+          duration: string | null
+          episode_number: number | null
+          id: string
+          is_featured: boolean
+          published_at: string | null
+          read_url: string | null
+          slug: string | null
+          status: string
+          summary: string | null
+          title: string
+          updated_at: string
+          watch_url: string | null
+        }
+        Insert: {
+          breakdown_body?: string | null
+          category?: string
+          cover_image_url?: string | null
+          created_at?: string
+          duration?: string | null
+          episode_number?: number | null
+          id?: string
+          is_featured?: boolean
+          published_at?: string | null
+          read_url?: string | null
+          slug?: string | null
+          status?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string
+          watch_url?: string | null
+        }
+        Update: {
+          breakdown_body?: string | null
+          category?: string
+          cover_image_url?: string | null
+          created_at?: string
+          duration?: string | null
+          episode_number?: number | null
+          id?: string
+          is_featured?: boolean
+          published_at?: string | null
+          read_url?: string | null
+          slug?: string | null
+          status?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string
+          watch_url?: string | null
+        }
+        Relationships: []
+      }
+      chicago_feed: {
+        Row: {
+          created_at: string
+          detail: string | null
+          event_date: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          kind: string
+          link_url: string | null
+          location: string | null
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          detail?: string | null
+          event_date?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          kind?: string
+          link_url?: string | null
+          location?: string | null
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          detail?: string | null
+          event_date?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          kind?: string
+          link_url?: string | null
+          location?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      creators: {
+        Row: {
+          city: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          link_url: string | null
+          name: string
+          role: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          link_url?: string | null
+          name: string
+          role?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          link_url?: string | null
+          name?: string
+          role?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           archived: boolean
@@ -268,6 +412,48 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rtg_picks: {
+        Row: {
+          created_at: string
+          creator: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          kind: string
+          link_url: string | null
+          note: string | null
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          creator?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          kind?: string
+          link_url?: string | null
+          note?: string | null
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          creator?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          kind?: string
+          link_url?: string | null
+          note?: string | null
+          sort_order?: number
+          title?: string
           updated_at?: string
         }
         Relationships: []
