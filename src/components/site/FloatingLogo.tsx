@@ -1,11 +1,32 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 /**
- * RTG floating watermark — fully transparent, no UI box.
- * The mark sits over an organic ink/spray vignette that fades unevenly,
- * so it reads as "burned into the page" rather than a logo chip.
+ * RTG floating watermark.
+ * - Public site: bold top-left ink/spray mark.
+ * - Dashboard / admin routes: subtle bottom-right watermark, no box.
  */
 const FloatingLogo = () => {
+  const { pathname } = useLocation();
+  const isDashboard = pathname.startsWith("/dashboard");
+
+  if (isDashboard) {
+    return (
+      <Link
+        to="/"
+        aria-label="RTG Media — Back to public site"
+        title="Back to public site"
+        className="fixed bottom-3 right-3 md:bottom-5 md:right-5 z-[60] block select-none bg-transparent border-0 shadow-none opacity-25 hover:opacity-60 transition-opacity duration-300"
+      >
+        <span className="flex w-[60px] md:w-[90px] flex-col items-end leading-none text-foreground">
+          <span className="font-gothic text-[1.9rem] md:text-[2.6rem] leading-[0.78] tracking-normal">RTG</span>
+          <span className="mt-1 font-sans text-[0.45rem] md:text-[0.55rem] leading-tight tracking-[0.22em] uppercase whitespace-nowrap font-medium">
+            Studio
+          </span>
+        </span>
+      </Link>
+    );
+  }
+
   return (
     <Link
       to="/"
