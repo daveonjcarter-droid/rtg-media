@@ -1016,6 +1016,15 @@ export const BookingsDashboard = () => {
       {editing && (
         <BookingNotesEditor row={editing} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); load(); }} />
       )}
+      {crewSlotsFor && (
+        <CrewSlotsDialog
+          bookingId={crewSlotsFor.id}
+          bookingName={crewSlotsFor.name}
+          crewRequestType={crewSlotsFor.crew_request_type}
+          internalAssignmentLocked={crewSlotsFor.internal_assignment_locked ?? true}
+          onClose={() => { setCrewSlotsFor(null); load(); }}
+        />
+      )}
     </div>
   );
 };
