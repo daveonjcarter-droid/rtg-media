@@ -13,7 +13,6 @@ import QuickSiteUpdates from "@/components/dashboard/QuickSiteUpdates";
 import ContentManagers from "@/components/dashboard/ContentManagers";
 import ImportArticleDialog from "@/components/dashboard/ImportArticleDialog";
 import UniversalEditor from "@/components/dashboard/UniversalEditor";
-import logoLight from "@/assets/rtg-logo-light.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -209,9 +208,17 @@ const Dashboard = () => {
       <aside
         className={`${collapsed ? "w-[64px]" : "w-[220px]"} shrink-0 border-r border-border bg-sidebar hidden lg:flex flex-col transition-[width] duration-200`}
       >
-        <Link to="/" className={`h-14 border-b border-border flex items-center gap-2 ${collapsed ? "justify-center px-0" : "px-4"}`}>
-          <img src={logoLight} alt="RTG" className="h-6 " />
-          {!collapsed && <span className="font-display text-xs uppercase tracking-[0.25em]">Studio</span>}
+        <Link
+          to="/dashboard"
+          className={`h-14 border-b border-border flex items-center ${collapsed ? "justify-center px-0" : "px-4 gap-2.5"}`}
+          title="RTG Studio"
+        >
+          <span className="font-gothic text-lg leading-none tracking-tight">RTG</span>
+          {!collapsed && (
+            <span className="font-display text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+              Studio
+            </span>
+          )}
         </Link>
 
         <nav className="flex-1 py-3 overflow-y-auto scrollbar-hide">
@@ -652,129 +659,120 @@ const CalendarView = ({ articles }: { articles: Article[] }) => {
 };
 
 /* ============================================================
-   MEDIA LIBRARY  (front-end state, ready for Supabase Storage)
+   MEDIA LIBRARY  (Lovable Cloud Storage — site-content bucket, media/ prefix)
    ============================================================ */
 
 type MediaType = "image" | "video" | "audio";
-type MediaUsage = "in_use" | "unused" | "archived";
 type MediaItem = {
-  id: string;
-  title: string;
-  url: string;
+  id: string;          // storage object path (relative to bucket)
+  name: string;        // filename
+  url: string;         // public URL
   type: MediaType;
-  category: string;
-  alt: string;
-  tags: string[];
-  credit?: string;
-  attached_to?: string;
-  uploaded_at: string; // ISO
   size_kb: number;
-  usage: MediaUsage;
+  uploaded_at: string; // ISO date
 };
 
-// Media library starts empty — assets are added via the upload dialog.
-const SEED_MEDIA: MediaItem[] = [];
+const MEDIA_PREFIX = "media";
+const MEDIA_BUCKET = "site-content";
 
-const MEDIA_CATEGORIES = ["All", "Portrait", "City", "Music Video", "Live", "Cover Art", "Film", "Fashion", "Thumbnail", "Other"];
+const detectType = (name: string): MediaType => {
+  const ext = name.split(".").pop()?.toLowerCase() ?? "";
+  if (["mp4", "mov", "webm", "m4v"].includes(ext)) return "video";
+  if (["mp3", "wav", "m4a", "aac", "ogg"].includes(ext)) return "audio";
+  return "image";
+};
 
 const MediaLibrary = () => {
-  const [items, setItems] = useState<MediaItem[]>(SEED_MEDIA);
+  const [items, setItems] = useState<MediaItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All");
   const [type, setType] = useState<"all" | MediaType>("all");
   const [sort, setSort] = useState<"new" | "old" | "name">("new");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [uploadOpen, setUploadOpen] = useState(false);
-  const [editing, setEditing] = useState<MediaItem | null>(null);
   const [viewing, setViewing] = useState<MediaItem | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<MediaItem | null>(null);
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
-  const [bulkTagOpen, setBulkTagOpen] = useState(false);
-  const [bulkCategoryOpen, setBulkCategoryOpen] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.storage
+      .from(MEDIA_BUCKET)
+      .list(MEDIA_PREFIX, { limit: 1000, sortBy: { column: "created_at", order: "desc" } });
+    if (error) {
+      toast.error(error.message);
+      setItems([]);
+      setLoading(false);
+      return;
+    }
+    const mapped: MediaItem[] = (data ?? [])
+      .filter((o) => o.name && !o.name.endsWith("/"))
+      .map((o) => {
+        const path = `${MEDIA_PREFIX}/${o.name}`;
+        const { data: pub } = supabase.storage.from(MEDIA_BUCKET).getPublicUrl(path);
+        return {
+          id: path,
+          name: o.name,
+          url: pub.publicUrl,
+          type: detectType(o.name),
+          size_kb: Math.round(((o.metadata as any)?.size ?? 0) / 1024),
+          uploaded_at: (o.created_at as string) ?? new Date().toISOString(),
+        };
+      });
+    setItems(mapped);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
 
   const filtered = useMemo(() => {
     let r = items;
     if (search.trim()) {
       const q = search.toLowerCase();
-      r = r.filter((i) => i.title.toLowerCase().includes(q) || i.tags.some((t) => t.includes(q)) || i.alt.toLowerCase().includes(q));
+      r = r.filter((i) => i.name.toLowerCase().includes(q));
     }
-    if (category !== "All") r = r.filter((i) => i.category === category);
     if (type !== "all") r = r.filter((i) => i.type === type);
     r = [...r].sort((a, b) => {
-      if (sort === "name") return a.title.localeCompare(b.title);
+      if (sort === "name") return a.name.localeCompare(b.name);
       if (sort === "old") return a.uploaded_at.localeCompare(b.uploaded_at);
       return b.uploaded_at.localeCompare(a.uploaded_at);
     });
     return r;
-  }, [items, search, category, type, sort]);
+  }, [items, search, type, sort]);
 
-  const toggleSelect = (id: string) => {
+  const toggleSelect = (id: string) =>
     setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
+      const n = new Set(prev);
+      n.has(id) ? n.delete(id) : n.add(id);
+      return n;
     });
-  };
   const clearSelect = () => setSelected(new Set());
   const selectAll = () => setSelected(new Set(filtered.map((i) => i.id)));
 
-  const handleUpload = (newItems: MediaItem[]) => {
-    setItems((prev) => [...newItems, ...prev]);
-    setUploadOpen(false);
-    toast.success(`${newItems.length} file${newItems.length > 1 ? "s" : ""} uploaded`);
-  };
-
-  const handleSaveEdit = (updated: MediaItem) => {
-    setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
-    setEditing(null);
-    toast.success("Media updated");
-  };
-
-  const handleDelete = (item: MediaItem) => {
-    setItems((prev) => prev.filter((i) => i.id !== item.id));
-    setSelected((prev) => { const n = new Set(prev); n.delete(item.id); return n; });
+  const handleDelete = async (item: MediaItem) => {
+    const { error } = await supabase.storage.from(MEDIA_BUCKET).remove([item.id]);
     setConfirmDelete(null);
+    if (error) return toast.error(error.message);
     toast.success("Deleted");
+    setSelected((p) => { const n = new Set(p); n.delete(item.id); return n; });
+    load();
   };
 
-  const handleArchive = (item: MediaItem) => {
-    setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, usage: "archived" as MediaUsage } : i)));
-    toast.success("Archived");
-  };
-
-  const bulkDelete = () => {
-    setItems((prev) => prev.filter((i) => !selected.has(i.id)));
-    toast.success(`${selected.size} item${selected.size > 1 ? "s" : ""} deleted`);
-    clearSelect();
+  const bulkDelete = async () => {
+    const paths = Array.from(selected);
+    const { error } = await supabase.storage.from(MEDIA_BUCKET).remove(paths);
     setConfirmBulkDelete(false);
-  };
-
-  const bulkArchive = () => {
-    setItems((prev) => prev.map((i) => (selected.has(i.id) ? { ...i, usage: "archived" as MediaUsage } : i)));
-    toast.success(`${selected.size} archived`);
+    if (error) return toast.error(error.message);
+    toast.success(`${paths.length} deleted`);
     clearSelect();
-  };
-
-  const bulkAddTag = (tag: string) => {
-    if (!tag.trim()) return;
-    setItems((prev) => prev.map((i) => selected.has(i.id) ? { ...i, tags: Array.from(new Set([...i.tags, tag.trim()])) } : i));
-    toast.success(`Tag added to ${selected.size}`);
-    setBulkTagOpen(false);
-    clearSelect();
-  };
-
-  const bulkSetCategory = (cat: string) => {
-    setItems((prev) => prev.map((i) => selected.has(i.id) ? { ...i, category: cat } : i));
-    toast.success(`Category set on ${selected.size}`);
-    setBulkCategoryOpen(false);
-    clearSelect();
+    load();
   };
 
   return (
     <div className="space-y-4">
       <PageHead
         title="Media Library"
-        sub={`${items.length} assets`}
+        sub={loading ? "Loading…" : `${items.length} assets`}
         actions={
           <Button
             onClick={() => setUploadOpen(true)}
@@ -793,7 +791,7 @@ const MediaLibrary = () => {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search media…"
+            placeholder="Search filename…"
             className="bg-transparent outline-none px-2 h-full text-xs flex-1 placeholder:text-muted-foreground"
           />
           {search && (
@@ -803,18 +801,9 @@ const MediaLibrary = () => {
           )}
         </div>
 
-        <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger className="h-8 w-[140px] text-xs rounded-sm bg-background">
-            <Filter className="h-3 w-3 mr-1 text-muted-foreground" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {MEDIA_CATEGORIES.map((c) => <SelectItem key={c} value={c} className="text-xs">{c}</SelectItem>)}
-          </SelectContent>
-        </Select>
-
         <Select value={type} onValueChange={(v) => setType(v as any)}>
           <SelectTrigger className="h-8 w-[120px] text-xs rounded-sm bg-background">
+            <Filter className="h-3 w-3 mr-1 text-muted-foreground" />
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -849,29 +838,22 @@ const MediaLibrary = () => {
           <span className="text-xs font-medium">{selected.size} selected</span>
           <button onClick={selectAll} className="text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground ml-2">Select All Filtered</button>
           <button onClick={clearSelect} className="text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground">Clear</button>
-          <div className="ml-auto flex items-center gap-1.5">
-            <Button size="sm" variant="outline" onClick={() => setBulkTagOpen(true)} className="h-7 rounded-sm text-[10px] uppercase tracking-widest px-2.5">
-              <Tag className="h-3 w-3 mr-1" /> Add Tag
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => setBulkCategoryOpen(true)} className="h-7 rounded-sm text-[10px] uppercase tracking-widest px-2.5">
-              <FolderInput className="h-3 w-3 mr-1" /> Category
-            </Button>
-            <Button size="sm" variant="outline" onClick={bulkArchive} className="h-7 rounded-sm text-[10px] uppercase tracking-widest px-2.5">
-              <Archive className="h-3 w-3 mr-1" /> Archive
-            </Button>
+          <div className="ml-auto">
             <Button size="sm" onClick={() => setConfirmBulkDelete(true)} className="h-7 rounded-sm text-[10px] uppercase tracking-widest px-2.5 bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              <Trash2 className="h-3 w-3 mr-1" /> Delete
+              <Trash2 className="h-3 w-3 mr-1" /> Delete Selected
             </Button>
           </div>
         </div>
       )}
 
       {/* Grid */}
-      {filtered.length === 0 ? (
+      {loading ? (
+        <div className="text-muted-foreground text-sm">Loading library…</div>
+      ) : filtered.length === 0 ? (
         <EmptyState
           icon={ImageIcon}
           title={items.length === 0 ? "No media uploaded yet" : "No media matches your filters."}
-          body={items.length === 0 ? "Upload your first asset to begin." : "Try clearing search or changing the category."}
+          body={items.length === 0 ? "Upload your first asset to begin building the library." : "Try clearing search or changing the type."}
           action={items.length === 0 ? (
             <Button size="sm" onClick={() => setUploadOpen(true)} className="rounded-sm uppercase tracking-widest text-[10px] h-8 px-4 bg-primary text-primary-foreground">
               <Upload className="h-3 w-3 mr-1.5" /> Upload Media
@@ -887,26 +869,22 @@ const MediaLibrary = () => {
               selected={selected.has(m.id)}
               onToggleSelect={() => toggleSelect(m.id)}
               onView={() => setViewing(m)}
-              onEdit={() => setEditing(m)}
               onDelete={() => setConfirmDelete(m)}
-              onArchive={() => handleArchive(m)}
-              onReplace={() => toast.info("Replace flow opens upload dialog")}
               onCopyUrl={() => { navigator.clipboard.writeText(m.url); toast.success("URL copied"); }}
             />
           ))}
         </div>
       )}
 
-      {uploadOpen && <MediaUploadDialog onClose={() => setUploadOpen(false)} onUpload={handleUpload} />}
-      {editing && <MediaEditDialog item={editing} onClose={() => setEditing(null)} onSave={handleSaveEdit} />}
+      {uploadOpen && <MediaUploadDialog onClose={() => setUploadOpen(false)} onUploaded={() => { setUploadOpen(false); load(); }} />}
       {viewing && <MediaViewDialog item={viewing} onClose={() => setViewing(null)} />}
 
       <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure you want to delete this media item?</AlertDialogTitle>
+            <AlertDialogTitle>Delete this asset?</AlertDialogTitle>
             <AlertDialogDescription>
-              "{confirmDelete?.title}" will be permanently removed from your library. This cannot be undone.
+              "{confirmDelete?.name}" will be permanently removed from cloud storage. This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -925,9 +903,7 @@ const MediaLibrary = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete {selected.size} selected items?</AlertDialogTitle>
-            <AlertDialogDescription>
-              These media items will be permanently removed. This cannot be undone.
-            </AlertDialogDescription>
+            <AlertDialogDescription>These assets will be permanently removed. This cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="rounded-sm uppercase tracking-widest text-[10px]">Cancel</AlertDialogCancel>
@@ -937,42 +913,36 @@ const MediaLibrary = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <BulkTagDialog open={bulkTagOpen} onClose={() => setBulkTagOpen(false)} onApply={bulkAddTag} />
-      <BulkCategoryDialog open={bulkCategoryOpen} onClose={() => setBulkCategoryOpen(false)} onApply={bulkSetCategory} />
     </div>
   );
 };
 
-const usageColor: Record<MediaUsage, string> = {
-  in_use: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-  unused: "bg-muted text-muted-foreground border-border",
-  archived: "bg-gold/15 text-gold border-gold/30",
-};
-const usageLabel: Record<MediaUsage, string> = { in_use: "In Use", unused: "Unused", archived: "Archived" };
 
 const MediaCard = ({
-  item, selected, onToggleSelect, onView, onEdit, onDelete, onArchive, onReplace, onCopyUrl,
+  item, selected, onToggleSelect, onView, onDelete, onCopyUrl,
 }: {
   item: MediaItem; selected: boolean;
-  onToggleSelect: () => void; onView: () => void; onEdit: () => void;
-  onDelete: () => void; onArchive: () => void; onReplace: () => void; onCopyUrl: () => void;
+  onToggleSelect: () => void; onView: () => void;
+  onDelete: () => void; onCopyUrl: () => void;
 }) => {
   return (
     <div className={`group relative border rounded-sm overflow-hidden bg-surface/30 transition-all ${selected ? "border-primary ring-1 ring-primary" : "border-border hover:border-foreground/30"}`}>
       <div className="relative aspect-square bg-surface overflow-hidden cursor-pointer" onClick={onView}>
-        {item.type === "image" && (
-          <img src={item.url} alt={item.alt} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-        )}
-        {item.type === "video" && (
+        {item.type === "image" ? (
+          <img src={item.url} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+        ) : item.type === "video" ? (
           <>
-            <img src={item.url} alt={item.alt} className="w-full h-full object-cover opacity-80" />
-            <div className="absolute inset-0 flex items-center justify-center">
+            <video src={item.url} className="w-full h-full object-cover opacity-90" muted />
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="h-10 w-10 rounded-full bg-ink/80 backdrop-blur flex items-center justify-center">
                 <span className="text-cream text-xs">▶</span>
               </div>
             </div>
           </>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-surface">
+            <span className="font-display text-xs uppercase tracking-widest text-muted-foreground">Audio</span>
+          </div>
         )}
 
         {/* Selection checkbox */}
@@ -980,7 +950,7 @@ const MediaCard = ({
           className={`absolute top-1.5 left-1.5 transition-opacity ${selected ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
           onClick={(e) => { e.stopPropagation(); onToggleSelect(); }}
         >
-          <div className={`h-5 w-5 rounded-sm border flex items-center justify-center ${selected ? "bg-primary border-primary" : "bg-ink/70 border-cream/40"}`}>
+          <div className={`h-5 w-5 rounded-sm border flex items-center justify-center cursor-pointer ${selected ? "bg-primary border-primary" : "bg-ink/70 border-cream/40"}`}>
             {selected && <CheckSquare className="h-3 w-3 text-primary-foreground" />}
           </div>
         </div>
@@ -993,7 +963,7 @@ const MediaCard = ({
         {/* Hover actions */}
         <div className="absolute bottom-1.5 right-1.5 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
           <ActionIcon onClick={onView} title="View"><Eye className="h-3 w-3" /></ActionIcon>
-          <ActionIcon onClick={onEdit} title="Edit"><Pencil className="h-3 w-3" /></ActionIcon>
+          <ActionIcon onClick={onCopyUrl} title="Copy URL"><LinkIcon className="h-3 w-3" /></ActionIcon>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="h-6 w-6 rounded-sm bg-ink/80 backdrop-blur text-cream hover:bg-primary hover:text-primary-foreground transition-colors flex items-center justify-center">
@@ -1001,13 +971,10 @@ const MediaCard = ({
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="text-xs">
-              <DropdownMenuLabel className="text-[10px] uppercase tracking-widest">{item.title}</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-[10px] uppercase tracking-widest truncate max-w-[200px]">{item.name}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={onView}><Eye className="h-3 w-3 mr-2" /> View</DropdownMenuItem>
-              <DropdownMenuItem onClick={onReplace}><Replace className="h-3 w-3 mr-2" /> Replace Image</DropdownMenuItem>
-              <DropdownMenuItem onClick={onEdit}><Pencil className="h-3 w-3 mr-2" /> Edit Details</DropdownMenuItem>
               <DropdownMenuItem onClick={onCopyUrl}><LinkIcon className="h-3 w-3 mr-2" /> Copy URL</DropdownMenuItem>
-              <DropdownMenuItem onClick={onArchive}><Archive className="h-3 w-3 mr-2" /> Archive</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
                 <Trash2 className="h-3 w-3 mr-2" /> Delete
@@ -1018,15 +985,9 @@ const MediaCard = ({
       </div>
 
       <div className="p-2.5">
-        <div className="text-xs font-medium leading-tight truncate">{item.title}</div>
-        <div className="flex items-center justify-between mt-1.5 gap-1">
-          <span className="text-[9px] uppercase tracking-widest text-primary truncate">{item.category}</span>
-          <span className={`text-[8px] uppercase tracking-widest px-1 py-0.5 rounded-sm border shrink-0 ${usageColor[item.usage]}`}>
-            {usageLabel[item.usage]}
-          </span>
-        </div>
-        <div className="flex items-center justify-between mt-1 text-[9px] text-muted-foreground tabular-nums">
-          <span>{item.uploaded_at}</span>
+        <div className="text-xs font-medium leading-tight truncate" title={item.name}>{item.name}</div>
+        <div className="flex items-center justify-between mt-1.5 text-[9px] text-muted-foreground tabular-nums">
+          <span>{new Date(item.uploaded_at).toLocaleDateString()}</span>
           <span>{item.size_kb > 1024 ? `${(item.size_kb / 1024).toFixed(1)}MB` : `${item.size_kb}KB`}</span>
         </div>
       </div>
@@ -1041,23 +1002,27 @@ const ActionIcon = ({ onClick, title, children }: { onClick: () => void; title: 
   </button>
 );
 
-/* ----- Upload dialog ----- */
-const MediaUploadDialog = ({ onClose, onUpload }: { onClose: () => void; onUpload: (items: MediaItem[]) => void }) => {
+/* ----- Upload dialog: writes to Lovable Cloud Storage ----- */
+const MediaUploadDialog = ({ onClose, onUploaded }: { onClose: () => void; onUploaded: () => void }) => {
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("Other");
-  const [alt, setAlt] = useState("");
-  const [tags, setTags] = useState("");
+  const [busy, setBusy] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [progress, setProgress] = useState<{ done: number; total: number }>({ done: 0, total: 0 });
 
   const addFiles = (incoming: FileList | File[]) => {
-    const list = Array.from(incoming).filter((f) => f.type.startsWith("image/") || f.type.startsWith("video/") || f.type.startsWith("audio/"));
+    const list = Array.from(incoming).filter((f) =>
+      f.type.startsWith("image/") || f.type.startsWith("video/") || f.type.startsWith("audio/")
+    );
     setFiles((prev) => [...prev, ...list]);
     list.forEach((f) => {
-      const reader = new FileReader();
-      reader.onload = () => setPreviews((p) => [...p, reader.result as string]);
-      reader.readAsDataURL(f);
+      if (f.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = () => setPreviews((p) => [...p, reader.result as string]);
+        reader.readAsDataURL(f);
+      } else {
+        setPreviews((p) => [...p, ""]);
+      }
     });
   };
 
@@ -1066,33 +1031,35 @@ const MediaUploadDialog = ({ onClose, onUpload }: { onClose: () => void; onUploa
     setPreviews((p) => p.filter((_, i) => i !== idx));
   };
 
-  const submit = () => {
+  const slug = (s: string) =>
+    s.toLowerCase().replace(/[^a-z0-9.\-_]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
+
+  const submit = async () => {
     if (files.length === 0) { toast.error("Add at least one file"); return; }
-    const newItems: MediaItem[] = files.map((f, i) => {
-      const t: MediaType = f.type.startsWith("video/") ? "video" : f.type.startsWith("audio/") ? "audio" : "image";
-      return {
-        id: `m_${Date.now()}_${i}`,
-        title: title.trim() || f.name.replace(/\.[^.]+$/, ""),
-        url: previews[i] || "",
-        type: t,
-        category,
-        alt: alt.trim(),
-        tags: tags.split(",").map((s) => s.trim()).filter(Boolean),
-        uploaded_at: new Date().toISOString().slice(0, 10),
-        size_kb: Math.round(f.size / 1024),
-        usage: "unused",
-      };
-    });
-    onUpload(newItems);
+    setBusy(true);
+    setProgress({ done: 0, total: files.length });
+    let failures = 0;
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      const path = `${MEDIA_PREFIX}/${Date.now()}-${slug(f.name)}`;
+      const { error } = await supabase.storage
+        .from(MEDIA_BUCKET)
+        .upload(path, f, { cacheControl: "3600", upsert: false, contentType: f.type });
+      if (error) { failures++; toast.error(`${f.name}: ${error.message}`); }
+      setProgress({ done: i + 1, total: files.length });
+    }
+    setBusy(false);
+    if (failures < files.length) toast.success(`Uploaded ${files.length - failures} file${files.length - failures === 1 ? "" : "s"}`);
+    onUploaded();
   };
 
   return (
-    <Dialog open onOpenChange={(o) => !o && onClose()}>
+    <Dialog open onOpenChange={(o) => !o && !busy && onClose()}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="font-display uppercase text-lg">Upload Media</DialogTitle>
           <DialogDescription className="text-xs">
-            Drop files or browse to add to the library. Images, video, and audio supported.
+            Files upload to your Lovable Cloud media library. Images, video, and audio supported.
           </DialogDescription>
         </DialogHeader>
 
@@ -1114,125 +1081,38 @@ const MediaUploadDialog = ({ onClose, onUpload }: { onClose: () => void; onUploa
           </label>
         </div>
 
-        {previews.length > 0 && (
-          <div className="grid grid-cols-4 gap-2 max-h-32 overflow-y-auto">
-            {previews.map((p, i) => (
+        {files.length > 0 && (
+          <div className="grid grid-cols-4 gap-2 max-h-40 overflow-y-auto">
+            {files.map((f, i) => (
               <div key={i} className="relative aspect-square bg-surface rounded-sm overflow-hidden group">
-                <img src={p} alt="" className="w-full h-full object-cover" />
-                <button onClick={() => removeFile(i)} className="absolute top-1 right-1 h-5 w-5 rounded-sm bg-ink/80 text-cream opacity-0 group-hover:opacity-100 flex items-center justify-center">
-                  <X className="h-3 w-3" />
-                </button>
+                {previews[i] ? (
+                  <img src={previews[i]} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-[9px] uppercase tracking-widest text-muted-foreground p-1 text-center">
+                    {f.type.startsWith("video/") ? "Video" : f.type.startsWith("audio/") ? "Audio" : "File"}
+                  </div>
+                )}
+                {!busy && (
+                  <button onClick={() => removeFile(i)} className="absolute top-1 right-1 h-5 w-5 rounded-sm bg-ink/80 text-cream opacity-0 group-hover:opacity-100 flex items-center justify-center">
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+                <div className="absolute bottom-0 inset-x-0 bg-ink/80 text-cream text-[9px] py-0.5 px-1 truncate">{f.name}</div>
               </div>
             ))}
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">Title</Label>
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} className="h-9 text-xs rounded-sm" placeholder="Optional — defaults to filename" />
+        {busy && (
+          <div className="text-[11px] uppercase tracking-widest text-muted-foreground">
+            Uploading {progress.done} / {progress.total}…
           </div>
-          <div>
-            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">Category</Label>
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="h-9 text-xs rounded-sm"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {MEDIA_CATEGORIES.filter((c) => c !== "All").map((c) => <SelectItem key={c} value={c} className="text-xs">{c}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="col-span-2">
-            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">Alt Text</Label>
-            <Input value={alt} onChange={(e) => setAlt(e.target.value)} className="h-9 text-xs rounded-sm" placeholder="Describe the image for accessibility" />
-          </div>
-          <div className="col-span-2">
-            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">Tags (comma separated)</Label>
-            <Input value={tags} onChange={(e) => setTags(e.target.value)} className="h-9 text-xs rounded-sm" placeholder="chicago, music, cover" />
-          </div>
-        </div>
+        )}
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} className="rounded-sm uppercase tracking-widest text-[10px] h-8">Cancel</Button>
-          <Button onClick={submit} className="rounded-sm uppercase tracking-widest text-[10px] h-8 bg-primary text-primary-foreground hover:bg-primary/90">
-            <Upload className="h-3 w-3 mr-1.5" /> Upload {files.length > 0 && `(${files.length})`}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
-/* ----- Edit dialog ----- */
-const MediaEditDialog = ({ item, onClose, onSave }: { item: MediaItem; onClose: () => void; onSave: (i: MediaItem) => void }) => {
-  const [draft, setDraft] = useState<MediaItem>(item);
-  const [tagsStr, setTagsStr] = useState(item.tags.join(", "));
-
-  return (
-    <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-xl">
-        <DialogHeader>
-          <DialogTitle className="font-display uppercase text-lg">Edit Media</DialogTitle>
-        </DialogHeader>
-        <div className="grid grid-cols-[120px_1fr] gap-4">
-          <div className="aspect-square bg-surface rounded-sm overflow-hidden">
-            <img src={draft.url} alt={draft.alt} className="w-full h-full object-cover" />
-          </div>
-          <div className="space-y-2.5">
-            <div>
-              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">Title</Label>
-              <Input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} className="h-9 text-xs rounded-sm" />
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">Category</Label>
-                <Select value={draft.category} onValueChange={(v) => setDraft({ ...draft, category: v })}>
-                  <SelectTrigger className="h-9 text-xs rounded-sm"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {MEDIA_CATEGORIES.filter((c) => c !== "All").map((c) => <SelectItem key={c} value={c} className="text-xs">{c}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">Usage</Label>
-                <Select value={draft.usage} onValueChange={(v) => setDraft({ ...draft, usage: v as MediaUsage })}>
-                  <SelectTrigger className="h-9 text-xs rounded-sm"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="in_use" className="text-xs">In Use</SelectItem>
-                    <SelectItem value="unused" className="text-xs">Unused</SelectItem>
-                    <SelectItem value="archived" className="text-xs">Archived</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="space-y-2.5">
-          <div>
-            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">Alt Text</Label>
-            <Input value={draft.alt} onChange={(e) => setDraft({ ...draft, alt: e.target.value })} className="h-9 text-xs rounded-sm" />
-          </div>
-          <div>
-            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">Tags (comma separated)</Label>
-            <Input value={tagsStr} onChange={(e) => setTagsStr(e.target.value)} className="h-9 text-xs rounded-sm" />
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">Credit / Source</Label>
-              <Input value={draft.credit ?? ""} onChange={(e) => setDraft({ ...draft, credit: e.target.value })} className="h-9 text-xs rounded-sm" placeholder="Photographer / Source" />
-            </div>
-            <div>
-              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1 block">Attached Article / Project</Label>
-              <Input value={draft.attached_to ?? ""} onChange={(e) => setDraft({ ...draft, attached_to: e.target.value })} className="h-9 text-xs rounded-sm" placeholder="Article title or slug" />
-            </div>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} className="rounded-sm uppercase tracking-widest text-[10px] h-8">Cancel</Button>
-          <Button
-            onClick={() => onSave({ ...draft, tags: tagsStr.split(",").map((s) => s.trim()).filter(Boolean) })}
-            className="rounded-sm uppercase tracking-widest text-[10px] h-8 bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            Save Changes
+          <Button variant="outline" onClick={onClose} disabled={busy} className="rounded-sm uppercase tracking-widest text-[10px] h-8">Cancel</Button>
+          <Button onClick={submit} disabled={busy || files.length === 0} className="rounded-sm uppercase tracking-widest text-[10px] h-8 bg-primary text-primary-foreground hover:bg-primary/90">
+            <Upload className="h-3 w-3 mr-1.5" /> {busy ? "Uploading…" : `Upload${files.length > 0 ? ` (${files.length})` : ""}`}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -1245,27 +1125,15 @@ const MediaViewDialog = ({ item, onClose }: { item: MediaItem; onClose: () => vo
   <Dialog open onOpenChange={(o) => !o && onClose()}>
     <DialogContent className="max-w-3xl">
       <DialogHeader>
-        <DialogTitle className="font-display uppercase text-lg truncate">{item.title}</DialogTitle>
+        <DialogTitle className="font-display uppercase text-lg truncate">{item.name}</DialogTitle>
         <DialogDescription className="text-[10px] uppercase tracking-widest">
-          {item.type} · {item.category} · {item.uploaded_at}
+          {item.type} · {new Date(item.uploaded_at).toLocaleDateString()} · {item.size_kb > 1024 ? `${(item.size_kb / 1024).toFixed(1)} MB` : `${item.size_kb} KB`}
         </DialogDescription>
       </DialogHeader>
-      <div className="bg-surface rounded-sm overflow-hidden">
-        <img src={item.url} alt={item.alt} className="w-full max-h-[60vh] object-contain" />
-      </div>
-      <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
-        <div><span className="text-[9px] uppercase tracking-widest text-muted-foreground block">Alt</span>{item.alt || "—"}</div>
-        <div><span className="text-[9px] uppercase tracking-widest text-muted-foreground block">Credit</span>{item.credit || "—"}</div>
-        <div><span className="text-[9px] uppercase tracking-widest text-muted-foreground block">Attached</span>{item.attached_to || "—"}</div>
-        <div><span className="text-[9px] uppercase tracking-widest text-muted-foreground block">Size</span>{item.size_kb > 1024 ? `${(item.size_kb / 1024).toFixed(1)} MB` : `${item.size_kb} KB`}</div>
-        <div className="col-span-2">
-          <span className="text-[9px] uppercase tracking-widest text-muted-foreground block mb-1">Tags</span>
-          <div className="flex flex-wrap gap-1">
-            {item.tags.length === 0 ? "—" : item.tags.map((t) => (
-              <span key={t} className="text-[10px] px-2 py-0.5 rounded-sm bg-secondary">#{t}</span>
-            ))}
-          </div>
-        </div>
+      <div className="bg-surface rounded-sm overflow-hidden flex items-center justify-center">
+        {item.type === "image" && <img src={item.url} alt={item.name} className="w-full max-h-[60vh] object-contain" />}
+        {item.type === "video" && <video src={item.url} controls className="w-full max-h-[60vh]" />}
+        {item.type === "audio" && <audio src={item.url} controls className="w-full p-4" />}
       </div>
       <DialogFooter>
         <Button variant="outline" onClick={() => { navigator.clipboard.writeText(item.url); toast.success("URL copied"); }} className="rounded-sm uppercase tracking-widest text-[10px] h-8">
@@ -1277,48 +1145,6 @@ const MediaViewDialog = ({ item, onClose }: { item: MediaItem; onClose: () => vo
   </Dialog>
 );
 
-const BulkTagDialog = ({ open, onClose, onApply }: { open: boolean; onClose: () => void; onApply: (tag: string) => void }) => {
-  const [tag, setTag] = useState("");
-  return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-sm">
-        <DialogHeader>
-          <DialogTitle className="font-display uppercase text-lg">Add Tag</DialogTitle>
-          <DialogDescription className="text-xs">Add a tag to all selected items.</DialogDescription>
-        </DialogHeader>
-        <Input value={tag} onChange={(e) => setTag(e.target.value)} placeholder="tag name" className="h-9 text-xs rounded-sm" />
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} className="rounded-sm uppercase tracking-widest text-[10px] h-8">Cancel</Button>
-          <Button onClick={() => { onApply(tag); setTag(""); }} className="rounded-sm uppercase tracking-widest text-[10px] h-8 bg-primary text-primary-foreground">Apply</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
-const BulkCategoryDialog = ({ open, onClose, onApply }: { open: boolean; onClose: () => void; onApply: (cat: string) => void }) => {
-  const [cat, setCat] = useState("Other");
-  return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-sm">
-        <DialogHeader>
-          <DialogTitle className="font-display uppercase text-lg">Set Category</DialogTitle>
-          <DialogDescription className="text-xs">Assign category to all selected items.</DialogDescription>
-        </DialogHeader>
-        <Select value={cat} onValueChange={setCat}>
-          <SelectTrigger className="h-9 text-xs rounded-sm"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            {MEDIA_CATEGORIES.filter((c) => c !== "All").map((c) => <SelectItem key={c} value={c} className="text-xs">{c}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} className="rounded-sm uppercase tracking-widest text-[10px] h-8">Cancel</Button>
-          <Button onClick={() => onApply(cat)} className="rounded-sm uppercase tracking-widest text-[10px] h-8 bg-primary text-primary-foreground">Apply</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-};
 
 /* ============================================================
    SOCIAL KIT
