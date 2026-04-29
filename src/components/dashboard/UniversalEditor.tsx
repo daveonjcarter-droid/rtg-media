@@ -283,19 +283,43 @@ const UniversalEditor = ({
     if (type === "film_review" && !filmTitle.trim()) return "Film title is required";
     if (type === "album_review" && (!musicAlbumTitle.trim() || !musicArtist.trim())) return "Album title and artist are required";
     if (type === "single_review" && (!musicSongTitle.trim() || !musicArtist.trim())) return "Song title and artist are required";
+    if (type === "game_review" && !gameTitle.trim()) return "Game title is required";
     if (type === "interview" && !interviewee.trim()) return "Interviewee name is required";
     if (type === "breakdown" && !bdSubject.trim()) return "Subject title is required";
     if (type === "news" && !title.trim()) return "Headline is required";
     return null;
   };
 
-  const save = async (status: Status) => {
+  const resolveStatusFromMode = (mode: PublishMode): { status: Status; scheduledIso: string | null } => {
+    if (mode === "draft") return { status: "draft", scheduledIso: null };
+    if (mode === "submit") return { status: "submitted", scheduledIso: null };
+    if (mode === "publish_now") return { status: "published", scheduledIso: null };
+    // schedule
+    if (!schedDate) return { status: "draft", scheduledIso: null };
+    const iso = new Date(`${schedDate}T${schedTime || "09:00"}:00`).toISOString();
+    return { status: "scheduled", scheduledIso: iso };
+  };
+
+  const save = async (overrideStatus?: Status) => {
     const err = validate();
     if (err) return toast.error(err);
+
+    let status: Status;
+    let scheduledIso: string | null = null;
+    if (overrideStatus) {
+      status = overrideStatus;
+    } else {
+      const r = resolveStatusFromMode(publishMode);
+      status = r.status;
+      scheduledIso = r.scheduledIso;
+      if (publishMode === "schedule" && !scheduledIso) return toast.error("Pick a publish date for scheduling");
+    }
+
     setBusy(true);
 
     const isMusic = type === "album_review" || type === "single_review";
-    const isReview = type === "film_review" || isMusic;
+    const isGame = type === "game_review";
+    const isReview = type === "film_review" || isMusic || isGame;
 
     const payload: any = {
       title: title.trim(),
@@ -311,6 +335,10 @@ const UniversalEditor = ({
       author_id: userId,
       article_type: type,
       writer_name: writerName || null,
+      // scheduling
+      scheduled_for: scheduledIso,
+      scheduled_timezone: status === "scheduled" ? schedTz : null,
+      featured_until: featuredUntil || null,
       // film
       film_title: type === "film_review" ? (filmTitle || null) : null,
       film_release_date: type === "film_review" ? (filmReleaseDate || null) : null,
@@ -349,12 +377,24 @@ const UniversalEditor = ({
       news_source: type === "news" ? (newsSource || null) : null,
       news_date: type === "news" ? (newsDate || null) : null,
       news_location: type === "news" ? (newsLocation || null) : null,
+      // game
+      game_title: isGame ? (gameTitle || null) : null,
+      game_developer: isGame ? (gameDeveloper || null) : null,
+      game_publisher: isGame ? (gamePublisher || null) : null,
+      game_release_date: isGame ? (gameReleaseDate || null) : null,
+      game_platforms: isGame ? (gamePlatforms || null) : null,
+      game_genre: isGame ? (gameGenre || null) : null,
+      game_esrb_rating: isGame ? (gameEsrb || null) : null,
+      game_reviewer: isGame ? (gameReviewer || null) : null,
+      game_trailer_url: isGame ? (gameTrailer || null) : null,
+      game_screenshots: isGame ? gameScreenshots.filter(Boolean) : [],
       // review bits
       rtg_rating: isReview ? (rtgRating || null) : null,
       audience_score: isReview ? (numOrNull(audience) as any) : null,
       rotten_tomatoes_score: type === "film_review" ? (numOrNull(rt) as any) : null,
-      metacritic_score: type === "film_review" ? (numOrNull(meta) as any) : null,
+      metacritic_score: (type === "film_review" || isGame) ? (numOrNull(meta) as any) : null,
       imdb_score: type === "film_review" ? (numOrNull(imdb) as any) : null,
+      steam_score: isGame ? (numOrNull(steamScore) as any) : null,
       is_official_rtg_review: isReview ? official : false,
       verdict_headline: isReview ? (verdictHeadline || null) : null,
       verdict_paragraph: isReview ? (verdictParagraph || null) : null,
@@ -367,11 +407,18 @@ const UniversalEditor = ({
       : await supabase.from("articles").insert(payload);
     setBusy(false);
     if (res.error) return toast.error(res.error.message);
-    toast.success(status === "draft" ? "Saved as draft" : status === "published" ? "Published" : "Submitted for review");
+    const msg =
+      status === "draft" ? "Saved as draft" :
+      status === "submitted" ? "Submitted for review" :
+      status === "scheduled" ? `Scheduled for ${new Date(scheduledIso!).toLocaleString()}` :
+      status === "published" ? "Published" : `Moved to ${status}`;
+    toast.success(msg);
     onSaved();
   };
 
-  const isReview = type === "film_review" || type === "album_review" || type === "single_review";
+  const isReview = type === "film_review" || type === "album_review" || type === "single_review" || type === "game_review";
+  const isGame = type === "game_review";
+
 
   /* ============================== UI ============================== */
   return (
