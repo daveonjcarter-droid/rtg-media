@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import QuickSiteUpdates from "@/components/dashboard/QuickSiteUpdates";
 import ContentManagers from "@/components/dashboard/ContentManagers";
+import ImportArticleDialog from "@/components/dashboard/ImportArticleDialog";
 import logoLight from "@/assets/rtg-logo-light.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -95,6 +96,7 @@ const Dashboard = () => {
   const [section, setSection] = useState<SectionId>("overview");
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState<Article | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
@@ -247,13 +249,23 @@ const Dashboard = () => {
               <Bell className="h-3.5 w-3.5" />
             </button>
             {canCreate && (
-              <Button
-                onClick={() => openEditor(null)}
-                size="sm"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm uppercase tracking-widest text-[10px] h-8 px-3"
-              >
-                <Plus className="h-3 w-3 mr-1" /> New Article
-              </Button>
+              <>
+                <Button
+                  onClick={() => setImportOpen(true)}
+                  size="sm"
+                  variant="outline"
+                  className="rounded-sm uppercase tracking-widest text-[10px] h-8 px-3 hidden sm:inline-flex"
+                >
+                  <Upload className="h-3 w-3 mr-1" /> Import
+                </Button>
+                <Button
+                  onClick={() => openEditor(null)}
+                  size="sm"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm uppercase tracking-widest text-[10px] h-8 px-3"
+                >
+                  <Plus className="h-3 w-3 mr-1" /> New Article
+                </Button>
+              </>
             )}
             <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-ink flex items-center justify-center text-[10px] font-semibold border border-border">
               {user?.email?.slice(0, 2).toUpperCase()}
@@ -285,6 +297,19 @@ const Dashboard = () => {
       </div>
 
       {editorOpen && <Editor article={editing} userId={user!.id} onClose={() => setEditorOpen(false)} onSaved={() => { setEditorOpen(false); loadArticles(); }} />}
+
+      <ImportArticleDialog
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        userId={user?.id ?? ""}
+        onImported={async (newId) => {
+          await loadArticles();
+          setSection("drafts");
+          // Open the editor on the freshly imported draft
+          const { data } = await supabase.from("articles").select("*").eq("id", newId).maybeSingle();
+          if (data) openEditor(data as Article);
+        }}
+      />
     </div>
   );
 };
