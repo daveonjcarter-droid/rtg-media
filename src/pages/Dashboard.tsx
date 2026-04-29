@@ -82,7 +82,7 @@ type Article = {
 };
 
 type SectionId =
-  | "overview" | "drafts" | "submitted" | "revisions" | "published"
+  | "overview" | "drafts" | "submitted" | "revisions" | "scheduled" | "published" | "archived"
   | "calendar" | "media" | "social" | "bookings" | "leads" | "users" | "site-updates" | "content-managers";
 
 const ALL_NAV: { id: SectionId; label: string; icon: any; roles: AppRole[]; group: "Content" | "Pipeline" | "Ops" | "Admin" }[] = [
@@ -90,7 +90,9 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; roles: AppRole[]; grou
   { id: "drafts", label: "Drafts", icon: FileEdit, roles: ["admin", "editor", "writer"], group: "Pipeline" },
   { id: "submitted", label: "Submitted", icon: Inbox, roles: ["admin", "editor", "writer"], group: "Pipeline" },
   { id: "revisions", label: "Revisions", icon: RotateCcw, roles: ["admin", "editor", "writer"], group: "Pipeline" },
+  { id: "scheduled", label: "Scheduled", icon: Calendar, roles: ["admin", "editor", "writer", "social_manager"], group: "Pipeline" },
   { id: "published", label: "Published", icon: CheckCircle2, roles: ["admin", "editor", "writer", "social_manager"], group: "Pipeline" },
+  { id: "archived", label: "Archived", icon: Inbox, roles: ["admin", "editor"], group: "Pipeline" },
   { id: "calendar", label: "Calendar", icon: Calendar, roles: ["admin", "editor", "social_manager"], group: "Content" },
   { id: "media", label: "Media Library", icon: ImageIcon, roles: ["admin", "editor", "writer"], group: "Content" },
   { id: "social", label: "Social", icon: Instagram, roles: ["admin", "editor", "social_manager"], group: "Content" },
