@@ -203,6 +203,16 @@ export const BlockEditor = ({
           </>
         )}
 
+        {block.kind === "embed" && (
+          <>
+            <Input value={block.url ?? ""} onChange={(e) => set({ url: e.target.value })} placeholder="Embed URL (YouTube, Spotify, SoundCloud, Twitter…)" className={inputCls} />
+            <Input value={block.caption ?? ""} onChange={(e) => set({ caption: e.target.value })} placeholder="Caption (optional)" className={inputCls} />
+            {block.url && (
+              <div className="text-[10px] text-muted-foreground border border-dashed border-border rounded-sm px-2 py-1.5 truncate">↪ {block.url}</div>
+            )}
+          </>
+        )}
+
         {block.kind === "verdict" && (
           <>
             <Input value={block.headline ?? ""} onChange={(e) => set({ headline: e.target.value })} placeholder="Verdict headline" className={inputCls} />
