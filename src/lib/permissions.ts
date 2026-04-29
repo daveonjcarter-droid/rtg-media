@@ -28,6 +28,7 @@ export type SectionId =
   | "trends"
   | "community"
   | "permissions"
+  | "invites"
   | "settings";
 
 export type Group = "Content" | "Pipeline" | "Studio" | "Ops" | "Ecosystem" | "Admin";
