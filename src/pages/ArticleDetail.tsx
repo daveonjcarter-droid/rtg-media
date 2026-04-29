@@ -257,6 +257,104 @@ const MusicReviewView = ({ article, related }: { article: Article; related: Arti
   );
 };
 
+/* =========== Game Review =========== */
+const GameReviewView = ({ article, related }: { article: Article; related: Article[] }) => {
+  const v = article.verdict_recommendation ? verdictMeta[article.verdict_recommendation] : null;
+  const headline = article.game_title || article.title;
+  return (
+    <SiteLayout>
+      <section className="relative bg-ink border-b border-border">
+        {article.cover_image_url && (
+          <div className="absolute inset-0">
+            <img src={article.cover_image_url} alt="" className="w-full h-full object-cover opacity-30" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+          </div>
+        )}
+        <div className="container-rtg relative pt-20 md:pt-28 pb-10 md:pb-16">
+          <Link to="/articles" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-primary mb-6"><ArrowLeft className="h-3 w-3" /> All Stories</Link>
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            {article.is_official_rtg_review && (
+              <span className="inline-flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.25em] px-2 py-1"><Award className="h-3 w-3" /> RTG Review</span>
+            )}
+            <span className="inline-flex items-center gap-1 border border-border bg-background/50 text-[10px] font-bold uppercase tracking-[0.25em] px-2 py-1 text-muted-foreground">
+              <Gamepad2 className="h-3 w-3" /> Game Review
+            </span>
+            {article.game_genre && <span className="border border-border bg-background/50 text-[10px] font-bold uppercase tracking-[0.25em] px-2 py-1 text-muted-foreground">{article.game_genre}</span>}
+            {article.game_esrb_rating && <span className="border border-border bg-background/50 text-[10px] font-bold uppercase tracking-[0.25em] px-2 py-1 text-muted-foreground">ESRB {article.game_esrb_rating}</span>}
+          </div>
+          {article.game_developer && <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">{article.game_developer}</div>}
+          <h1 className="type-mega text-4xl md:text-6xl lg:text-7xl leading-[0.92] max-w-4xl">{headline}</h1>
+          {article.excerpt && <p className="mt-6 font-editorial text-lg text-muted-foreground max-w-3xl">{article.excerpt}</p>}
+          {article.rtg_rating != null && article.rtg_rating > 0 && (
+            <div className="mt-6 flex items-center gap-3">
+              <StarRatingDisplay value={Number(article.rtg_rating)} size={26} />
+              <span className="font-display text-2xl tabular-nums">{Number(article.rtg_rating).toFixed(1)}</span>
+              <span className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">RTG Rating</span>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="container-rtg py-10 md:py-14">
+        <div className="grid lg:grid-cols-[1fr_300px] gap-10 max-w-5xl mx-auto">
+          <div className="order-2 lg:order-1 max-w-2xl space-y-7">
+            {article.game_trailer_url && (
+              <div className="border border-border rounded-sm p-3 bg-surface/30 text-xs">
+                <div className="text-[9px] uppercase tracking-[0.3em] text-primary mb-1">Trailer</div>
+                <a href={article.game_trailer_url} target="_blank" rel="noreferrer" className="text-foreground hover:text-primary truncate block">{article.game_trailer_url}</a>
+              </div>
+            )}
+            {Array.isArray(article.body_blocks) && article.body_blocks.map((b) => <BlockView key={b.id} block={b} />)}
+            {Array.isArray(article.game_screenshots) && article.game_screenshots.length > 0 && (
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.3em] text-primary mb-3">Screenshots</div>
+                <div className="grid grid-cols-2 gap-2">
+                  {article.game_screenshots.filter(Boolean).map((url, i) => (
+                    <div key={i} className="aspect-video overflow-hidden border border-border bg-surface">
+                      <img src={url} alt={`Screenshot ${i + 1}`} className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {(article.audience_score != null || article.metacritic_score != null || article.steam_score != null) && (
+              <div className="border border-border rounded-sm p-4 bg-surface/30">
+                <div className="text-[10px] uppercase tracking-[0.3em] text-primary mb-3">External Scores</div>
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  {article.metacritic_score != null && <ScoreCell label="Metacritic" value={`${article.metacritic_score}`} />}
+                  {article.steam_score != null && <ScoreCell label="Steam" value={`${article.steam_score}`} />}
+                  {article.audience_score != null && <ScoreCell label="Audience" value={`${article.audience_score}`} />}
+                </div>
+              </div>
+            )}
+            {(article.verdict_headline || article.verdict_paragraph || v) && <VerdictCard article={article} v={v} />}
+          </div>
+          <aside className="order-1 lg:order-2 lg:sticky lg:top-24 self-start">
+            <div className="border border-border rounded-sm bg-surface/40 p-5 space-y-3">
+              <div className="text-[10px] uppercase tracking-[0.3em] text-primary font-semibold">Game Info</div>
+              {article.game_developer && <InfoRow icon={User} label="Developer" value={article.game_developer} />}
+              {article.game_publisher && <InfoRow icon={Building2} label="Publisher" value={article.game_publisher} />}
+              {article.game_release_date && <InfoRow icon={CalendarIcon} label="Released" value={formatDate(article.game_release_date)} />}
+              {article.game_platforms && <InfoRow icon={Tv2} label="Platforms" value={article.game_platforms} />}
+              {article.game_genre && <InfoRow icon={Layers} label="Genre" value={article.game_genre} />}
+              {article.game_esrb_rating && <InfoRow icon={Award} label="ESRB" value={article.game_esrb_rating} />}
+              {(article.game_reviewer || article.writer_name) && <InfoRow icon={User} label="Reviewer" value={article.game_reviewer || article.writer_name!} />}
+            </div>
+          </aside>
+        </div>
+      </section>
+      <RelatedSection related={related} category="" eyebrow="More Reviews" title="Keep Playing" />
+    </SiteLayout>
+  );
+};
+
+const ScoreCell = ({ label, value }: { label: string; value: string }) => (
+  <div className="border border-border rounded-sm py-2">
+    <div className="font-display text-2xl leading-none">{value}</div>
+    <div className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground mt-1">{label}</div>
+  </div>
+);
+
 /* =========== Generic typed view (interview/breakdown/news) =========== */
 const TypedView = ({ article, related, kind }: { article: Article; related: Article[]; kind: "interview" | "breakdown" | "news" }) => {
   const meta = {
