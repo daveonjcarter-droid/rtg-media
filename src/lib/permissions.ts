@@ -112,6 +112,6 @@ export const canManageUsers = (roles: AppRole[]) =>
 export const canManageBilling = (roles: AppRole[]) => roles.includes("head_admin");
 
 export const primaryRole = (roles: AppRole[]): AppRole => {
-  const order: AppRole[] = ["head_admin", "admin", "editor", "writer", "booking_manager", "social_manager", "media_manager"];
+  const order: AppRole[] = ["head_admin", "admin", "social_articles_lead", "editor", "writer", "booking_manager", "social_manager", "media_manager"];
   return order.find((r) => roles.includes(r)) ?? "writer";
 };
