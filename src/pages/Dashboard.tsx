@@ -143,7 +143,11 @@ const Dashboard = () => {
     if (!navItems.find((n) => n.id === section)) setSection("overview");
   }, [navItems, section]);
 
-  const openEditor = (a: Article | null = null) => { setEditing(a); setEditorOpen(true); };
+  const openEditor = (a: Article | null = null, type: ArticleType = "standard") => {
+    setEditing(a);
+    setNewType((a?.article_type as ArticleType) ?? type);
+    setEditorOpen(true);
+  };
 
   const updateStatus = async (id: string, status: Status) => {
     const patch: any = { status };
