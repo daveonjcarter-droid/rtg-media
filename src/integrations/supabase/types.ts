@@ -1459,6 +1459,17 @@ export type Database = {
         | "booking_manager"
         | "media_manager"
         | "social_articles_lead"
+        | "crew"
+        | "photographer"
+        | "videographer"
+        | "video_editor"
+        | "director"
+        | "producer"
+        | "audio_engineer"
+        | "grip_lighting"
+        | "makeup_artist"
+        | "production_assistant"
+        | "studio_staff"
       article_status:
         | "draft"
         | "submitted"
@@ -1628,6 +1639,17 @@ export const Constants = {
         "booking_manager",
         "media_manager",
         "social_articles_lead",
+        "crew",
+        "photographer",
+        "videographer",
+        "video_editor",
+        "director",
+        "producer",
+        "audio_engineer",
+        "grip_lighting",
+        "makeup_artist",
+        "production_assistant",
+        "studio_staff",
       ],
       article_status: [
         "draft",
