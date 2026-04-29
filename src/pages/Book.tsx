@@ -306,7 +306,35 @@ const Book = () => {
           )}
 
           {step === 2 && (
-            <Step title="Pick your crew" sub="Choose someone specific, or let RTG assign the right team.">
+            <Step title="Choose your crew" sub="Pick a crew package, then optionally request a specific team member.">
+              {/* Crew packages */}
+              <div className="eyebrow mb-3">Crew package</div>
+              <div className="grid sm:grid-cols-2 gap-2 mb-6">
+                {CREW_PACKAGE_ORDER.map((id) => {
+                  const pkg = CREW_PACKAGES[id];
+                  const active = form.crew_request_type === id;
+                  return (
+                    <Choice key={id} active={active} onClick={() => set("crew_request_type", id)}>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="font-display uppercase text-sm leading-tight">{pkg.label}</div>
+                        <div className="text-[10px] uppercase tracking-widest text-primary whitespace-nowrap">
+                          {pkg.priceModifier === 0 ? "Base price" : `+$${pkg.priceModifier}`}
+                        </div>
+                      </div>
+                      <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1.5">{pkg.scale} · {pkg.qualityLabel}</div>
+                      <div className="mt-2 text-[11px] text-muted-foreground">
+                        <span className="text-foreground/80">Best for:</span> {pkg.bestFor.slice(0, 2).join(", ")}
+                      </div>
+                      <div className="mt-1.5 text-[11px] text-muted-foreground">
+                        <span className="text-foreground/80">Includes:</span> {pkg.includes.join(", ")}
+                      </div>
+                    </Choice>
+                  );
+                })}
+              </div>
+
+              {/* Optional preferred crew member */}
+              <div className="eyebrow mb-3">Preferred crew member <span className="text-muted-foreground/60 normal-case">(optional)</span></div>
               <Choice
                 active={form.no_preference}
                 onClick={() => { set("no_preference", true); set("staff_id", null); }}
@@ -357,6 +385,23 @@ const Book = () => {
                   ))}
                 </div>
               )}
+
+              {/* Live price preview */}
+              {(() => {
+                const svc = services.find((s) => s.id === form.service_id);
+                const base = svc?.sale_price ?? svc?.base_price ?? 0;
+                const mod = CREW_PACKAGES[form.crew_request_type as CrewPackageId].priceModifier;
+                if (!base && !mod) return null;
+                return (
+                  <div className="mt-6 border border-primary/40 p-4 bg-primary/5 rounded-sm">
+                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Estimated starting price</div>
+                    <div className="font-display text-2xl text-foreground mt-1">
+                      ${(Number(base) + mod).toLocaleString()}
+                      {mod > 0 && <span className="text-xs text-muted-foreground ml-2 normal-case">(${Number(base).toLocaleString()} base + ${mod} crew)</span>}
+                    </div>
+                  </div>
+                );
+              })()}
             </Step>
           )}
 
