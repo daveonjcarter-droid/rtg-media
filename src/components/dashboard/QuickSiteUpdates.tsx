@@ -68,7 +68,7 @@ export const DEFAULT_HOMEPAGE: HomepageContent = {
   hero: {
     headline: "Runners\nTo Greatness",
     subheadline:
-      "We document the culture before it has a name. Film. Music. Fashion. The Chicago stories the rest of the world will be talking about next.",
+      "Culture before it has a name. Film. Music. Fashion. Chicago — first.",
     backgroundImage: "",
     ctaText: "Read The Magazine",
     ctaLink: "/articles",

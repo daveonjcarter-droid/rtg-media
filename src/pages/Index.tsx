@@ -3,6 +3,7 @@ import { ArrowRight, ArrowUpRight, Camera, Video, Music, Film, Scissors, Radio, 
 import SiteLayout from "@/components/site/SiteLayout";
 import NewsletterForm from "@/components/site/NewsletterForm";
 import EmptyState from "@/components/site/EmptyState";
+import Reveal from "@/components/site/Reveal";
 import { Button } from "@/components/ui/button";
 import heroImg from "@/assets/hero-videographer.jpg";
 import breakdownBg from "@/assets/breakdown-bg.jpg";
@@ -96,7 +97,7 @@ const Index = () => {
       </section>
 
       {/* ============ TICKER ============ */}
-      <section className="border-y border-border bg-ink overflow-hidden relative">
+      <section className="relative border-y border-border bg-ink overflow-hidden section-bridge-ink-top">
         <div className="flex whitespace-nowrap marquee py-5">
           {[...TICKER, ...TICKER, ...TICKER].map((t, i) => (
             <span key={i} className="font-condensed text-3xl md:text-5xl uppercase mx-6 text-foreground/90">
@@ -119,29 +120,64 @@ const Index = () => {
             </Link>
           </div>
 
-          <EmptyState
-            eyebrow="The Magazine"
-            title="No stories published yet."
-            description="RTG Media is preparing its first releases. The cover story drops with Issue 001."
-            icon={Newspaper}
-          />
+          <Reveal>
+            <EmptyState
+              eyebrow="The Magazine"
+              title="The cover story drops with Issue 001."
+              description="RTG Media is preparing its first releases. Stay close."
+              icon={Newspaper}
+              ribbon="Issue 001 — incoming"
+            />
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ============ WOW MOMENT — full-bleed cinematic manifesto ============ */}
+      <section className="relative min-h-[90svh] bg-ink overflow-hidden grain-heavy flex items-center section-bridge-ink-top section-bridge-ink-bottom">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,hsl(var(--primary)/0.18),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_90%,hsl(45_65%_52%/0.10),transparent_60%)]" />
+        <div className="container-rtg relative py-24 md:py-32">
+          <Reveal>
+            <div className="eyebrow text-primary mb-6">Statement · 001</div>
+          </Reveal>
+          <Reveal delay={120} y={48}>
+            <h2 className="type-mega text-cream text-[14vw] md:text-[10vw] leading-[0.86]">
+              If you're not on RTG,
+              <br />
+              <span className="glitch text-primary" data-text="you're missing what's next.">
+                you're missing what's next.
+              </span>
+            </h2>
+          </Reveal>
+          <Reveal delay={260}>
+            <div className="mt-10 flex flex-wrap items-center gap-x-10 gap-y-3 text-[11px] uppercase tracking-[0.4em] text-cream/60">
+              <span className="h-px w-12 bg-cream/40" />
+              <span>Chicago</span>
+              <span>·</span>
+              <span>Independent</span>
+              <span>·</span>
+              <span>Black-owned</span>
+              <span>·</span>
+              <span>Issue 001</span>
+            </div>
+          </Reveal>
         </div>
       </section>
 
       {/* ============ RTG BREAKDOWN — empty state ============ */}
-      <section className="relative overflow-hidden bg-ink py-20 md:py-28 grain-heavy">
-        <img src={breakdownImg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" />
+      <section className="relative overflow-hidden bg-ink py-20 md:py-28 grain-heavy section-bridge-ink-bottom">
+        <img src={breakdownImg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20 ken-burns" />
         <div className="absolute inset-0 bg-gradient-to-b from-ink via-ink/85 to-ink" />
 
         <div className="container-rtg relative">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
             <div>
-              <div className="eyebrow text-primary mb-3">Now Streaming</div>
+              <div className="eyebrow text-primary mb-3">Now Streaming · Soon</div>
               <h2 className="type-mega text-6xl md:text-8xl lg:text-9xl text-cream">
                 RTG <span className="text-hollow">Breakdown</span>
               </h2>
               <p className="mt-5 max-w-lg text-cream/75">
-                Movies, TV, anime, comics. Frame-by-frame breakdowns of everything the culture is talking about.
+                Frame-by-frame on the films, shows, and stories the culture is talking about.
               </p>
             </div>
             <Button asChild size="lg" className="self-start md:self-end bg-cream text-ink hover:bg-cream/90 rounded-none uppercase tracking-[0.25em] text-xs h-12 px-7">
@@ -149,13 +185,16 @@ const Index = () => {
             </Button>
           </div>
 
-          <EmptyState
-            eyebrow="The Vault"
-            title="Breakdowns coming soon."
-            description="We're preparing deep dives into film, TV, and culture. First episodes drop with Issue 001."
-            icon={Film}
-            tone="dark"
-          />
+          <Reveal>
+            <EmptyState
+              eyebrow="The Vault"
+              title="First episodes drop with Issue 001."
+              description="Deep dives on film, TV, anime, and culture — coming soon."
+              icon={Film}
+              tone="dark"
+              ribbon="Premiere · 001"
+            />
+          </Reveal>
         </div>
       </section>
 
@@ -247,32 +286,44 @@ const Index = () => {
           </Link>
         </div>
         <div className="container-rtg">
-          <EmptyState
-            eyebrow="The Reel"
-            title="No projects uploaded yet."
-            description="RTG production work will appear here as projects ship."
-            icon={Camera}
-            tone="dark"
-          />
+          <Reveal>
+            <EmptyState
+              eyebrow="The Reel"
+              title="The reel ships with our first projects."
+              description="RTG production work will appear here as projects drop."
+              icon={Camera}
+              tone="dark"
+              ribbon="In production"
+            />
+          </Reveal>
         </div>
       </section>
 
-      {/* ============ MERCH TEASER — streetwear energy ============ */}
+      {/* ============ MERCH TEASER — asymmetric streetwear energy ============ */}
       <section className="relative bg-background py-24 md:py-32 overflow-hidden">
-        <div className="container-rtg relative">
-          <div className="text-center">
-            <div className="font-gothic text-3xl md:text-4xl text-primary mb-6">{content.drops.headline}</div>
-            {content.drops.image && (
-              <div className="mx-auto mb-8 max-w-md aspect-square overflow-hidden rounded-sm">
-                <img src={content.drops.image} alt={content.drops.headline} className="w-full h-full object-cover" />
+        <div className="container-rtg relative grid md:grid-cols-12 gap-10 items-center">
+          {/* Image — offset, smaller, left */}
+          <div className="md:col-span-5 md:translate-y-6">
+            {content.drops.image ? (
+              <div className="aspect-[4/5] overflow-hidden rounded-sm border border-border grain">
+                <img src={content.drops.image} alt={content.drops.headline} className="w-full h-full object-cover img-kinetic" />
+              </div>
+            ) : (
+              <div className="aspect-[4/5] border border-border bg-surface/40 flex items-center justify-center">
+                <span className="font-gothic text-6xl text-primary/60">RTG</span>
               </div>
             )}
-            <h2 className="type-mega text-[20vw] md:text-[14vw] lg:text-[12rem] leading-[0.85]">
+          </div>
+
+          {/* Text — right, slightly offset up */}
+          <div className="md:col-span-7 md:-translate-y-4 md:pl-6">
+            <div className="font-gothic text-3xl md:text-4xl text-primary mb-4">{content.drops.headline}</div>
+            <h2 className="type-mega text-[18vw] md:text-[12vw] lg:text-[10rem] leading-[0.85]">
               Coming
               <br />
               <span className="text-hollow">Soon.</span>
             </h2>
-            <p className="mt-8 max-w-md mx-auto text-muted-foreground">
+            <p className="mt-8 max-w-md text-muted-foreground">
               {content.drops.text}
             </p>
             {content.drops.ctaText && (
@@ -302,7 +353,7 @@ const Index = () => {
               <span className="text-primary">list.</span>
             </h2>
             <p className="mt-6 text-cream/75 max-w-md">
-              Stories, breakdowns, and drops — straight to your inbox. No spam, just culture before everyone else.
+              Culture before everyone else. No noise.
             </p>
           </div>
           <div className="lg:col-span-5">
