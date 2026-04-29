@@ -303,10 +303,10 @@ const Dashboard = () => {
   );
 
   return (
-    <div className="min-h-screen flex bg-background text-foreground">
+    <div className="h-screen flex bg-background text-foreground overflow-hidden">
       {/* ============ DESKTOP SIDEBAR ============ */}
       <aside
-        className={`${collapsed ? "w-[64px]" : "w-[220px]"} shrink-0 border-r border-border bg-sidebar hidden lg:flex flex-col transition-[width] duration-200`}
+        className={`${collapsed ? "w-[64px]" : "w-[220px]"} shrink-0 border-r border-border bg-sidebar hidden lg:flex flex-col transition-[width] duration-200 h-screen overflow-y-auto`}
       >
         {navContent(false)}
       </aside>
@@ -319,7 +319,7 @@ const Dashboard = () => {
             className="absolute inset-0 bg-ink/70 backdrop-blur-sm animate-in fade-in"
             onClick={() => setMobileNavOpen(false)}
           />
-          <aside className="relative w-[78vw] max-w-[300px] bg-sidebar border-r border-border flex flex-col animate-in slide-in-from-left duration-200">
+          <aside className="relative w-[78vw] max-w-[300px] bg-sidebar border-r border-border flex flex-col animate-in slide-in-from-left duration-200 h-screen overflow-y-auto">
             <button
               onClick={() => setMobileNavOpen(false)}
               aria-label="Close menu"
