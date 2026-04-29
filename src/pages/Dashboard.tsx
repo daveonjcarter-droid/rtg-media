@@ -1757,14 +1757,15 @@ const UsersView = () => {
                 <div className="text-[10px] text-muted-foreground font-mono truncate">{u.id}</div>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                {(["admin", "editor", "writer", "social_manager"] as AppRole[]).map((r) => {
+                {(["head_admin", "admin", "editor", "writer", "social_manager", "booking_manager", "media_manager"] as AppRole[]).map((r) => {
                   const has = u.roles.includes(r);
                   return (
                     <button key={r} onClick={() => toggleRole(u.id, r, has)}
+                      title={ROLE_DESCRIPTIONS[r]}
                       className={`text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-sm border transition-colors ${
                         has ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:text-foreground"
                       }`}>
-                      {r.replace("_", " ")}
+                      {ROLE_LABELS[r]}
                     </button>
                   );
                 })}
