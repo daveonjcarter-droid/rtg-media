@@ -883,6 +883,7 @@ export const BookingsDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("active");
   const [editing, setEditing] = useState<BookingRow | null>(null);
+  const [crewSlotsFor, setCrewSlotsFor] = useState<BookingRow | null>(null);
 
   const load = async () => {
     setLoading(true);
