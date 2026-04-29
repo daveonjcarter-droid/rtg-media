@@ -297,6 +297,19 @@ const Dashboard = () => {
       </div>
 
       {editorOpen && <Editor article={editing} userId={user!.id} onClose={() => setEditorOpen(false)} onSaved={() => { setEditorOpen(false); loadArticles(); }} />}
+
+      <ImportArticleDialog
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        userId={user?.id ?? ""}
+        onImported={async (newId) => {
+          await loadArticles();
+          setSection("drafts");
+          // Open the editor on the freshly imported draft
+          const { data } = await supabase.from("articles").select("*").eq("id", newId).maybeSingle();
+          if (data) openEditor(data as Article);
+        }}
+      />
     </div>
   );
 };
