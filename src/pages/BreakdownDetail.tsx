@@ -68,7 +68,7 @@ const BreakdownDetail = () => {
             <ArrowLeft className="h-3 w-3" /> Back to Breakdown
           </Link>
           <EmptyState
-            eyebrow="RTG Breakdown"
+            eyebrow={<RtgMark wordClassName="tracking-[0.25em]">Breakdown</RtgMark> as any}
             title="This episode isn't live yet."
             description="The breakdown you're looking for hasn't been published."
             icon={Film}

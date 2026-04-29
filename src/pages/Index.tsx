@@ -9,6 +9,7 @@ import EpisodeCard from "@/components/site/EpisodeCard";
 import PicksStrip from "@/components/site/PicksStrip";
 import CreatorGrid from "@/components/site/CreatorGrid";
 import ChicagoFeed from "@/components/site/ChicagoFeed";
+import RtgMark from "@/components/site/RtgMark";
 import { Button } from "@/components/ui/button";
 import breakdownBg from "@/assets/breakdown-bg.jpg";
 import servicesStudio from "@/assets/services-studio.jpg";
