@@ -86,7 +86,7 @@ const Index = () => {
         </div>
 
         <div className="container-rtg relative z-10 min-h-[100svh] flex flex-col justify-end pb-10 md:pb-16 pt-32">
-          <div className="flex items-end justify-between gap-6 mb-8">
+          <div className="flex items-end justify-between gap-6 mb-8 hero-fade">
             <div className="flex items-center gap-3 text-cream/70 text-[10px] uppercase tracking-[0.4em]">
               <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
               Live from Chicago
@@ -96,31 +96,34 @@ const Index = () => {
             </div>
           </div>
 
-          <h1 className="type-mega text-[22vw] md:text-[16vw] lg:text-[13vw] text-cream fade-in-up">
-            {heroLines.map((line, i) => (
-              <span key={i}>
-                {i === heroLines.length - 1 && heroLines.length > 1 ? (
-                  <span className="text-hollow-primary">{line}</span>
-                ) : (
-                  line
-                )}
-                {i < heroLines.length - 1 && <br />}
-              </span>
-            ))}
+          <h1 className="type-mega text-[22vw] md:text-[16vw] lg:text-[13vw] text-cream">
+            {heroLines.map((line, i) => {
+              const isHollow = i === heroLines.length - 1 && heroLines.length > 1;
+              return (
+                <span key={i} className="block">
+                  <span
+                    className={isHollow ? "text-hollow-primary mask-reveal delay-500" : "hero-rise"}
+                    style={!isHollow ? { animationDelay: `${i * 140 + 200}ms` } : undefined}
+                  >
+                    {line}
+                  </span>
+                </span>
+              );
+            })}
           </h1>
 
           <div className="mt-8 grid md:grid-cols-12 gap-6 items-end">
-            <p className="md:col-span-5 text-cream/85 text-base md:text-lg leading-relaxed max-w-md">
+            <p className="md:col-span-5 text-cream/85 text-base md:text-lg leading-relaxed max-w-md hero-fade delay-700">
               {content.hero.subheadline}
             </p>
-            <div className="md:col-span-4 md:col-start-9 flex flex-wrap gap-3 justify-start md:justify-end">
-              <Button asChild size="lg" className="group bg-primary text-primary-foreground hover:bg-primary/90 rounded-none uppercase tracking-[0.25em] text-xs h-12 px-7">
+            <div className="md:col-span-4 md:col-start-9 flex flex-wrap gap-3 justify-start md:justify-end hero-fade delay-900">
+              <Button asChild size="lg" className="btn-cinematic group bg-primary text-primary-foreground hover:bg-primary/90 rounded-none uppercase tracking-[0.25em] text-xs h-12 px-7">
                 <Link to={content.hero.ctaLink || "/articles"}>
                   {content.hero.ctaText}
                   <ArrowUpRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-none uppercase tracking-[0.25em] text-xs h-12 px-7 border-cream/40 bg-transparent text-cream hover:bg-cream hover:text-ink">
+              <Button asChild size="lg" variant="outline" className="btn-cinematic rounded-none uppercase tracking-[0.25em] text-xs h-12 px-7 border-cream/40 bg-transparent text-cream hover:bg-cream hover:text-ink">
                 <Link to="/book">Book Studio</Link>
               </Button>
             </div>
