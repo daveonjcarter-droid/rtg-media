@@ -42,7 +42,7 @@ import storyBreakdown from "@/assets/story-breakdown.jpg";
 
 type Status = "draft" | "submitted" | "revisions" | "approved" | "published";
 
-type ArticleType = "standard" | "film_review" | "interview" | "opinion" | "breakdown" | "news";
+type ArticleType = "standard" | "film_review" | "album_review" | "single_review" | "interview" | "opinion" | "breakdown" | "news";
 
 type Article = {
   id: string;
