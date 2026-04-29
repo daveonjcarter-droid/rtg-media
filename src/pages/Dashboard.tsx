@@ -503,7 +503,9 @@ const NEXT_STATUS: Partial<Record<Status, { to: Status; label: string; roles: Ap
   ],
   revisions: [{ to: "submitted", label: "Resubmit", roles: ["writer", "editor", "admin"] }],
   approved: [{ to: "published", label: "Publish", roles: ["editor", "admin"] }],
-  published: [],
+  scheduled: [{ to: "published", label: "Publish Now", roles: ["editor", "admin"] }, { to: "draft", label: "Cancel Schedule", roles: ["editor", "admin"] }],
+  published: [{ to: "archived", label: "Archive", roles: ["editor", "admin"] }],
+  archived: [{ to: "draft", label: "Restore", roles: ["editor", "admin"] }],
 };
 
 const ArticleList = ({ articles, onEdit, onUpdateStatus, onDelete, roles, currentUserId }: {
