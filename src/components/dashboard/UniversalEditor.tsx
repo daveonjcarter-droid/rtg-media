@@ -619,6 +619,45 @@ const UniversalEditor = ({
             </section>
           )}
 
+          {/* ---------- GAME REVIEW PANEL ---------- */}
+          {type === "game_review" && (
+            <section className="space-y-3 border-t border-border pt-5">
+              <SectionHead>Game Metadata</SectionHead>
+              <FieldGrid>
+                <Field label="Game Title *" full><Input value={gameTitle} onChange={(e) => setGameTitle(e.target.value)} className={inputCls} /></Field>
+                <Field label="Developer"><Input value={gameDeveloper} onChange={(e) => setGameDeveloper(e.target.value)} className={inputCls} placeholder="FromSoftware" /></Field>
+                <Field label="Publisher"><Input value={gamePublisher} onChange={(e) => setGamePublisher(e.target.value)} className={inputCls} placeholder="Bandai Namco" /></Field>
+                <Field label="Release Date"><Input type="date" value={gameReleaseDate ?? ""} onChange={(e) => setGameReleaseDate(e.target.value)} className={inputCls} /></Field>
+                <Field label="Platforms"><Input value={gamePlatforms} onChange={(e) => setGamePlatforms(e.target.value)} className={inputCls} placeholder="PS5, Xbox Series X, PC" /></Field>
+                <Field label="Genre"><Input value={gameGenre} onChange={(e) => setGameGenre(e.target.value)} className={inputCls} placeholder="Action RPG" /></Field>
+                <Field label="ESRB Rating">
+                  <Select value={gameEsrb || "none"} onValueChange={(v) => setGameEsrb(v === "none" ? "" : v)}>
+                    <SelectTrigger className={inputCls}><SelectValue placeholder="—" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none" className="text-xs">—</SelectItem>
+                      {["E", "E10+", "T", "M", "AO", "RP"].map((r) => <SelectItem key={r} value={r} className="text-xs">{r}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Reviewer"><Input value={gameReviewer} onChange={(e) => setGameReviewer(e.target.value)} className={inputCls} /></Field>
+                <Field label="Trailer / Gameplay Embed URL" full><Input value={gameTrailer} onChange={(e) => setGameTrailer(e.target.value)} className={inputCls} placeholder="YouTube URL" /></Field>
+              </FieldGrid>
+              <div>
+                <Label className={labelCls}>Screenshots Gallery</Label>
+                <div className="space-y-1.5">
+                  {gameScreenshots.map((url, i) => (
+                    <div key={i} className="flex gap-1 items-center">
+                      <Input value={url} onChange={(e) => { const a = [...gameScreenshots]; a[i] = e.target.value; setGameScreenshots(a); }} placeholder="https://… screenshot URL" className={inputCls} />
+                      {url && <img src={url} alt="" className="h-9 w-12 object-cover rounded-sm border border-border" />}
+                      <Button type="button" variant="ghost" size="sm" className="h-9 w-9 p-0" onClick={() => setGameScreenshots(gameScreenshots.filter((_, j) => j !== i))}><Trash2 className="h-3 w-3" /></Button>
+                    </div>
+                  ))}
+                  <Button type="button" variant="outline" size="sm" className="rounded-sm uppercase tracking-widest text-[10px] h-7 w-full" onClick={() => setGameScreenshots([...gameScreenshots, ""])}><Plus className="h-3 w-3 mr-1" /> Add Screenshot</Button>
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* ---------- RATINGS (review types only) ---------- */}
           {isReview && (
             <section className="space-y-3 border-t border-border pt-5">
