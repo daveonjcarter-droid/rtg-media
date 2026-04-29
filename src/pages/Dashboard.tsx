@@ -364,6 +364,13 @@ const Dashboard = () => {
              {section === "users" && <UsersView />}
              {section === "site-updates" && <QuickSiteUpdates />}
              {section === "content-managers" && <ContentManagers />}
+             {section === "import" && <ArticleImportView onOpenImport={() => setImportOpen(true)} />}
+             {section === "analytics" && <AnalyticsView />}
+             {section === "settings" && <SettingsView canBilling={canManageBilling(roles)} />}
+             {section === "production" && <ProductionServicesView />}
+             {section === "portfolio" && <PortfolioManager />}
+             {section === "films" && <RtgFilmsManager />}
+             {section === "fest" && <RtgFestManager />}
             </>
           )}
         </div>
