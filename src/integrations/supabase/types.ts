@@ -65,6 +65,7 @@ export type Database = {
           cover_image_url: string | null
           created_at: string
           excerpt: string | null
+          featured_until: string | null
           film_director: string | null
           film_genre: string | null
           film_mpaa_rating: string | null
@@ -74,6 +75,16 @@ export type Database = {
           film_runtime: string | null
           film_studio: string | null
           film_title: string | null
+          game_developer: string | null
+          game_esrb_rating: string | null
+          game_genre: string | null
+          game_platforms: string | null
+          game_publisher: string | null
+          game_release_date: string | null
+          game_reviewer: string | null
+          game_screenshots: Json
+          game_title: string | null
+          game_trailer_url: string | null
           id: string
           imdb_score: number | null
           interview_date: string | null
@@ -104,10 +115,13 @@ export type Database = {
           published_at: string | null
           rotten_tomatoes_score: number | null
           rtg_rating: number | null
+          scheduled_for: string | null
+          scheduled_timezone: string | null
           seo_description: string | null
           seo_title: string | null
           slug: string | null
           status: Database["public"]["Enums"]["article_status"]
+          steam_score: number | null
           tags: string[] | null
           title: string
           updated_at: string
@@ -132,6 +146,7 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string
           excerpt?: string | null
+          featured_until?: string | null
           film_director?: string | null
           film_genre?: string | null
           film_mpaa_rating?: string | null
@@ -141,6 +156,16 @@ export type Database = {
           film_runtime?: string | null
           film_studio?: string | null
           film_title?: string | null
+          game_developer?: string | null
+          game_esrb_rating?: string | null
+          game_genre?: string | null
+          game_platforms?: string | null
+          game_publisher?: string | null
+          game_release_date?: string | null
+          game_reviewer?: string | null
+          game_screenshots?: Json
+          game_title?: string | null
+          game_trailer_url?: string | null
           id?: string
           imdb_score?: number | null
           interview_date?: string | null
@@ -171,10 +196,13 @@ export type Database = {
           published_at?: string | null
           rotten_tomatoes_score?: number | null
           rtg_rating?: number | null
+          scheduled_for?: string | null
+          scheduled_timezone?: string | null
           seo_description?: string | null
           seo_title?: string | null
           slug?: string | null
           status?: Database["public"]["Enums"]["article_status"]
+          steam_score?: number | null
           tags?: string[] | null
           title?: string
           updated_at?: string
@@ -199,6 +227,7 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string
           excerpt?: string | null
+          featured_until?: string | null
           film_director?: string | null
           film_genre?: string | null
           film_mpaa_rating?: string | null
@@ -208,6 +237,16 @@ export type Database = {
           film_runtime?: string | null
           film_studio?: string | null
           film_title?: string | null
+          game_developer?: string | null
+          game_esrb_rating?: string | null
+          game_genre?: string | null
+          game_platforms?: string | null
+          game_publisher?: string | null
+          game_release_date?: string | null
+          game_reviewer?: string | null
+          game_screenshots?: Json
+          game_title?: string | null
+          game_trailer_url?: string | null
           id?: string
           imdb_score?: number | null
           interview_date?: string | null
@@ -238,10 +277,13 @@ export type Database = {
           published_at?: string | null
           rotten_tomatoes_score?: number | null
           rtg_rating?: number | null
+          scheduled_for?: string | null
+          scheduled_timezone?: string | null
           seo_description?: string | null
           seo_title?: string | null
           slug?: string | null
           status?: Database["public"]["Enums"]["article_status"]
+          steam_score?: number | null
           tags?: string[] | null
           title?: string
           updated_at?: string
@@ -723,6 +765,8 @@ export type Database = {
         | "revisions"
         | "approved"
         | "published"
+        | "scheduled"
+        | "archived"
       article_type:
         | "standard"
         | "film_review"
@@ -732,6 +776,7 @@ export type Database = {
         | "news"
         | "album_review"
         | "single_review"
+        | "game_review"
       booking_status:
         | "new"
         | "contacted"
@@ -880,6 +925,8 @@ export const Constants = {
         "revisions",
         "approved",
         "published",
+        "scheduled",
+        "archived",
       ],
       article_type: [
         "standard",
@@ -890,6 +937,7 @@ export const Constants = {
         "news",
         "album_review",
         "single_review",
+        "game_review",
       ],
       booking_status: [
         "new",

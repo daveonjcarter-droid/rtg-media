@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Newspaper, ArrowLeft, ArrowUpRight, Star, Award, Clock, Calendar as CalendarIcon, Film as FilmIcon, User, AlertTriangle, Check, X, Music, Mic, Layers, Radio, MapPin } from "lucide-react";
+import { Newspaper, ArrowLeft, ArrowUpRight, Star, Award, Clock, Calendar as CalendarIcon, Film as FilmIcon, User, AlertTriangle, Check, X, Music, Mic, Layers, Radio, MapPin, Gamepad2, Building2, Tv2 } from "lucide-react";
 import SiteLayout from "@/components/site/SiteLayout";
 import EmptyState from "@/components/site/EmptyState";
 import { supabase } from "@/integrations/supabase/client";
@@ -67,6 +67,18 @@ type Article = {
   news_source?: string | null;
   news_date?: string | null;
   news_location?: string | null;
+  // game
+  game_title?: string | null;
+  game_developer?: string | null;
+  game_publisher?: string | null;
+  game_release_date?: string | null;
+  game_platforms?: string | null;
+  game_genre?: string | null;
+  game_esrb_rating?: string | null;
+  game_reviewer?: string | null;
+  game_trailer_url?: string | null;
+  game_screenshots?: string[] | null;
+  steam_score?: number | null;
 };
 
 const formatDate = (d: string | null | undefined) => {
@@ -78,7 +90,7 @@ const formatDate = (d: string | null | undefined) => {
   }
 };
 
-const SELECT_COLS = "id,title,slug,category,excerpt,body,cover_image_url,published_at,tags,seo_title,seo_description,article_type,body_blocks,writer_name,film_title,film_release_date,film_runtime,film_director,film_studio,film_genre,film_mpaa_rating,film_reviewer,film_review_date,rtg_rating,audience_score,rotten_tomatoes_score,metacritic_score,imdb_score,is_official_rtg_review,verdict_headline,verdict_paragraph,verdict_recommendation,music_artist,music_album_title,music_song_title,music_label,music_release_date,music_genre,music_runtime,music_track_count,music_producer,music_embed_url,music_tracklist,interview_interviewee,interview_role,interview_date,interview_location,interview_photographer,breakdown_subject,breakdown_category,breakdown_episode,breakdown_spoiler,news_subheadline,news_source,news_date,news_location";
+const SELECT_COLS = "id,title,slug,category,excerpt,body,cover_image_url,published_at,tags,seo_title,seo_description,article_type,body_blocks,writer_name,film_title,film_release_date,film_runtime,film_director,film_studio,film_genre,film_mpaa_rating,film_reviewer,film_review_date,rtg_rating,audience_score,rotten_tomatoes_score,metacritic_score,imdb_score,is_official_rtg_review,verdict_headline,verdict_paragraph,verdict_recommendation,music_artist,music_album_title,music_song_title,music_label,music_release_date,music_genre,music_runtime,music_track_count,music_producer,music_embed_url,music_tracklist,interview_interviewee,interview_role,interview_date,interview_location,interview_photographer,breakdown_subject,breakdown_category,breakdown_episode,breakdown_spoiler,news_subheadline,news_source,news_date,news_location,game_title,game_developer,game_publisher,game_release_date,game_platforms,game_genre,game_esrb_rating,game_reviewer,game_trailer_url,game_screenshots,steam_score";
 
 const ArticleDetail = () => {
   const { id } = useParams();
@@ -155,6 +167,7 @@ const ArticleDetail = () => {
 
   if (article.article_type === "film_review") return <FilmReviewView article={article} related={related} />;
   if (article.article_type === "album_review" || article.article_type === "single_review") return <MusicReviewView article={article} related={related} />;
+  if (article.article_type === "game_review") return <GameReviewView article={article} related={related} />;
   if (article.article_type === "interview") return <TypedView article={article} related={related} kind="interview" />;
   if (article.article_type === "breakdown") return <TypedView article={article} related={related} kind="breakdown" />;
   if (article.article_type === "news") return <TypedView article={article} related={related} kind="news" />;
@@ -243,6 +256,104 @@ const MusicReviewView = ({ article, related }: { article: Article; related: Arti
     </SiteLayout>
   );
 };
+
+/* =========== Game Review =========== */
+const GameReviewView = ({ article, related }: { article: Article; related: Article[] }) => {
+  const v = article.verdict_recommendation ? verdictMeta[article.verdict_recommendation] : null;
+  const headline = article.game_title || article.title;
+  return (
+    <SiteLayout>
+      <section className="relative bg-ink border-b border-border">
+        {article.cover_image_url && (
+          <div className="absolute inset-0">
+            <img src={article.cover_image_url} alt="" className="w-full h-full object-cover opacity-30" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+          </div>
+        )}
+        <div className="container-rtg relative pt-20 md:pt-28 pb-10 md:pb-16">
+          <Link to="/articles" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-primary mb-6"><ArrowLeft className="h-3 w-3" /> All Stories</Link>
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            {article.is_official_rtg_review && (
+              <span className="inline-flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.25em] px-2 py-1"><Award className="h-3 w-3" /> RTG Review</span>
+            )}
+            <span className="inline-flex items-center gap-1 border border-border bg-background/50 text-[10px] font-bold uppercase tracking-[0.25em] px-2 py-1 text-muted-foreground">
+              <Gamepad2 className="h-3 w-3" /> Game Review
+            </span>
+            {article.game_genre && <span className="border border-border bg-background/50 text-[10px] font-bold uppercase tracking-[0.25em] px-2 py-1 text-muted-foreground">{article.game_genre}</span>}
+            {article.game_esrb_rating && <span className="border border-border bg-background/50 text-[10px] font-bold uppercase tracking-[0.25em] px-2 py-1 text-muted-foreground">ESRB {article.game_esrb_rating}</span>}
+          </div>
+          {article.game_developer && <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">{article.game_developer}</div>}
+          <h1 className="type-mega text-4xl md:text-6xl lg:text-7xl leading-[0.92] max-w-4xl">{headline}</h1>
+          {article.excerpt && <p className="mt-6 font-editorial text-lg text-muted-foreground max-w-3xl">{article.excerpt}</p>}
+          {article.rtg_rating != null && article.rtg_rating > 0 && (
+            <div className="mt-6 flex items-center gap-3">
+              <StarRatingDisplay value={Number(article.rtg_rating)} size={26} />
+              <span className="font-display text-2xl tabular-nums">{Number(article.rtg_rating).toFixed(1)}</span>
+              <span className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">RTG Rating</span>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="container-rtg py-10 md:py-14">
+        <div className="grid lg:grid-cols-[1fr_300px] gap-10 max-w-5xl mx-auto">
+          <div className="order-2 lg:order-1 max-w-2xl space-y-7">
+            {article.game_trailer_url && (
+              <div className="border border-border rounded-sm p-3 bg-surface/30 text-xs">
+                <div className="text-[9px] uppercase tracking-[0.3em] text-primary mb-1">Trailer</div>
+                <a href={article.game_trailer_url} target="_blank" rel="noreferrer" className="text-foreground hover:text-primary truncate block">{article.game_trailer_url}</a>
+              </div>
+            )}
+            {Array.isArray(article.body_blocks) && article.body_blocks.map((b) => <BlockView key={b.id} block={b} />)}
+            {Array.isArray(article.game_screenshots) && article.game_screenshots.length > 0 && (
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.3em] text-primary mb-3">Screenshots</div>
+                <div className="grid grid-cols-2 gap-2">
+                  {article.game_screenshots.filter(Boolean).map((url, i) => (
+                    <div key={i} className="aspect-video overflow-hidden border border-border bg-surface">
+                      <img src={url} alt={`Screenshot ${i + 1}`} className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {(article.audience_score != null || article.metacritic_score != null || article.steam_score != null) && (
+              <div className="border border-border rounded-sm p-4 bg-surface/30">
+                <div className="text-[10px] uppercase tracking-[0.3em] text-primary mb-3">External Scores</div>
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  {article.metacritic_score != null && <ScoreCell label="Metacritic" value={`${article.metacritic_score}`} />}
+                  {article.steam_score != null && <ScoreCell label="Steam" value={`${article.steam_score}`} />}
+                  {article.audience_score != null && <ScoreCell label="Audience" value={`${article.audience_score}`} />}
+                </div>
+              </div>
+            )}
+            {(article.verdict_headline || article.verdict_paragraph || v) && <VerdictCard article={article} v={v} />}
+          </div>
+          <aside className="order-1 lg:order-2 lg:sticky lg:top-24 self-start">
+            <div className="border border-border rounded-sm bg-surface/40 p-5 space-y-3">
+              <div className="text-[10px] uppercase tracking-[0.3em] text-primary font-semibold">Game Info</div>
+              {article.game_developer && <InfoRow icon={User} label="Developer" value={article.game_developer} />}
+              {article.game_publisher && <InfoRow icon={Building2} label="Publisher" value={article.game_publisher} />}
+              {article.game_release_date && <InfoRow icon={CalendarIcon} label="Released" value={formatDate(article.game_release_date)} />}
+              {article.game_platforms && <InfoRow icon={Tv2} label="Platforms" value={article.game_platforms} />}
+              {article.game_genre && <InfoRow icon={Layers} label="Genre" value={article.game_genre} />}
+              {article.game_esrb_rating && <InfoRow icon={Award} label="ESRB" value={article.game_esrb_rating} />}
+              {(article.game_reviewer || article.writer_name) && <InfoRow icon={User} label="Reviewer" value={article.game_reviewer || article.writer_name!} />}
+            </div>
+          </aside>
+        </div>
+      </section>
+      <RelatedSection related={related} category="" eyebrow="More Reviews" title="Keep Playing" />
+    </SiteLayout>
+  );
+};
+
+const ScoreCell = ({ label, value }: { label: string; value: string }) => (
+  <div className="border border-border rounded-sm py-2">
+    <div className="font-display text-2xl leading-none">{value}</div>
+    <div className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground mt-1">{label}</div>
+  </div>
+);
 
 /* =========== Generic typed view (interview/breakdown/news) =========== */
 const TypedView = ({ article, related, kind }: { article: Article; related: Article[]; kind: "interview" | "breakdown" | "news" }) => {

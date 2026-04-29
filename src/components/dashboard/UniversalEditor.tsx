@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Send, Sparkles, Plus, Trash2 } from "lucide-react";
+import { Send, Sparkles, Plus, Trash2, CalendarClock, Globe, FileEdit as DraftIcon, Inbox } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,16 +13,18 @@ import {
 } from "./ReviewBlocks";
 
 export type ArticleType =
-  | "standard" | "film_review" | "album_review" | "single_review"
+  | "standard" | "film_review" | "album_review" | "single_review" | "game_review"
   | "interview" | "opinion" | "breakdown" | "news";
 
-type Status = "draft" | "submitted" | "revisions" | "approved" | "published";
+type Status = "draft" | "submitted" | "revisions" | "approved" | "scheduled" | "published" | "archived";
+type PublishMode = "draft" | "submit" | "publish_now" | "schedule";
 
 const TYPE_LABEL: Record<ArticleType, string> = {
   standard: "Standard Article",
   film_review: "Film Review",
   album_review: "Album Review",
   single_review: "Single Review",
+  game_review: "Game Review",
   interview: "Interview",
   opinion: "Opinion",
   breakdown: "Breakdown",
@@ -90,10 +92,29 @@ const NEWS_TEMPLATE: ReviewBlock[] = [
   { id: crypto.randomUUID(), kind: "paragraph", text: "" },
 ];
 
+const GAME_TEMPLATE: ReviewBlock[] = [
+  { id: crypto.randomUUID(), kind: "heading", text: "Gameplay", level: 2 },
+  { id: crypto.randomUUID(), kind: "paragraph", text: "" },
+  { id: crypto.randomUUID(), kind: "heading", text: "Story", level: 2 },
+  { id: crypto.randomUUID(), kind: "paragraph", text: "" },
+  { id: crypto.randomUUID(), kind: "heading", text: "Graphics / Art Direction", level: 2 },
+  { id: crypto.randomUUID(), kind: "paragraph", text: "" },
+  { id: crypto.randomUUID(), kind: "heading", text: "Sound / Music", level: 2 },
+  { id: crypto.randomUUID(), kind: "paragraph", text: "" },
+  { id: crypto.randomUUID(), kind: "heading", text: "Performance", level: 2 },
+  { id: crypto.randomUUID(), kind: "paragraph", text: "" },
+  { id: crypto.randomUUID(), kind: "heading", text: "Replay Value", level: 2 },
+  { id: crypto.randomUUID(), kind: "paragraph", text: "" },
+  { id: crypto.randomUUID(), kind: "pros_cons", pros: [""], cons: [""] },
+  { id: crypto.randomUUID(), kind: "highlight_quote", text: "", speaker: "" },
+  { id: crypto.randomUUID(), kind: "verdict", headline: "Final Verdict", text: "", recommendation: "recommended" },
+];
+
 const TEMPLATES: Partial<Record<ArticleType, ReviewBlock[]>> = {
   film_review: REVIEW_TEMPLATE,
   album_review: ALBUM_TEMPLATE,
   single_review: SINGLE_TEMPLATE,
+  game_review: GAME_TEMPLATE,
   interview: INTERVIEW_TEMPLATE,
   breakdown: BREAKDOWN_TEMPLATE,
   news: NEWS_TEMPLATE,
@@ -184,13 +205,42 @@ const UniversalEditor = ({
   const [newsDate, setNewsDate] = useState(article?.news_date ?? "");
   const [newsLocation, setNewsLocation] = useState(article?.news_location ?? "");
 
-  // Ratings (film + music)
+  // Game
+  const [gameTitle, setGameTitle] = useState(article?.game_title ?? "");
+  const [gameDeveloper, setGameDeveloper] = useState(article?.game_developer ?? "");
+  const [gamePublisher, setGamePublisher] = useState(article?.game_publisher ?? "");
+  const [gameReleaseDate, setGameReleaseDate] = useState(article?.game_release_date ?? "");
+  const [gamePlatforms, setGamePlatforms] = useState(article?.game_platforms ?? "");
+  const [gameGenre, setGameGenre] = useState(article?.game_genre ?? "");
+  const [gameEsrb, setGameEsrb] = useState(article?.game_esrb_rating ?? "");
+  const [gameReviewer, setGameReviewer] = useState(article?.game_reviewer ?? "");
+  const [steamScore, setSteamScore] = useState<string>(article?.steam_score?.toString() ?? "");
+  const [gameTrailer, setGameTrailer] = useState(article?.game_trailer_url ?? "");
+  const [gameScreenshots, setGameScreenshots] = useState<string[]>(
+    Array.isArray(article?.game_screenshots) ? article.game_screenshots : [],
+  );
+
+  // Ratings (film + music + game)
   const [rtgRating, setRtgRating] = useState<number>(Number(article?.rtg_rating ?? 0));
   const [audience, setAudience] = useState<string>(article?.audience_score?.toString() ?? "");
   const [rt, setRt] = useState<string>(article?.rotten_tomatoes_score?.toString() ?? "");
   const [meta, setMeta] = useState<string>(article?.metacritic_score?.toString() ?? "");
   const [imdb, setImdb] = useState<string>(article?.imdb_score?.toString() ?? "");
   const [official, setOfficial] = useState<boolean>(!!article?.is_official_rtg_review);
+
+  // Publish settings
+  const initStatus = (article?.status as Status) ?? "draft";
+  const initMode: PublishMode =
+    initStatus === "scheduled" ? "schedule" :
+    initStatus === "published" ? "publish_now" :
+    initStatus === "submitted" ? "submit" : "draft";
+  const [publishMode, setPublishMode] = useState<PublishMode>(initMode);
+  const initSched = article?.scheduled_for ? new Date(article.scheduled_for) : null;
+  const [schedDate, setSchedDate] = useState<string>(initSched ? initSched.toISOString().slice(0, 10) : "");
+  const [schedTime, setSchedTime] = useState<string>(initSched ? initSched.toTimeString().slice(0, 5) : "09:00");
+  const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  const [schedTz, setSchedTz] = useState<string>(article?.scheduled_timezone ?? browserTz);
+  const [featuredUntil, setFeaturedUntil] = useState<string>(article?.featured_until ?? "");
 
   // Verdict
   const [verdictHeadline, setVerdictHeadline] = useState(article?.verdict_headline ?? "");
@@ -233,19 +283,43 @@ const UniversalEditor = ({
     if (type === "film_review" && !filmTitle.trim()) return "Film title is required";
     if (type === "album_review" && (!musicAlbumTitle.trim() || !musicArtist.trim())) return "Album title and artist are required";
     if (type === "single_review" && (!musicSongTitle.trim() || !musicArtist.trim())) return "Song title and artist are required";
+    if (type === "game_review" && !gameTitle.trim()) return "Game title is required";
     if (type === "interview" && !interviewee.trim()) return "Interviewee name is required";
     if (type === "breakdown" && !bdSubject.trim()) return "Subject title is required";
     if (type === "news" && !title.trim()) return "Headline is required";
     return null;
   };
 
-  const save = async (status: Status) => {
+  const resolveStatusFromMode = (mode: PublishMode): { status: Status; scheduledIso: string | null } => {
+    if (mode === "draft") return { status: "draft", scheduledIso: null };
+    if (mode === "submit") return { status: "submitted", scheduledIso: null };
+    if (mode === "publish_now") return { status: "published", scheduledIso: null };
+    // schedule
+    if (!schedDate) return { status: "draft", scheduledIso: null };
+    const iso = new Date(`${schedDate}T${schedTime || "09:00"}:00`).toISOString();
+    return { status: "scheduled", scheduledIso: iso };
+  };
+
+  const save = async (overrideStatus?: Status) => {
     const err = validate();
     if (err) return toast.error(err);
+
+    let status: Status;
+    let scheduledIso: string | null = null;
+    if (overrideStatus) {
+      status = overrideStatus;
+    } else {
+      const r = resolveStatusFromMode(publishMode);
+      status = r.status;
+      scheduledIso = r.scheduledIso;
+      if (publishMode === "schedule" && !scheduledIso) return toast.error("Pick a publish date for scheduling");
+    }
+
     setBusy(true);
 
     const isMusic = type === "album_review" || type === "single_review";
-    const isReview = type === "film_review" || isMusic;
+    const isGame = type === "game_review";
+    const isReview = type === "film_review" || isMusic || isGame;
 
     const payload: any = {
       title: title.trim(),
@@ -261,6 +335,10 @@ const UniversalEditor = ({
       author_id: userId,
       article_type: type,
       writer_name: writerName || null,
+      // scheduling
+      scheduled_for: scheduledIso,
+      scheduled_timezone: status === "scheduled" ? schedTz : null,
+      featured_until: featuredUntil || null,
       // film
       film_title: type === "film_review" ? (filmTitle || null) : null,
       film_release_date: type === "film_review" ? (filmReleaseDate || null) : null,
@@ -299,12 +377,24 @@ const UniversalEditor = ({
       news_source: type === "news" ? (newsSource || null) : null,
       news_date: type === "news" ? (newsDate || null) : null,
       news_location: type === "news" ? (newsLocation || null) : null,
+      // game
+      game_title: isGame ? (gameTitle || null) : null,
+      game_developer: isGame ? (gameDeveloper || null) : null,
+      game_publisher: isGame ? (gamePublisher || null) : null,
+      game_release_date: isGame ? (gameReleaseDate || null) : null,
+      game_platforms: isGame ? (gamePlatforms || null) : null,
+      game_genre: isGame ? (gameGenre || null) : null,
+      game_esrb_rating: isGame ? (gameEsrb || null) : null,
+      game_reviewer: isGame ? (gameReviewer || null) : null,
+      game_trailer_url: isGame ? (gameTrailer || null) : null,
+      game_screenshots: isGame ? gameScreenshots.filter(Boolean) : [],
       // review bits
       rtg_rating: isReview ? (rtgRating || null) : null,
       audience_score: isReview ? (numOrNull(audience) as any) : null,
       rotten_tomatoes_score: type === "film_review" ? (numOrNull(rt) as any) : null,
-      metacritic_score: type === "film_review" ? (numOrNull(meta) as any) : null,
+      metacritic_score: (type === "film_review" || isGame) ? (numOrNull(meta) as any) : null,
       imdb_score: type === "film_review" ? (numOrNull(imdb) as any) : null,
+      steam_score: isGame ? (numOrNull(steamScore) as any) : null,
       is_official_rtg_review: isReview ? official : false,
       verdict_headline: isReview ? (verdictHeadline || null) : null,
       verdict_paragraph: isReview ? (verdictParagraph || null) : null,
@@ -317,11 +407,18 @@ const UniversalEditor = ({
       : await supabase.from("articles").insert(payload);
     setBusy(false);
     if (res.error) return toast.error(res.error.message);
-    toast.success(status === "draft" ? "Saved as draft" : status === "published" ? "Published" : "Submitted for review");
+    const msg =
+      status === "draft" ? "Saved as draft" :
+      status === "submitted" ? "Submitted for review" :
+      status === "scheduled" ? `Scheduled for ${new Date(scheduledIso!).toLocaleString()}` :
+      status === "published" ? "Published" : `Moved to ${status}`;
+    toast.success(msg);
     onSaved();
   };
 
-  const isReview = type === "film_review" || type === "album_review" || type === "single_review";
+  const isReview = type === "film_review" || type === "album_review" || type === "single_review" || type === "game_review";
+  const isGame = type === "game_review";
+
 
   /* ============================== UI ============================== */
   return (
@@ -332,11 +429,19 @@ const UniversalEditor = ({
             <div className="text-[9px] uppercase tracking-[0.3em] text-primary">{TYPE_LABEL[type]}</div>
             <div className="font-display text-lg uppercase">{article?.id ? "Edit Article" : "New Article"}</div>
           </div>
-          <div className="flex gap-1.5">
+          <div className="flex gap-1.5 items-center">
+            {article?.status && (
+              <span className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground border border-border rounded-sm px-2 py-1">
+                {article.status}
+              </span>
+            )}
             <Button type="button" variant="outline" size="sm" onClick={onClose} className="rounded-sm uppercase tracking-widest text-[10px] h-8">Close</Button>
             <Button type="button" size="sm" disabled={busy} onClick={() => save("draft")} className="rounded-sm uppercase tracking-widest text-[10px] h-8 bg-secondary text-foreground hover:bg-secondary/80">Save Draft</Button>
-            <Button type="button" size="sm" disabled={busy} onClick={() => save("submitted")} className="rounded-sm uppercase tracking-widest text-[10px] h-8 bg-primary text-primary-foreground hover:bg-primary/90">
-              <Send className="h-3 w-3 mr-1" /> Submit
+            <Button type="button" size="sm" disabled={busy} onClick={() => save()} className="rounded-sm uppercase tracking-widest text-[10px] h-8 bg-primary text-primary-foreground hover:bg-primary/90">
+              {publishMode === "publish_now" ? <><Globe className="h-3 w-3 mr-1" /> Publish</> :
+               publishMode === "schedule" ? <><CalendarClock className="h-3 w-3 mr-1" /> Schedule</> :
+               publishMode === "submit" ? <><Send className="h-3 w-3 mr-1" /> Submit</> :
+               <><DraftIcon className="h-3 w-3 mr-1" /> Save</>}
             </Button>
           </div>
         </div>
@@ -514,6 +619,45 @@ const UniversalEditor = ({
             </section>
           )}
 
+          {/* ---------- GAME REVIEW PANEL ---------- */}
+          {type === "game_review" && (
+            <section className="space-y-3 border-t border-border pt-5">
+              <SectionHead>Game Metadata</SectionHead>
+              <FieldGrid>
+                <Field label="Game Title *" full><Input value={gameTitle} onChange={(e) => setGameTitle(e.target.value)} className={inputCls} /></Field>
+                <Field label="Developer"><Input value={gameDeveloper} onChange={(e) => setGameDeveloper(e.target.value)} className={inputCls} placeholder="FromSoftware" /></Field>
+                <Field label="Publisher"><Input value={gamePublisher} onChange={(e) => setGamePublisher(e.target.value)} className={inputCls} placeholder="Bandai Namco" /></Field>
+                <Field label="Release Date"><Input type="date" value={gameReleaseDate ?? ""} onChange={(e) => setGameReleaseDate(e.target.value)} className={inputCls} /></Field>
+                <Field label="Platforms"><Input value={gamePlatforms} onChange={(e) => setGamePlatforms(e.target.value)} className={inputCls} placeholder="PS5, Xbox Series X, PC" /></Field>
+                <Field label="Genre"><Input value={gameGenre} onChange={(e) => setGameGenre(e.target.value)} className={inputCls} placeholder="Action RPG" /></Field>
+                <Field label="ESRB Rating">
+                  <Select value={gameEsrb || "none"} onValueChange={(v) => setGameEsrb(v === "none" ? "" : v)}>
+                    <SelectTrigger className={inputCls}><SelectValue placeholder="—" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none" className="text-xs">—</SelectItem>
+                      {["E", "E10+", "T", "M", "AO", "RP"].map((r) => <SelectItem key={r} value={r} className="text-xs">{r}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Reviewer"><Input value={gameReviewer} onChange={(e) => setGameReviewer(e.target.value)} className={inputCls} /></Field>
+                <Field label="Trailer / Gameplay Embed URL" full><Input value={gameTrailer} onChange={(e) => setGameTrailer(e.target.value)} className={inputCls} placeholder="YouTube URL" /></Field>
+              </FieldGrid>
+              <div>
+                <Label className={labelCls}>Screenshots Gallery</Label>
+                <div className="space-y-1.5">
+                  {gameScreenshots.map((url, i) => (
+                    <div key={i} className="flex gap-1 items-center">
+                      <Input value={url} onChange={(e) => { const a = [...gameScreenshots]; a[i] = e.target.value; setGameScreenshots(a); }} placeholder="https://… screenshot URL" className={inputCls} />
+                      {url && <img src={url} alt="" className="h-9 w-12 object-cover rounded-sm border border-border" />}
+                      <Button type="button" variant="ghost" size="sm" className="h-9 w-9 p-0" onClick={() => setGameScreenshots(gameScreenshots.filter((_, j) => j !== i))}><Trash2 className="h-3 w-3" /></Button>
+                    </div>
+                  ))}
+                  <Button type="button" variant="outline" size="sm" className="rounded-sm uppercase tracking-widest text-[10px] h-7 w-full" onClick={() => setGameScreenshots([...gameScreenshots, ""])}><Plus className="h-3 w-3 mr-1" /> Add Screenshot</Button>
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* ---------- RATINGS (review types only) ---------- */}
           {isReview && (
             <section className="space-y-3 border-t border-border pt-5">
@@ -529,6 +673,12 @@ const UniversalEditor = ({
                     <Field label="Rotten Tomatoes (0-100)"><Input type="number" min={0} max={100} value={rt} onChange={(e) => setRt(e.target.value)} className={inputCls} /></Field>
                     <Field label="Metacritic (0-100)"><Input type="number" min={0} max={100} value={meta} onChange={(e) => setMeta(e.target.value)} className={inputCls} /></Field>
                     <Field label="IMDb (0-10)"><Input type="number" min={0} max={10} step={0.1} value={imdb} onChange={(e) => setImdb(e.target.value)} className={inputCls} /></Field>
+                  </>
+                )}
+                {isGame && (
+                  <>
+                    <Field label="Metacritic (0-100)"><Input type="number" min={0} max={100} value={meta} onChange={(e) => setMeta(e.target.value)} className={inputCls} /></Field>
+                    <Field label="Steam (0-100)"><Input type="number" min={0} max={100} value={steamScore} onChange={(e) => setSteamScore(e.target.value)} className={inputCls} /></Field>
                   </>
                 )}
               </div>
@@ -598,6 +748,64 @@ const UniversalEditor = ({
               </Select>
             </section>
           )}
+
+          {/* ---------- PUBLISH SETTINGS ---------- */}
+          <section className="space-y-3 border-t border-border pt-5">
+            <SectionHead>Publish Settings</SectionHead>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {([
+                { v: "draft" as PublishMode, label: "Save Draft", icon: DraftIcon },
+                { v: "submit" as PublishMode, label: "Submit for Review", icon: Inbox },
+                { v: "publish_now" as PublishMode, label: "Publish Now", icon: Globe },
+                { v: "schedule" as PublishMode, label: "Schedule Post", icon: CalendarClock },
+              ]).map((opt) => {
+                const active = publishMode === opt.v;
+                const Icon = opt.icon;
+                return (
+                  <button
+                    key={opt.v}
+                    type="button"
+                    onClick={() => setPublishMode(opt.v)}
+                    className={`flex flex-col items-start gap-1 p-3 rounded-sm border text-left transition-colors ${
+                      active ? "border-primary bg-primary/10 text-foreground" : "border-border hover:border-foreground/40 text-muted-foreground"
+                    }`}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    <span className="text-[10px] uppercase tracking-widest font-semibold leading-tight">{opt.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+            {publishMode === "schedule" && (
+              <div className="border border-border rounded-sm p-3 bg-surface/30 space-y-3">
+                <FieldGrid>
+                  <Field label="Publish Date">
+                    <Input type="date" value={schedDate} onChange={(e) => setSchedDate(e.target.value)} className={inputCls} />
+                  </Field>
+                  <Field label="Publish Time">
+                    <Input type="time" value={schedTime} onChange={(e) => setSchedTime(e.target.value)} className={inputCls} />
+                  </Field>
+                  <Field label="Timezone">
+                    <Input value={schedTz} onChange={(e) => setSchedTz(e.target.value)} className={inputCls} placeholder="America/Chicago" />
+                  </Field>
+                  <Field label="Featured Until (optional)">
+                    <Input type="date" value={featuredUntil ?? ""} onChange={(e) => setFeaturedUntil(e.target.value)} className={inputCls} />
+                  </Field>
+                </FieldGrid>
+                {schedDate && (
+                  <div className="text-[10px] text-muted-foreground uppercase tracking-widest">
+                    Will publish at {new Date(`${schedDate}T${schedTime || "09:00"}:00`).toLocaleString()} ({schedTz})
+                  </div>
+                )}
+              </div>
+            )}
+            {publishMode !== "schedule" && (
+              <div>
+                <Label className={labelCls}>Featured Until (optional)</Label>
+                <Input type="date" value={featuredUntil ?? ""} onChange={(e) => setFeaturedUntil(e.target.value)} className={inputCls} />
+              </div>
+            )}
+          </section>
 
           {/* ---------- SEO ---------- */}
           <section className="space-y-2.5 border-t border-border pt-5">

@@ -40,9 +40,9 @@ import storyFilm from "@/assets/story-film.jpg";
 import storyFashion from "@/assets/story-fashion.jpg";
 import storyBreakdown from "@/assets/story-breakdown.jpg";
 
-type Status = "draft" | "submitted" | "revisions" | "approved" | "published";
+type Status = "draft" | "submitted" | "revisions" | "approved" | "scheduled" | "published" | "archived";
 
-type ArticleType = "standard" | "film_review" | "album_review" | "single_review" | "interview" | "opinion" | "breakdown" | "news";
+type ArticleType = "standard" | "film_review" | "album_review" | "single_review" | "game_review" | "interview" | "opinion" | "breakdown" | "news";
 
 type Article = {
   id: string;
@@ -79,10 +79,24 @@ type Article = {
   verdict_headline?: string | null;
   verdict_paragraph?: string | null;
   verdict_recommendation?: "recommended" | "mixed" | "not_recommended" | null;
+  scheduled_for?: string | null;
+  scheduled_timezone?: string | null;
+  featured_until?: string | null;
+  game_title?: string | null;
+  game_developer?: string | null;
+  game_publisher?: string | null;
+  game_release_date?: string | null;
+  game_platforms?: string | null;
+  game_genre?: string | null;
+  game_esrb_rating?: string | null;
+  game_reviewer?: string | null;
+  steam_score?: number | null;
+  game_trailer_url?: string | null;
+  game_screenshots?: any;
 };
 
 type SectionId =
-  | "overview" | "drafts" | "submitted" | "revisions" | "published"
+  | "overview" | "drafts" | "submitted" | "revisions" | "scheduled" | "published" | "archived"
   | "calendar" | "media" | "social" | "bookings" | "leads" | "users" | "site-updates" | "content-managers";
 
 const ALL_NAV: { id: SectionId; label: string; icon: any; roles: AppRole[]; group: "Content" | "Pipeline" | "Ops" | "Admin" }[] = [
@@ -90,7 +104,9 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; roles: AppRole[]; grou
   { id: "drafts", label: "Drafts", icon: FileEdit, roles: ["admin", "editor", "writer"], group: "Pipeline" },
   { id: "submitted", label: "Submitted", icon: Inbox, roles: ["admin", "editor", "writer"], group: "Pipeline" },
   { id: "revisions", label: "Revisions", icon: RotateCcw, roles: ["admin", "editor", "writer"], group: "Pipeline" },
+  { id: "scheduled", label: "Scheduled", icon: Calendar, roles: ["admin", "editor", "writer", "social_manager"], group: "Pipeline" },
   { id: "published", label: "Published", icon: CheckCircle2, roles: ["admin", "editor", "writer", "social_manager"], group: "Pipeline" },
+  { id: "archived", label: "Archived", icon: Inbox, roles: ["admin", "editor"], group: "Pipeline" },
   { id: "calendar", label: "Calendar", icon: Calendar, roles: ["admin", "editor", "social_manager"], group: "Content" },
   { id: "media", label: "Media Library", icon: ImageIcon, roles: ["admin", "editor", "writer"], group: "Content" },
   { id: "social", label: "Social", icon: Instagram, roles: ["admin", "editor", "social_manager"], group: "Content" },
@@ -106,11 +122,13 @@ const STATUS_COLOR: Record<Status, string> = {
   submitted: "bg-gold/15 text-gold border-gold/30",
   revisions: "bg-primary/15 text-primary border-primary/30",
   approved: "bg-cream/15 text-cream border-cream/30",
+  scheduled: "bg-sky-500/15 text-sky-400 border-sky-500/30",
   published: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+  archived: "bg-muted/40 text-muted-foreground border-border",
 };
 
 const STATUS_LABEL: Record<Status, string> = {
-  draft: "Draft", submitted: "Submitted", revisions: "Revisions", approved: "Approved", published: "Published",
+  draft: "Draft", submitted: "Submitted", revisions: "Revisions", approved: "Approved", scheduled: "Scheduled", published: "Published", archived: "Archived",
 };
 
 const Dashboard = () => {
@@ -304,6 +322,7 @@ const Dashboard = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => openEditor(null, "album_review")} className="text-xs">Album Review</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => openEditor(null, "single_review")} className="text-xs">Single Review</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditor(null, "game_review")} className="text-xs">Game Review</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => openEditor(null, "interview")} className="text-xs">Interview</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => openEditor(null, "opinion")} className="text-xs">Opinion</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => openEditor(null, "breakdown")} className="text-xs">Breakdown</DropdownMenuItem>
@@ -327,8 +346,10 @@ const Dashboard = () => {
               {section === "drafts" && <ArticleList articles={filtered(["draft"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
               {section === "submitted" && <ArticleList articles={filtered(["submitted"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
               {section === "revisions" && <ArticleList articles={filtered(["revisions"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
+              {section === "scheduled" && <ArticleList articles={filtered(["scheduled"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
               {section === "published" && <ArticleList articles={filtered(["approved", "published"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
-              {section === "calendar" && <CalendarView articles={filtered(["approved", "published"])} />}
+              {section === "archived" && <ArticleList articles={filtered(["archived"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
+              {section === "calendar" && <CalendarView articles={filtered(["approved", "scheduled", "published"])} />}
               {section === "media" && <MediaLibrary />}
               {section === "social" && <SocialKit articles={filtered(["published"])} />}
               {section === "bookings" && <BookingsView />}
@@ -409,10 +430,11 @@ const Overview = ({ articles, onCreate, canCreate }: { articles: Article[]; onCr
   const count = (s: Status) => articles.filter((a) => a.status === s).length;
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <StatCard label="Drafts" value={String(count("draft"))} accent="bg-muted-foreground" />
         <StatCard label="In Review" value={String(count("submitted") + count("revisions"))} accent="bg-gold" />
         <StatCard label="Approved" value={String(count("approved"))} accent="bg-cream" />
+        <StatCard label="Scheduled" value={String(count("scheduled"))} sub="Auto-publish" accent="bg-sky-500" />
         <StatCard label="Published" value={String(count("published"))} sub="Live on site" accent="bg-emerald-500" />
       </div>
 
@@ -431,13 +453,13 @@ const Overview = ({ articles, onCreate, canCreate }: { articles: Article[]; onCr
         <div>
           <PageHead title="Workflow" sub="Pipeline" />
           <ol className="space-y-2">
-            {(["draft", "submitted", "approved", "published"] as Status[]).map((s, i) => (
+            {(["draft", "submitted", "approved", "scheduled", "published"] as Status[]).map((s, i) => (
               <li key={s} className="flex items-center gap-3 border border-border rounded-sm p-3 bg-surface/30">
                 <div className="font-display text-lg text-primary w-6">0{i + 1}</div>
                 <div className="flex-1 min-w-0">
                   <div className="font-display uppercase text-sm leading-none">{STATUS_LABEL[s]}</div>
                   <div className="text-[11px] text-muted-foreground mt-1">
-                    {{ draft: "Writer creates and saves", submitted: "Editor reviews", approved: "Ready to schedule", published: "Live on the site" }[s]}
+                    {{ draft: "Writer creates and saves", submitted: "Editor reviews", approved: "Ready to schedule", scheduled: "Queued for auto-publish", published: "Live on the site" }[s as "draft"|"submitted"|"approved"|"scheduled"|"published"]}
                   </div>
                 </div>
               </li>
@@ -481,7 +503,9 @@ const NEXT_STATUS: Partial<Record<Status, { to: Status; label: string; roles: Ap
   ],
   revisions: [{ to: "submitted", label: "Resubmit", roles: ["writer", "editor", "admin"] }],
   approved: [{ to: "published", label: "Publish", roles: ["editor", "admin"] }],
-  published: [],
+  scheduled: [{ to: "published", label: "Publish Now", roles: ["editor", "admin"] }, { to: "draft", label: "Cancel Schedule", roles: ["editor", "admin"] }],
+  published: [{ to: "archived", label: "Archive", roles: ["editor", "admin"] }],
+  archived: [{ to: "draft", label: "Restore", roles: ["editor", "admin"] }],
 };
 
 const ArticleList = ({ articles, onEdit, onUpdateStatus, onDelete, roles, currentUserId }: {
@@ -579,7 +603,8 @@ const CalendarView = ({ articles }: { articles: Article[] }) => {
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const buckets: Record<string, Article[]> = {};
   articles.forEach((a) => {
-    const d = new Date(a.updated_at);
+    const dateStr = (a as any).scheduled_for ?? (a as any).published_at ?? a.updated_at;
+    const d = new Date(dateStr);
     const key = days[(d.getDay() + 6) % 7];
     (buckets[key] ||= []).push(a);
   });
@@ -591,12 +616,19 @@ const CalendarView = ({ articles }: { articles: Article[] }) => {
           <div key={d} className="bg-background min-h-[220px] p-2.5">
             <div className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground mb-2 font-semibold">{d}</div>
             <div className="space-y-1.5">
-              {(buckets[d] || []).map((a) => (
-                <div key={a.id} className="bg-surface border-l-2 border-primary p-2 rounded-sm hover:bg-surface/70 transition-colors cursor-pointer">
-                  <div className="text-[11px] font-medium leading-tight">{a.title}</div>
-                  <div className="text-[9px] text-primary uppercase tracking-widest mt-1">{a.category}</div>
-                </div>
-              ))}
+              {(buckets[d] || []).map((a) => {
+                const when = a.scheduled_for ?? (a as any).published_at;
+                const accent = a.status === "scheduled" ? "border-sky-500" : a.status === "published" ? "border-emerald-500" : "border-primary";
+                return (
+                  <div key={a.id} className={`bg-surface border-l-2 ${accent} p-2 rounded-sm hover:bg-surface/70 transition-colors cursor-pointer`}>
+                    <div className="text-[11px] font-medium leading-tight">{a.title}</div>
+                    <div className="text-[9px] text-muted-foreground uppercase tracking-widest mt-1 flex items-center justify-between gap-2">
+                      <span className="text-primary truncate">{a.category}</span>
+                      {when && <span>{new Date(when).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         ))}
