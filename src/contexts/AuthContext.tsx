@@ -10,7 +10,33 @@ export type AppRole =
   | "social_manager"
   | "booking_manager"
   | "media_manager"
-  | "social_articles_lead";
+  | "social_articles_lead"
+  | "crew"
+  | "photographer"
+  | "videographer"
+  | "video_editor"
+  | "director"
+  | "producer"
+  | "audio_engineer"
+  | "grip_lighting"
+  | "makeup_artist"
+  | "production_assistant"
+  | "studio_staff";
+
+export const CREW_ROLES: AppRole[] = [
+  "photographer",
+  "videographer",
+  "video_editor",
+  "director",
+  "producer",
+  "audio_engineer",
+  "grip_lighting",
+  "makeup_artist",
+  "production_assistant",
+  "studio_staff",
+];
+
+export const isCrewRole = (role: AppRole) => role === "crew" || CREW_ROLES.includes(role);
 
 type AuthContextValue = {
   user: User | null;

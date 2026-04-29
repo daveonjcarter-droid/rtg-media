@@ -409,6 +409,8 @@ export type Database = {
           base_cost: number | null
           budget: string | null
           created_at: string
+          crew_response_notes: string | null
+          crew_response_status: string
           deposit_paid: boolean
           description: string | null
           duration: string | null
@@ -446,6 +448,8 @@ export type Database = {
           base_cost?: number | null
           budget?: string | null
           created_at?: string
+          crew_response_notes?: string | null
+          crew_response_status?: string
           deposit_paid?: boolean
           description?: string | null
           duration?: string | null
@@ -483,6 +487,8 @@ export type Database = {
           base_cost?: number | null
           budget?: string | null
           created_at?: string
+          crew_response_notes?: string | null
+          crew_response_status?: string
           deposit_paid?: boolean
           description?: string | null
           duration?: string | null
@@ -836,6 +842,7 @@ export type Database = {
       }
       portfolio_items: {
         Row: {
+          approval_status: string
           category: string
           client: string | null
           created_at: string
@@ -847,6 +854,7 @@ export type Database = {
           media_url: string | null
           sort_order: number
           staff_id: string | null
+          submitted_by: string | null
           tags: string[]
           thumbnail_url: string | null
           title: string
@@ -854,6 +862,7 @@ export type Database = {
           year: number | null
         }
         Insert: {
+          approval_status?: string
           category?: string
           client?: string | null
           created_at?: string
@@ -865,6 +874,7 @@ export type Database = {
           media_url?: string | null
           sort_order?: number
           staff_id?: string | null
+          submitted_by?: string | null
           tags?: string[]
           thumbnail_url?: string | null
           title: string
@@ -872,6 +882,7 @@ export type Database = {
           year?: number | null
         }
         Update: {
+          approval_status?: string
           category?: string
           client?: string | null
           created_at?: string
@@ -883,6 +894,7 @@ export type Database = {
           media_url?: string | null
           sort_order?: number
           staff_id?: string | null
+          submitted_by?: string | null
           tags?: string[]
           thumbnail_url?: string | null
           title?: string
@@ -1286,21 +1298,32 @@ export type Database = {
       staff_profiles: {
         Row: {
           bio: string | null
+          booking_notes: string | null
           cover_image_url: string | null
           created_at: string
+          day_rate: number | null
           display_name: string
           email: string | null
+          equipment: string | null
+          hourly_rate: number | null
           id: string
           instagram: string | null
           internal_notes: string | null
           is_bookable: boolean
+          is_crew: boolean
+          is_featured: boolean
           is_public: boolean
           location: string | null
+          phone: string | null
           photo_url: string | null
           preferred_service_ids: string[]
           production_position: string | null
+          reel_links: Json
           role_title: string | null
           service_ids: string[]
+          show_email_publicly: boolean
+          show_phone_publicly: boolean
+          skills: string[]
           slug: string
           sort_order: number
           specialties: string[]
@@ -1313,21 +1336,32 @@ export type Database = {
         }
         Insert: {
           bio?: string | null
+          booking_notes?: string | null
           cover_image_url?: string | null
           created_at?: string
+          day_rate?: number | null
           display_name: string
           email?: string | null
+          equipment?: string | null
+          hourly_rate?: number | null
           id?: string
           instagram?: string | null
           internal_notes?: string | null
           is_bookable?: boolean
+          is_crew?: boolean
+          is_featured?: boolean
           is_public?: boolean
           location?: string | null
+          phone?: string | null
           photo_url?: string | null
           preferred_service_ids?: string[]
           production_position?: string | null
+          reel_links?: Json
           role_title?: string | null
           service_ids?: string[]
+          show_email_publicly?: boolean
+          show_phone_publicly?: boolean
+          skills?: string[]
           slug: string
           sort_order?: number
           specialties?: string[]
@@ -1340,21 +1374,32 @@ export type Database = {
         }
         Update: {
           bio?: string | null
+          booking_notes?: string | null
           cover_image_url?: string | null
           created_at?: string
+          day_rate?: number | null
           display_name?: string
           email?: string | null
+          equipment?: string | null
+          hourly_rate?: number | null
           id?: string
           instagram?: string | null
           internal_notes?: string | null
           is_bookable?: boolean
+          is_crew?: boolean
+          is_featured?: boolean
           is_public?: boolean
           location?: string | null
+          phone?: string | null
           photo_url?: string | null
           preferred_service_ids?: string[]
           production_position?: string | null
+          reel_links?: Json
           role_title?: string | null
           service_ids?: string[]
+          show_email_publicly?: boolean
+          show_phone_publicly?: boolean
+          skills?: string[]
           slug?: string
           sort_order?: number
           specialties?: string[]
@@ -1459,6 +1504,17 @@ export type Database = {
         | "booking_manager"
         | "media_manager"
         | "social_articles_lead"
+        | "crew"
+        | "photographer"
+        | "videographer"
+        | "video_editor"
+        | "director"
+        | "producer"
+        | "audio_engineer"
+        | "grip_lighting"
+        | "makeup_artist"
+        | "production_assistant"
+        | "studio_staff"
       article_status:
         | "draft"
         | "submitted"
@@ -1628,6 +1684,17 @@ export const Constants = {
         "booking_manager",
         "media_manager",
         "social_articles_lead",
+        "crew",
+        "photographer",
+        "videographer",
+        "video_editor",
+        "director",
+        "producer",
+        "audio_engineer",
+        "grip_lighting",
+        "makeup_artist",
+        "production_assistant",
+        "studio_staff",
       ],
       article_status: [
         "draft",

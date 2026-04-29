@@ -18,6 +18,8 @@ import ImportArticleDialog from "@/components/dashboard/ImportArticleDialog";
 import UniversalEditor from "@/components/dashboard/UniversalEditor";
 import InvitesManager from "@/components/dashboard/InvitesManager";
 import WorkspaceSettingsPanel from "@/components/dashboard/WorkspaceSettingsPanel";
+import { CrewManagement, PortfolioApprovalsQueue } from "@/components/dashboard/CrewManagement";
+import { CrewProfilePanel, MyAssignedBookings } from "@/components/dashboard/CrewProfilePanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -124,6 +126,10 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "production",        label: "Production Services", icon: Camera,       group: "Ops" },
   { id: "staff",             label: "Staff & Crew",     icon: Users,           group: "Ops" },
   { id: "analytics",         label: "Analytics",        icon: BarChart3,       group: "Ops" },
+  { id: "crew",              label: "Crew Management",  icon: Users,           group: "Crew" },
+  { id: "portfolio-approvals", label: "Portfolio Approvals", icon: CheckCircle2, group: "Crew" },
+  { id: "my-profile",        label: "My Profile",       icon: Camera,          group: "My Work" },
+  { id: "my-bookings",       label: "My Bookings",      icon: Briefcase,       group: "My Work" },
   { id: "users",             label: "Users & Roles",    icon: Users,           group: "Admin" },
   { id: "invites",           label: "Invites & Roles",  icon: Mail,            group: "Admin" },
   { id: "permissions",       label: "Role Permissions", icon: ShieldCheck,     group: "Admin" },
@@ -430,6 +436,10 @@ const Dashboard = () => {
              {section === "staff" && <StaffManager />}
              {section === "films" && <RtgFilmsManager />}
              {section === "fest" && <RtgFestManager />}
+             {section === "crew" && <CrewManagement />}
+             {section === "portfolio-approvals" && <PortfolioApprovalsQueue />}
+             {section === "my-profile" && <CrewProfilePanel />}
+             {section === "my-bookings" && <MyAssignedBookings />}
             </>
           )}
         </div>

@@ -29,9 +29,15 @@ export type SectionId =
   | "community"
   | "permissions"
   | "invites"
-  | "settings";
+  | "settings"
+  | "crew"
+  | "my-profile"
+  | "my-availability"
+  | "my-bookings"
+  | "my-portfolio"
+  | "portfolio-approvals";
 
-export type Group = "Content" | "Pipeline" | "Studio" | "Ops" | "Ecosystem" | "Admin";
+export type Group = "Content" | "Pipeline" | "Studio" | "Ops" | "Ecosystem" | "Admin" | "Crew" | "My Work";
 
 export const ROLE_LABELS: Record<AppRole, string> = {
   head_admin: "Head Admin",
@@ -42,6 +48,17 @@ export const ROLE_LABELS: Record<AppRole, string> = {
   booking_manager: "Booking Manager",
   media_manager: "Media Manager",
   social_articles_lead: "Social / Articles Lead",
+  crew: "Crew",
+  photographer: "Photographer",
+  videographer: "Videographer",
+  video_editor: "Video Editor",
+  director: "Director",
+  producer: "Producer",
+  audio_engineer: "Audio Engineer",
+  grip_lighting: "Grip / Lighting",
+  makeup_artist: "Makeup Artist",
+  production_assistant: "Production Assistant",
+  studio_staff: "Studio Staff",
 };
 
 export const ROLE_DESCRIPTIONS: Record<AppRole, string> = {
@@ -53,6 +70,17 @@ export const ROLE_DESCRIPTIONS: Record<AppRole, string> = {
   booking_manager: "Sales and inquiries. Manage clients and bookings.",
   media_manager: "Asset library. Upload and manage all media.",
   social_articles_lead: "Lead for social + editorial. Combines Social Manager + Editor + analytics access.",
+  crew: "Production crew. Manage own profile, availability, and assigned bookings.",
+  photographer: "Crew — Photography assignments and portfolio.",
+  videographer: "Crew — Video capture assignments and reel.",
+  video_editor: "Crew — Post-production editor.",
+  director: "Crew — Directs shoots and productions.",
+  producer: "Crew — Manages production logistics on set.",
+  audio_engineer: "Crew — On-set and post audio.",
+  grip_lighting: "Crew — Grip and lighting department.",
+  makeup_artist: "Crew — Hair and makeup.",
+  production_assistant: "Crew — Production assistant on set.",
+  studio_staff: "Crew — Studio operations and front-of-house.",
 };
 
 const HEAD = "head_admin" as const;
@@ -88,6 +116,12 @@ export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
   community:          [HEAD, "admin", "editor", "social_manager", "social_articles_lead"],
   permissions:        [HEAD],
   settings:           [HEAD, "admin"],
+  crew:                [HEAD, "admin", "booking_manager"],
+  "portfolio-approvals": [HEAD, "admin", "editor", "media_manager"],
+  "my-profile":        [HEAD, "admin", "editor", "writer", "social_manager", "booking_manager", "media_manager", "social_articles_lead", "crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
+  "my-availability":   ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff", HEAD, "admin", "booking_manager"],
+  "my-bookings":       ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
+  "my-portfolio":      ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
 };
 
 export const OWNERSHIP_ONLY: SectionId[] = [];
