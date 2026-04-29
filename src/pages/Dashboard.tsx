@@ -97,9 +97,7 @@ type Article = {
   game_screenshots?: any;
 };
 
-type SectionId =
-  | "overview" | "drafts" | "submitted" | "revisions" | "scheduled" | "published" | "archived"
-  | "calendar" | "media" | "social" | "bookings" | "leads" | "users" | "site-updates" | "content-managers";
+// SectionId imported from @/lib/permissions
 
 const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "overview",          label: "Overview",         icon: LayoutDashboard, group: "Content" },
@@ -143,7 +141,7 @@ const STATUS_LABEL: Record<Status, string> = {
 const Dashboard = () => {
   const { user, roles, signOut, hasRole } = useAuth();
   const navigate = useNavigate();
-  const navItems = useMemo(() => ALL_NAV.filter((n) => n.roles.some((r) => roles.includes(r))), [roles]);
+  const navItems = useMemo(() => ALL_NAV.filter((n) => can(roles, n.id)), [roles]);
   const [section, setSection] = useState<SectionId>("overview");
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState<Article | null>(null);
@@ -153,7 +151,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
 
-  const primaryRole: AppRole = roles[0] ?? "writer";
+  const primary: AppRole = primaryRole(roles);
 
   const loadArticles = async () => {
     setLoading(true);
