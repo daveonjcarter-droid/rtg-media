@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const PACKAGES = [
   { t: "Sponsored Articles", d: "Long-form editorial features written by RTG journalists." },
-  { t: "Banner Ads", d: "Premium display placements across rtgmedia.com." },
+  { t: "Banner Ads", d: "Premium display placements across runnertogreatness.com" },
   { t: "Social Campaigns", d: "Multi-platform content built for IG, TikTok and X." },
   { t: "Video Sponsorships", d: "Branded segments inside RTG Breakdown and originals." },
   { t: "Event Coverage", d: "Full-cam coverage of activations and launches." },
