@@ -334,12 +334,17 @@ type StaffRow = {
   slug: string;
   display_name: string;
   role_title: string | null;
+  production_position: string | null;
   bio: string | null;
   photo_url: string | null;
   cover_image_url: string | null;
   location: string | null;
   specialties: string[];
   service_ids: string[];
+  preferred_service_ids: string[];
+  travel_radius_miles: number | null;
+  internal_notes: string | null;
+  status: string;
   instagram: string | null;
   twitter: string | null;
   website: string | null;
@@ -349,11 +354,18 @@ type StaffRow = {
   sort_order: number;
 };
 
+const STATUS_STYLES: Record<string, string> = {
+  active: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+  pending: "bg-gold/15 text-gold border-gold/30",
+  suspended: "bg-destructive/15 text-destructive border-destructive/30",
+};
+
 export const StaffManager = () => {
   const [rows, setRows] = useState<StaffRow[]>([]);
   const [services, setServices] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<StaffRow | null>(null);
+  const [availabilityFor, setAvailabilityFor] = useState<StaffRow | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -368,8 +380,9 @@ export const StaffManager = () => {
   useEffect(() => { load(); }, []);
 
   const create = () => setEditing({
-    id: "", user_id: null, slug: "", display_name: "", role_title: "", bio: "",
+    id: "", user_id: null, slug: "", display_name: "", role_title: "", production_position: "", bio: "",
     photo_url: "", cover_image_url: "", location: "Chicago", specialties: [], service_ids: [],
+    preferred_service_ids: [], travel_radius_miles: null, internal_notes: "", status: "active",
     instagram: "", twitter: "", website: "", email: "",
     is_public: true, is_bookable: true, sort_order: rows.length,
   });
