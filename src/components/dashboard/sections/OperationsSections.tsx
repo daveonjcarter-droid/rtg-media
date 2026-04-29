@@ -540,19 +540,36 @@ const StaffEditor = ({ row, services, onClose, onSaved }: {
           <DialogTitle className="font-display uppercase tracking-widest text-lg">{r.id ? "Edit Member" : "New Member"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Display name"><Input value={r.display_name} onChange={(e) => setR({ ...r, display_name: e.target.value })} /></Field>
             <Field label="Role / title"><Input value={r.role_title ?? ""} onChange={(e) => setR({ ...r, role_title: e.target.value })} placeholder="Director of Photography" /></Field>
           </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Field label="Production position"><Input value={r.production_position ?? ""} onChange={(e) => setR({ ...r, production_position: e.target.value })} placeholder="DP, Editor, Producer…" /></Field>
+            <Field label="Status">
+              <Select value={r.status || "active"} onValueChange={(v) => setR({ ...r, status: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="suspended">Suspended</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
           <Field label="Bio"><Textarea rows={4} value={r.bio ?? ""} onChange={(e) => setR({ ...r, bio: e.target.value })} /></Field>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Photo URL"><Input value={r.photo_url ?? ""} onChange={(e) => setR({ ...r, photo_url: e.target.value })} /></Field>
             <Field label="Cover image URL"><Input value={r.cover_image_url ?? ""} onChange={(e) => setR({ ...r, cover_image_url: e.target.value })} /></Field>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Field label="Location"><Input value={r.location ?? ""} onChange={(e) => setR({ ...r, location: e.target.value })} /></Field>
             <Field label="Email"><Input value={r.email ?? ""} onChange={(e) => setR({ ...r, email: e.target.value })} /></Field>
+            <Field label="Travel radius (mi)"><Input type="number" value={r.travel_radius_miles ?? ""} onChange={(e) => setR({ ...r, travel_radius_miles: e.target.value ? Number(e.target.value) : null })} /></Field>
           </div>
+          <Field label="Internal notes (admin only)">
+            <Textarea rows={3} value={r.internal_notes ?? ""} onChange={(e) => setR({ ...r, internal_notes: e.target.value })} placeholder="Rates, availability quirks, gear preferences…" />
+          </Field>
           <div className="grid grid-cols-3 gap-3">
             <Field label="Instagram"><Input value={r.instagram ?? ""} onChange={(e) => setR({ ...r, instagram: e.target.value })} placeholder="@handle" /></Field>
             <Field label="Twitter"><Input value={r.twitter ?? ""} onChange={(e) => setR({ ...r, twitter: e.target.value })} /></Field>
