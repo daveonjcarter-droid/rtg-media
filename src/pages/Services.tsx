@@ -42,7 +42,7 @@ const Services = () => {
     (async () => {
       const { data } = await supabase
         .from("services" as any)
-        .select("id,slug,name,short_description,pricing_model,base_price,sale_price,cover_image_url,is_featured")
+        .select("id,slug,name,short_description,long_description,pricing_model,base_price,sale_price,cover_image_url,is_featured,packages,add_ons")
         .eq("is_available", true)
         .order("is_featured", { ascending: false })
         .order("sort_order");
