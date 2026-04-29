@@ -403,9 +403,12 @@ export type Database = {
       bookings: {
         Row: {
           archived: boolean
+          assigned_staff_id: string | null
+          assignment_status: string
           base_cost: number | null
           budget: string | null
           created_at: string
+          deposit_paid: boolean
           description: string | null
           duration: string | null
           email: string
@@ -414,26 +417,34 @@ export type Database = {
           instagram: string | null
           location_detail: string | null
           name: string
+          no_preference: boolean
           notes: string | null
           phone: string
           preferred_contact: Database["public"]["Enums"]["contact_method"]
           project_date: string | null
+          project_time: string | null
           project_type: string | null
           reference_link: string | null
+          requested_staff_id: string | null
           service: string | null
+          service_id: string | null
           shoot_type: Database["public"]["Enums"]["shoot_type"] | null
           status: Database["public"]["Enums"]["booking_status"]
           studio_cost: number | null
           studio_preference: string | null
           timeline: string | null
+          total_estimate: number | null
           travel_cost: number | null
           updated_at: string
         }
         Insert: {
           archived?: boolean
+          assigned_staff_id?: string | null
+          assignment_status?: string
           base_cost?: number | null
           budget?: string | null
           created_at?: string
+          deposit_paid?: boolean
           description?: string | null
           duration?: string | null
           email: string
@@ -442,26 +453,34 @@ export type Database = {
           instagram?: string | null
           location_detail?: string | null
           name: string
+          no_preference?: boolean
           notes?: string | null
           phone: string
           preferred_contact?: Database["public"]["Enums"]["contact_method"]
           project_date?: string | null
+          project_time?: string | null
           project_type?: string | null
           reference_link?: string | null
+          requested_staff_id?: string | null
           service?: string | null
+          service_id?: string | null
           shoot_type?: Database["public"]["Enums"]["shoot_type"] | null
           status?: Database["public"]["Enums"]["booking_status"]
           studio_cost?: number | null
           studio_preference?: string | null
           timeline?: string | null
+          total_estimate?: number | null
           travel_cost?: number | null
           updated_at?: string
         }
         Update: {
           archived?: boolean
+          assigned_staff_id?: string | null
+          assignment_status?: string
           base_cost?: number | null
           budget?: string | null
           created_at?: string
+          deposit_paid?: boolean
           description?: string | null
           duration?: string | null
           email?: string
@@ -470,18 +489,23 @@ export type Database = {
           instagram?: string | null
           location_detail?: string | null
           name?: string
+          no_preference?: boolean
           notes?: string | null
           phone?: string
           preferred_contact?: Database["public"]["Enums"]["contact_method"]
           project_date?: string | null
+          project_time?: string | null
           project_type?: string | null
           reference_link?: string | null
+          requested_staff_id?: string | null
           service?: string | null
+          service_id?: string | null
           shoot_type?: Database["public"]["Enums"]["shoot_type"] | null
           status?: Database["public"]["Enums"]["booking_status"]
           studio_cost?: number | null
           studio_preference?: string | null
           timeline?: string | null
+          total_estimate?: number | null
           travel_cost?: number | null
           updated_at?: string
         }
@@ -762,6 +786,71 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio_items: {
+        Row: {
+          category: string
+          client: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_featured: boolean
+          is_public: boolean
+          media_type: string
+          media_url: string | null
+          sort_order: number
+          staff_id: string | null
+          tags: string[]
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          year: number | null
+        }
+        Insert: {
+          category?: string
+          client?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_featured?: boolean
+          is_public?: boolean
+          media_type?: string
+          media_url?: string | null
+          sort_order?: number
+          staff_id?: string | null
+          tags?: string[]
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          year?: number | null
+        }
+        Update: {
+          category?: string
+          client?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_featured?: boolean
+          is_public?: boolean
+          media_type?: string
+          media_url?: string | null
+          sort_order?: number
+          staff_id?: string | null
+          tags?: string[]
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_items_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -827,6 +916,66 @@ export type Database = {
           note?: string | null
           sort_order?: number
           title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          add_ons: Json
+          base_price: number | null
+          cover_image_url: string | null
+          created_at: string
+          icon: string | null
+          id: string
+          is_available: boolean
+          is_featured: boolean
+          long_description: string | null
+          name: string
+          packages: Json
+          pricing_model: string
+          sale_price: number | null
+          short_description: string | null
+          slug: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          add_ons?: Json
+          base_price?: number | null
+          cover_image_url?: string | null
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_available?: boolean
+          is_featured?: boolean
+          long_description?: string | null
+          name: string
+          packages?: Json
+          pricing_model?: string
+          sale_price?: number | null
+          short_description?: string | null
+          slug?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          add_ons?: Json
+          base_price?: number | null
+          cover_image_url?: string | null
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_available?: boolean
+          is_featured?: boolean
+          long_description?: string | null
+          name?: string
+          packages?: Json
+          pricing_model?: string
+          sale_price?: number | null
+          short_description?: string | null
+          slug?: string | null
+          sort_order?: number
           updated_at?: string
         }
         Relationships: []
@@ -983,6 +1132,142 @@ export type Database = {
           },
         ]
       }
+      staff_availability: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          staff_id: string
+          start_time: string
+          weekday: number
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          staff_id: string
+          start_time: string
+          weekday: number
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          staff_id?: string
+          start_time?: string
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_availability_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_blackouts: {
+        Row: {
+          blackout_date: string
+          created_at: string
+          id: string
+          reason: string | null
+          staff_id: string
+        }
+        Insert: {
+          blackout_date: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          staff_id: string
+        }
+        Update: {
+          blackout_date?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          staff_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_blackouts_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_profiles: {
+        Row: {
+          bio: string | null
+          cover_image_url: string | null
+          created_at: string
+          display_name: string
+          email: string | null
+          id: string
+          instagram: string | null
+          is_bookable: boolean
+          is_public: boolean
+          location: string | null
+          photo_url: string | null
+          role_title: string | null
+          service_ids: string[]
+          slug: string
+          sort_order: number
+          specialties: string[]
+          twitter: string | null
+          updated_at: string
+          user_id: string | null
+          website: string | null
+        }
+        Insert: {
+          bio?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          display_name: string
+          email?: string | null
+          id?: string
+          instagram?: string | null
+          is_bookable?: boolean
+          is_public?: boolean
+          location?: string | null
+          photo_url?: string | null
+          role_title?: string | null
+          service_ids?: string[]
+          slug: string
+          sort_order?: number
+          specialties?: string[]
+          twitter?: string | null
+          updated_at?: string
+          user_id?: string | null
+          website?: string | null
+        }
+        Update: {
+          bio?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          display_name?: string
+          email?: string | null
+          id?: string
+          instagram?: string | null
+          is_bookable?: boolean
+          is_public?: boolean
+          location?: string | null
+          photo_url?: string | null
+          role_title?: string | null
+          service_ids?: string[]
+          slug?: string
+          sort_order?: number
+          specialties?: string[]
+          twitter?: string | null
+          updated_at?: string
+          user_id?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1057,6 +1342,7 @@ export type Database = {
         | "booked"
         | "completed"
         | "declined"
+        | "pending_deposit"
       contact_method: "email" | "phone" | "text"
       film_verdict: "recommended" | "mixed" | "not_recommended"
       lead_source: "booking" | "newsletter" | "advertise" | "contact" | "other"
@@ -1227,6 +1513,7 @@ export const Constants = {
         "booked",
         "completed",
         "declined",
+        "pending_deposit",
       ],
       contact_method: ["email", "phone", "text"],
       film_verdict: ["recommended", "mixed", "not_recommended"],

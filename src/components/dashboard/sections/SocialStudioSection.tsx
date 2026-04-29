@@ -248,7 +248,8 @@ const ContentTab = ({
   const updateStatus = async (id: string, status: SocialStatus) => {
     const patch: Record<string, unknown> = { status };
     if (status === "posted") patch.posted_at = new Date().toISOString();
-    const { error } = await supabase.from("social_posts").update(patch).eq("id", id);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await supabase.from("social_posts").update(patch as any).eq("id", id);
     if (error) return toast.error(error.message);
     if (status === "scheduled") logActivity({ kind: "social_scheduled", title: "Social post scheduled" });
     if (status === "posted") logActivity({ kind: "social_posted", title: "Social post published" });
@@ -733,7 +734,8 @@ const PostEditor = ({
       return toast.error("Pick a schedule date");
     }
     const { error } = post
-      ? await supabase.from("social_posts").update(payload).eq("id", post.id)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ? await supabase.from("social_posts").update(payload as any).eq("id", post.id)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       : await supabase.from("social_posts").insert({ ...payload, article_id: "" } as any);
     if (error) return toast.error(error.message);
