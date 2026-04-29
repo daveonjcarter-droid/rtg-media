@@ -40,6 +40,7 @@ export const ROLE_LABELS: Record<AppRole, string> = {
   social_manager: "Social Manager",
   booking_manager: "Booking Manager",
   media_manager: "Media Manager",
+  social_articles_lead: "Social / Articles Lead",
 };
 
 export const ROLE_DESCRIPTIONS: Record<AppRole, string> = {
@@ -50,6 +51,7 @@ export const ROLE_DESCRIPTIONS: Record<AppRole, string> = {
   social_manager: "Distribute and schedule social posts.",
   booking_manager: "Sales and inquiries. Manage clients and bookings.",
   media_manager: "Asset library. Upload and manage all media.",
+  social_articles_lead: "Lead for social + editorial. Combines Social Manager + Editor + analytics access.",
 };
 
 const HEAD = "head_admin" as const;
