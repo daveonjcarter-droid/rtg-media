@@ -14,6 +14,7 @@ export type BlockKind =
   | "highlight_quote"
   | "image"
   | "gallery"
+  | "embed"
   | "pros_cons"
   | "spoiler"
   | "verdict";
