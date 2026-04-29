@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Instagram, Youtube, Twitter } from "lucide-react";
+import { Instagram, Youtube, Twitter as X } from "lucide-react";
 import Logo from "./Logo";
 
 const SiteFooter = () => (
@@ -13,7 +13,7 @@ const SiteFooter = () => (
         <div className="flex items-center gap-4 mt-6 text-muted-foreground">
           <a href="#" aria-label="Instagram" className="hover:text-primary transition-colors"><Instagram className="h-5 w-5" /></a>
           <a href="#" aria-label="YouTube" className="hover:text-primary transition-colors"><Youtube className="h-5 w-5" /></a>
-          <a href="#" aria-label="Twitter" className="hover:text-primary transition-colors"><Twitter className="h-5 w-5" /></a>
+          <a href="#" aria-label="X" className="hover:text-primary transition-colors"><X className="h-5 w-5" /></a>
         </div>
       </div>
 
