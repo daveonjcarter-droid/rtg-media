@@ -52,17 +52,34 @@ export type Database = {
       }
       articles: {
         Row: {
+          article_type: Database["public"]["Enums"]["article_type"]
+          audience_score: number | null
           author_id: string
           body: string | null
+          body_blocks: Json
           category: string | null
           cover_image_url: string | null
           created_at: string
           excerpt: string | null
+          film_director: string | null
+          film_genre: string | null
+          film_mpaa_rating: string | null
+          film_release_date: string | null
+          film_review_date: string | null
+          film_reviewer: string | null
+          film_runtime: string | null
+          film_studio: string | null
+          film_title: string | null
           id: string
+          imdb_score: number | null
           is_featured: boolean
+          is_official_rtg_review: boolean
           is_rtg_pick: boolean
           is_trending: boolean
+          metacritic_score: number | null
           published_at: string | null
+          rotten_tomatoes_score: number | null
+          rtg_rating: number | null
           seo_description: string | null
           seo_title: string | null
           slug: string | null
@@ -70,19 +87,41 @@ export type Database = {
           tags: string[] | null
           title: string
           updated_at: string
+          verdict_headline: string | null
+          verdict_paragraph: string | null
+          verdict_recommendation:
+            | Database["public"]["Enums"]["film_verdict"]
+            | null
         }
         Insert: {
+          article_type?: Database["public"]["Enums"]["article_type"]
+          audience_score?: number | null
           author_id: string
           body?: string | null
+          body_blocks?: Json
           category?: string | null
           cover_image_url?: string | null
           created_at?: string
           excerpt?: string | null
+          film_director?: string | null
+          film_genre?: string | null
+          film_mpaa_rating?: string | null
+          film_release_date?: string | null
+          film_review_date?: string | null
+          film_reviewer?: string | null
+          film_runtime?: string | null
+          film_studio?: string | null
+          film_title?: string | null
           id?: string
+          imdb_score?: number | null
           is_featured?: boolean
+          is_official_rtg_review?: boolean
           is_rtg_pick?: boolean
           is_trending?: boolean
+          metacritic_score?: number | null
           published_at?: string | null
+          rotten_tomatoes_score?: number | null
+          rtg_rating?: number | null
           seo_description?: string | null
           seo_title?: string | null
           slug?: string | null
@@ -90,19 +129,41 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string
+          verdict_headline?: string | null
+          verdict_paragraph?: string | null
+          verdict_recommendation?:
+            | Database["public"]["Enums"]["film_verdict"]
+            | null
         }
         Update: {
+          article_type?: Database["public"]["Enums"]["article_type"]
+          audience_score?: number | null
           author_id?: string
           body?: string | null
+          body_blocks?: Json
           category?: string | null
           cover_image_url?: string | null
           created_at?: string
           excerpt?: string | null
+          film_director?: string | null
+          film_genre?: string | null
+          film_mpaa_rating?: string | null
+          film_release_date?: string | null
+          film_review_date?: string | null
+          film_reviewer?: string | null
+          film_runtime?: string | null
+          film_studio?: string | null
+          film_title?: string | null
           id?: string
+          imdb_score?: number | null
           is_featured?: boolean
+          is_official_rtg_review?: boolean
           is_rtg_pick?: boolean
           is_trending?: boolean
+          metacritic_score?: number | null
           published_at?: string | null
+          rotten_tomatoes_score?: number | null
+          rtg_rating?: number | null
           seo_description?: string | null
           seo_title?: string | null
           slug?: string | null
@@ -110,6 +171,11 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string
+          verdict_headline?: string | null
+          verdict_paragraph?: string | null
+          verdict_recommendation?:
+            | Database["public"]["Enums"]["film_verdict"]
+            | null
         }
         Relationships: []
       }
@@ -582,6 +648,13 @@ export type Database = {
         | "revisions"
         | "approved"
         | "published"
+      article_type:
+        | "standard"
+        | "film_review"
+        | "interview"
+        | "opinion"
+        | "breakdown"
+        | "news"
       booking_status:
         | "new"
         | "contacted"
@@ -590,6 +663,7 @@ export type Database = {
         | "completed"
         | "declined"
       contact_method: "email" | "phone" | "text"
+      film_verdict: "recommended" | "mixed" | "not_recommended"
       lead_source: "booking" | "newsletter" | "advertise" | "contact" | "other"
       shoot_type: "studio" | "location" | "hybrid"
       social_platform: "instagram" | "tiktok" | "x" | "youtube"
@@ -730,6 +804,14 @@ export const Constants = {
         "approved",
         "published",
       ],
+      article_type: [
+        "standard",
+        "film_review",
+        "interview",
+        "opinion",
+        "breakdown",
+        "news",
+      ],
       booking_status: [
         "new",
         "contacted",
@@ -739,6 +821,7 @@ export const Constants = {
         "declined",
       ],
       contact_method: ["email", "phone", "text"],
+      film_verdict: ["recommended", "mixed", "not_recommended"],
       lead_source: ["booking", "newsletter", "advertise", "contact", "other"],
       shoot_type: ["studio", "location", "hybrid"],
       social_platform: ["instagram", "tiktok", "x", "youtube"],
