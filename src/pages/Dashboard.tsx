@@ -342,9 +342,13 @@ const Dashboard = () => {
       </div>
 
       {editorOpen && (
-        (newType === "film_review" || editing?.article_type === "film_review")
-          ? <FilmReviewEditor article={editing as any} userId={user!.id} onClose={() => setEditorOpen(false)} onSaved={() => { setEditorOpen(false); loadArticles(); }} />
-          : <Editor article={editing} userId={user!.id} onClose={() => setEditorOpen(false)} onSaved={() => { setEditorOpen(false); loadArticles(); }} articleType={newType} />
+        <UniversalEditor
+          article={editing}
+          userId={user!.id}
+          initialType={(editing?.article_type as any) ?? newType}
+          onClose={() => setEditorOpen(false)}
+          onSaved={() => { setEditorOpen(false); loadArticles(); }}
+        />
       )}
 
       <ImportArticleDialog
