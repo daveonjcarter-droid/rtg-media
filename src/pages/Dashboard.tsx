@@ -436,6 +436,10 @@ const Dashboard = () => {
              {section === "staff" && <StaffManager />}
              {section === "films" && <RtgFilmsManager />}
              {section === "fest" && <RtgFestManager />}
+             {section === "crew" && <CrewManagement />}
+             {section === "portfolio-approvals" && <PortfolioApprovalsQueue />}
+             {section === "my-profile" && <CrewProfilePanel />}
+             {section === "my-bookings" && <MyAssignedBookings />}
             </>
           )}
         </div>
