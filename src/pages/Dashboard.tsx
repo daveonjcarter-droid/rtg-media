@@ -13,7 +13,6 @@ import QuickSiteUpdates from "@/components/dashboard/QuickSiteUpdates";
 import ContentManagers from "@/components/dashboard/ContentManagers";
 import ImportArticleDialog from "@/components/dashboard/ImportArticleDialog";
 import UniversalEditor from "@/components/dashboard/UniversalEditor";
-import logoLight from "@/assets/rtg-logo-light.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -209,9 +208,17 @@ const Dashboard = () => {
       <aside
         className={`${collapsed ? "w-[64px]" : "w-[220px]"} shrink-0 border-r border-border bg-sidebar hidden lg:flex flex-col transition-[width] duration-200`}
       >
-        <Link to="/" className={`h-14 border-b border-border flex items-center gap-2 ${collapsed ? "justify-center px-0" : "px-4"}`}>
-          <img src={logoLight} alt="RTG" className="h-6 " />
-          {!collapsed && <span className="font-display text-xs uppercase tracking-[0.25em]">Studio</span>}
+        <Link
+          to="/dashboard"
+          className={`h-14 border-b border-border flex items-center ${collapsed ? "justify-center px-0" : "px-4 gap-2.5"}`}
+          title="RTG Studio"
+        >
+          <span className="font-gothic text-lg leading-none tracking-tight">RTG</span>
+          {!collapsed && (
+            <span className="font-display text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+              Studio
+            </span>
+          )}
         </Link>
 
         <nav className="flex-1 py-3 overflow-y-auto scrollbar-hide">

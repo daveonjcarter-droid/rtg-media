@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, forwardRef } from "react";
 import { LucideIcon } from "lucide-react";
 
 type EmptyStateProps = {
@@ -17,7 +17,7 @@ type EmptyStateProps = {
  * RTG-branded pre-launch state. Reads as intentional, not unfinished:
  * crosshair frame, faint editorial number, and a "first drops coming soon" ribbon.
  */
-const EmptyState = ({
+const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(({
   eyebrow = "RTG Media",
   title,
   description,
@@ -26,10 +26,11 @@ const EmptyState = ({
   ribbon = "First drops coming soon",
   children,
   className = "",
-}: EmptyStateProps) => {
+}, ref) => {
   const isDark = tone === "dark";
   return (
     <div
+      ref={ref}
       className={`relative w-full overflow-hidden ${
         isDark ? "bg-ink text-cream grain-heavy" : "bg-surface/40"
       } border border-border ${className}`}
@@ -116,6 +117,8 @@ const EmptyState = ({
       </div>
     </div>
   );
-};
+});
+
+EmptyState.displayName = "EmptyState";
 
 export default EmptyState;
