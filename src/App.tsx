@@ -16,6 +16,7 @@ import Book from "./pages/Book.tsx";
 import About from "./pages/About.tsx";
 import Team from "./pages/Team.tsx";
 import Advertise from "./pages/Advertise.tsx";
+import Fest from "./pages/Fest.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/about" element={<About />} />
             <Route path="/team" element={<Team />} />
             <Route path="/advertise" element={<Advertise />} />
+            <Route path="/fest" element={<Fest />} />
 
             {/* Auth */}
             <Route path="/login" element={<Login />} />

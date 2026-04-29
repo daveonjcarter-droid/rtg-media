@@ -12,14 +12,15 @@ const NAV = [
   { to: "/portfolio", label: "Portfolio" },
   { to: "/book", label: "Book" },
   { to: "/about", label: "About" },
+  { to: "/fest", label: "RTG Fest" },
 ];
 
 const ECOSYSTEM = [
-  { label: "RTG Studios", desc: "Creative production house" },
-  { label: "RTG Breakdown", desc: "Movies, TV, anime, comics" },
-  { label: "RTG Film", desc: "Original films & docs" },
-  { label: "RTG Tech", desc: "Platform & tooling" },
-  { label: "RTG Fest", desc: "Live culture events" },
+  { label: "RTG Studios", desc: "Creative production house", to: undefined as string | undefined },
+  { label: "RTG Breakdown", desc: "Movies, TV, anime, comics", to: "/breakdown" },
+  { label: "RTG Film", desc: "Original films & docs", to: undefined },
+  { label: "RTG Tech", desc: "Platform & tooling", to: undefined },
+  { label: "RTG Fest", desc: "Live culture events", to: "/fest" },
 ];
 
 const SiteNav = () => {
