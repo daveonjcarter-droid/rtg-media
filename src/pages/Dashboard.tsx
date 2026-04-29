@@ -208,77 +208,78 @@ const Dashboard = () => {
   const canCreate = hasRole("writer") || hasRole("editor") || hasRole("admin");
   const currentNav = navItems.find((n) => n.id === section);
 
-  return (
-    <div className="min-h-screen flex bg-background text-foreground">
-      {/* ============ SIDEBAR ============ */}
-      <aside
-        className={`${collapsed ? "w-[64px]" : "w-[220px]"} shrink-0 border-r border-border bg-sidebar hidden lg:flex flex-col transition-[width] duration-200`}
+  const navContent = (forMobile = false) => (
+    <>
+      <Link
+        to="/dashboard"
+        onClick={() => forMobile && setMobileNavOpen(false)}
+        className={`h-14 border-b border-border flex items-center ${(!forMobile && collapsed) ? "justify-center px-0" : "px-4 gap-2.5"}`}
+        title="RTG Studio"
       >
-        <Link
-          to="/dashboard"
-          className={`h-14 border-b border-border flex items-center ${collapsed ? "justify-center px-0" : "px-4 gap-2.5"}`}
-          title="RTG Studio"
+        <span className="font-gothic text-lg leading-none tracking-tight">RTG</span>
+        {(forMobile || !collapsed) && (
+          <span className="font-display text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+            Studio
+          </span>
+        )}
+      </Link>
+
+      <nav className="flex-1 py-3 overflow-y-auto scrollbar-hide">
+        {Object.entries(grouped).map(([group, items]) => (
+          <div key={group} className="mb-3">
+            {(forMobile || !collapsed) && (
+              <div className="px-4 mb-1.5 text-[9px] uppercase tracking-[0.3em] text-muted-foreground/60 font-semibold">
+                {group}
+              </div>
+            )}
+            <div className="px-2 space-y-px">
+              {items.map((n) => {
+                const active = section === n.id;
+                return (
+                  <button
+                    key={n.id}
+                    onClick={() => {
+                      setSection(n.id);
+                      if (forMobile) setMobileNavOpen(false);
+                    }}
+                    title={(!forMobile && collapsed) ? n.label : undefined}
+                    className={`w-full flex items-center gap-2.5 ${(!forMobile && collapsed) ? "justify-center px-0 py-2" : "px-2.5 py-2"} rounded-sm text-[13px] transition-colors group relative ${
+                      active
+                        ? "bg-primary text-primary-foreground"
+                        : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                    }`}
+                  >
+                    <n.icon className="h-3.5 w-3.5 shrink-0" />
+                    {(forMobile || !collapsed) && <span className="truncate">{n.label}</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      <div className="p-2 border-t border-border space-y-1">
+        {(forMobile || !collapsed) && (
+          <div className="px-2 py-1.5 rounded-sm bg-sidebar-accent/50">
+            <div className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground/60 mb-0.5">Signed in</div>
+            <div className="text-[11px] truncate">{user?.email}</div>
+            <div className="flex flex-wrap gap-1 mt-1">
+              {roles.length ? roles.map((r) => (
+                <span key={r} className="text-[8px] uppercase tracking-widest bg-background/60 text-foreground/80 px-1.5 py-0.5 rounded-sm">
+                  {ROLE_LABELS[r]}
+                </span>
+              )) : <span className="text-[8px] uppercase tracking-widest text-muted-foreground">No role</span>}
+            </div>
+          </div>
+        )}
+        <button
+          onClick={handleSignOut}
+          className={`w-full flex items-center gap-2 ${(!forMobile && collapsed) ? "justify-center" : "px-2"} py-1.5 rounded-sm text-[11px] uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-sidebar-accent`}
         >
-          <span className="font-gothic text-lg leading-none tracking-tight">RTG</span>
-          {!collapsed && (
-            <span className="font-display text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-              Studio
-            </span>
-          )}
-        </Link>
-
-        <nav className="flex-1 py-3 overflow-y-auto scrollbar-hide">
-          {Object.entries(grouped).map(([group, items]) => (
-            <div key={group} className="mb-3">
-              {!collapsed && (
-                <div className="px-4 mb-1.5 text-[9px] uppercase tracking-[0.3em] text-muted-foreground/60 font-semibold">
-                  {group}
-                </div>
-              )}
-              <div className="px-2 space-y-px">
-                {items.map((n) => {
-                  const active = section === n.id;
-                  return (
-                    <button
-                      key={n.id}
-                      onClick={() => setSection(n.id)}
-                      title={collapsed ? n.label : undefined}
-                      className={`w-full flex items-center gap-2.5 ${collapsed ? "justify-center px-0 py-2" : "px-2.5 py-1.5"} rounded-sm text-[13px] transition-colors group relative ${
-                        active
-                          ? "bg-primary text-primary-foreground"
-                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                      }`}
-                    >
-                      <n.icon className="h-3.5 w-3.5 shrink-0" />
-                      {!collapsed && <span className="truncate">{n.label}</span>}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </nav>
-
-        <div className="p-2 border-t border-border space-y-1">
-          {!collapsed && (
-            <div className="px-2 py-1.5 rounded-sm bg-sidebar-accent/50">
-              <div className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground/60 mb-0.5">Signed in</div>
-              <div className="text-[11px] truncate">{user?.email}</div>
-              <div className="flex flex-wrap gap-1 mt-1">
-                {roles.length ? roles.map((r) => (
-                  <span key={r} className="text-[8px] uppercase tracking-widest bg-background/60 text-foreground/80 px-1.5 py-0.5 rounded-sm">
-                    {ROLE_LABELS[r]}
-                  </span>
-                )) : <span className="text-[8px] uppercase tracking-widest text-muted-foreground">No role</span>}
-              </div>
-            </div>
-          )}
-          <button
-            onClick={handleSignOut}
-            className={`w-full flex items-center gap-2 ${collapsed ? "justify-center" : "px-2"} py-1.5 rounded-sm text-[11px] uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-sidebar-accent`}
-          >
-            <LogOut className="h-3 w-3" /> {!collapsed && "Sign Out"}
-          </button>
+          <LogOut className="h-3 w-3" /> {(forMobile || !collapsed) && "Sign Out"}
+        </button>
+        {!forMobile && (
           <button
             onClick={() => setCollapsed((c) => !c)}
             className={`w-full flex items-center gap-2 ${collapsed ? "justify-center" : "px-2"} py-1.5 rounded-sm text-[11px] text-muted-foreground hover:text-foreground hover:bg-sidebar-accent`}
@@ -287,23 +288,62 @@ const Dashboard = () => {
             {collapsed ? <ChevronsRight className="h-3 w-3" /> : <ChevronsLeft className="h-3 w-3" />}
             {!collapsed && <span className="uppercase tracking-widest">Collapse</span>}
           </button>
-        </div>
+        )}
+      </div>
+    </>
+  );
+
+  return (
+    <div className="min-h-screen flex bg-background text-foreground">
+      {/* ============ DESKTOP SIDEBAR ============ */}
+      <aside
+        className={`${collapsed ? "w-[64px]" : "w-[220px]"} shrink-0 border-r border-border bg-sidebar hidden lg:flex flex-col transition-[width] duration-200`}
+      >
+        {navContent(false)}
       </aside>
+
+      {/* ============ MOBILE DRAWER ============ */}
+      {mobileNavOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          <button
+            aria-label="Close menu"
+            className="absolute inset-0 bg-ink/70 backdrop-blur-sm animate-in fade-in"
+            onClick={() => setMobileNavOpen(false)}
+          />
+          <aside className="relative w-[78vw] max-w-[300px] bg-sidebar border-r border-border flex flex-col animate-in slide-in-from-left duration-200">
+            <button
+              onClick={() => setMobileNavOpen(false)}
+              aria-label="Close menu"
+              className="absolute top-3 right-3 z-10 h-7 w-7 rounded-sm border border-border flex items-center justify-center text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+            {navContent(true)}
+          </aside>
+        </div>
+      )}
 
       {/* ============ MAIN ============ */}
       <div className="flex-1 min-w-0 flex flex-col">
-        <header className="h-14 border-b border-border bg-background/85 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between px-5 gap-4">
-          <div className="flex items-center gap-3 min-w-0">
+        <header className="h-14 border-b border-border bg-background/85 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between px-3 sm:px-5 gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <button
+              onClick={() => setMobileNavOpen(true)}
+              aria-label="Open menu"
+              className="lg:hidden h-9 w-9 rounded-sm border border-border hover:border-foreground/40 flex items-center justify-center text-foreground shrink-0"
+            >
+              <Menu className="h-4 w-4" />
+            </button>
             <div className="min-w-0">
-              <div className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground leading-none">
+              <div className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground leading-none truncate">
                 {ROLE_LABELS[primary]}
               </div>
-              <div className="font-display text-base uppercase leading-tight truncate">
+              <div className="font-display text-sm sm:text-base uppercase leading-tight truncate">
                 {currentNav?.label}
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <div className="hidden md:flex items-center h-8 rounded-sm border border-border bg-surface/50 px-2 w-56 focus-within:border-foreground/40 transition-colors">
               <Search className="h-3.5 w-3.5 text-muted-foreground" />
               <input
@@ -312,7 +352,7 @@ const Dashboard = () => {
               />
               <kbd className="text-[9px] px-1.5 py-0.5 rounded bg-background border border-border text-muted-foreground">⌘K</kbd>
             </div>
-            <button className="h-8 w-8 rounded-sm border border-border hover:border-foreground/40 transition-colors flex items-center justify-center text-muted-foreground hover:text-foreground">
+            <button className="hidden sm:flex h-8 w-8 rounded-sm border border-border hover:border-foreground/40 transition-colors items-center justify-center text-muted-foreground hover:text-foreground">
               <Bell className="h-3.5 w-3.5" />
             </button>
             {canCreate && (
@@ -321,7 +361,7 @@ const Dashboard = () => {
                   onClick={() => setImportOpen(true)}
                   size="sm"
                   variant="outline"
-                  className="rounded-sm uppercase tracking-widest text-[10px] h-8 px-3 hidden sm:inline-flex"
+                  className="rounded-sm uppercase tracking-widest text-[10px] h-8 px-3 hidden md:inline-flex"
                 >
                   <Upload className="h-3 w-3 mr-1" /> Import
                 </Button>
@@ -331,7 +371,7 @@ const Dashboard = () => {
                       size="sm"
                       className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm uppercase tracking-widest text-[10px] h-8 px-3"
                     >
-                      <Plus className="h-3 w-3 mr-1" /> New
+                      <Plus className="h-3 w-3 sm:mr-1" /> <span className="hidden sm:inline">New</span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
@@ -351,7 +391,7 @@ const Dashboard = () => {
                 </DropdownMenu>
               </>
             )}
-            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-ink flex items-center justify-center text-[10px] font-semibold border border-border">
+            <div className="hidden sm:flex h-8 w-8 rounded-full bg-gradient-to-br from-primary to-ink items-center justify-center text-[10px] font-semibold border border-border">
               {user?.email?.slice(0, 2).toUpperCase()}
             </div>
           </div>
