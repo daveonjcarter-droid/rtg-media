@@ -289,18 +289,40 @@ const Book = () => {
             {/* STEP BODY */}
             <div className="min-h-[280px]">
               {step === 0 && (
-                <CardGrid>
-                  {PROJECT_TYPES.map((p) => (
-                    <ChoiceCard
-                      key={p.value}
-                      icon={p.icon}
-                      label={p.value}
-                      desc={p.desc}
-                      active={form.project_type === p.value}
-                      onClick={() => set("project_type", p.value)}
-                    />
-                  ))}
-                </CardGrid>
+                <>
+                  <CardGrid>
+                    {PROJECT_TYPES.map((p) => (
+                      <ChoiceCard
+                        key={p.value}
+                        icon={p.icon}
+                        label={p.value}
+                        desc={p.desc}
+                        active={form.project_type === p.value}
+                        onClick={() => {
+                          set("project_type", p.value);
+                          if (p.value !== "Event Coverage") set("event_type", "");
+                        }}
+                      />
+                    ))}
+                  </CardGrid>
+
+                  {form.project_type === "Event Coverage" && (
+                    <div className="mt-8 pt-6 border-t border-border animate-in fade-in slide-in-from-top-2 duration-300">
+                      <Label className="eyebrow mb-3 block">What type of event? *</Label>
+                      <CardGrid cols={3}>
+                        {EVENT_TYPES.map((e) => (
+                          <ChoiceCard
+                            key={e.value}
+                            label={e.value}
+                            desc={e.desc}
+                            active={form.event_type === e.value}
+                            onClick={() => set("event_type", e.value)}
+                          />
+                        ))}
+                      </CardGrid>
+                    </div>
+                  )}
+                </>
               )}
 
               {step === 1 && (
