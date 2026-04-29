@@ -345,8 +345,10 @@ const Dashboard = () => {
               {section === "drafts" && <ArticleList articles={filtered(["draft"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
               {section === "submitted" && <ArticleList articles={filtered(["submitted"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
               {section === "revisions" && <ArticleList articles={filtered(["revisions"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
+              {section === "scheduled" && <ArticleList articles={filtered(["scheduled"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
               {section === "published" && <ArticleList articles={filtered(["approved", "published"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
-              {section === "calendar" && <CalendarView articles={filtered(["approved", "published"])} />}
+              {section === "archived" && <ArticleList articles={filtered(["archived"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
+              {section === "calendar" && <CalendarView articles={filtered(["approved", "scheduled", "published"])} />}
               {section === "media" && <MediaLibrary />}
               {section === "social" && <SocialKit articles={filtered(["published"])} />}
               {section === "bookings" && <BookingsView />}
