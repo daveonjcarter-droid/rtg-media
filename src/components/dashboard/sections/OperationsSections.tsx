@@ -484,6 +484,15 @@ export const StaffManager = () => {
           onSaved={() => { setEditing(null); load(); }}
         />
       )}
+
+      {availabilityFor && (
+        <AvailabilityCalendar
+          staffId={availabilityFor.id}
+          staffName={availabilityFor.display_name}
+          open={!!availabilityFor}
+          onClose={() => setAvailabilityFor(null)}
+        />
+      )}
     </div>
   );
 };
