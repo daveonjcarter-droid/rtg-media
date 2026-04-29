@@ -1744,7 +1744,7 @@ const Editor = ({ article, userId, onClose, onSaved, articleType = "standard" }:
   const save = async (status: Status) => {
     if (!title.trim()) { toast.error("Title is required"); return; }
     setBusy(true);
-    const payload = {
+    const payload: any = {
       title: title.trim(),
       category,
       tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
@@ -1755,6 +1755,7 @@ const Editor = ({ article, userId, onClose, onSaved, articleType = "standard" }:
       seo_description: seoDesc || null,
       status,
       author_id: userId,
+      article_type: type,
     };
     const res = article
       ? await supabase.from("articles").update(payload).eq("id", article.id)
