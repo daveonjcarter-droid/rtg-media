@@ -67,6 +67,18 @@ type Article = {
   news_source?: string | null;
   news_date?: string | null;
   news_location?: string | null;
+  // game
+  game_title?: string | null;
+  game_developer?: string | null;
+  game_publisher?: string | null;
+  game_release_date?: string | null;
+  game_platforms?: string | null;
+  game_genre?: string | null;
+  game_esrb_rating?: string | null;
+  game_reviewer?: string | null;
+  game_trailer_url?: string | null;
+  game_screenshots?: string[] | null;
+  steam_score?: number | null;
 };
 
 const formatDate = (d: string | null | undefined) => {
