@@ -92,7 +92,7 @@ const Index = () => {
               Live from Chicago
             </div>
             <div className="hidden md:block text-right text-cream/70 text-[10px] uppercase tracking-[0.3em] max-w-xs">
-              A Black-owned media & production company. Founded by Daveon J. Carter & Brendan Shields.
+              A BLACK-OWNED MEDIA & PRODUCTION COMPANY. FOUNDED BY DAVEON J. CARTER & BRENDYN SHIELDS.
             </div>
           </div>
 
