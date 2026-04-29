@@ -1,59 +1,142 @@
 import { Link } from "react-router-dom";
 import { Instagram, Youtube, Twitter as X } from "lucide-react";
-import Logo from "./Logo";
+import RtgMark from "./RtgMark";
 
 const SiteFooter = () => (
-  <footer className="border-t border-border bg-ink mt-24">
-    <div className="container-rtg py-16 grid grid-cols-2 md:grid-cols-5 gap-10">
-      <div className="col-span-2">
-        <Logo tone="light" className="h-14" />
-        <p className="mt-5 max-w-sm text-sm text-muted-foreground leading-relaxed">
-          Runners To Greatness. A Black-owned Chicago media & production company documenting culture and creating visual stories that last.
-        </p>
-        <div className="flex items-center gap-4 mt-6 text-muted-foreground">
-          <a href="#" aria-label="Instagram" className="hover:text-primary transition-colors"><Instagram className="h-5 w-5" /></a>
-          <a href="#" aria-label="YouTube" className="hover:text-primary transition-colors"><Youtube className="h-5 w-5" /></a>
-          <a href="#" aria-label="X" className="hover:text-primary transition-colors"><X className="h-5 w-5" /></a>
-        </div>
+  <footer className="relative border-t border-border bg-ink mt-24 overflow-hidden">
+    {/* Subtle grain + radial light */}
+    <div aria-hidden className="pointer-events-none absolute inset-0 opacity-60 grain" />
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0"
+      style={{
+        background:
+          "radial-gradient(ellipse 80% 50% at 50% 0%, hsl(355 78% 56% / 0.08), transparent 60%)",
+      }}
+    />
+
+    {/* ============ BRAND MOMENT ============ */}
+    <div className="relative container-rtg pt-20 md:pt-28 pb-10 md:pb-14 text-center">
+      <h2
+        className="font-gothic text-cream leading-[0.9] tracking-[0.02em] text-[18vw] md:text-[12vw] lg:text-[10rem]"
+        style={{ wordSpacing: "0.05em" }}
+      >
+        Runners&nbsp;To&nbsp;Greatness
+      </h2>
+
+      <div className="mt-6 md:mt-8 flex items-center justify-center gap-4 text-cream/85">
+        <span className="h-px w-10 md:w-16 bg-cream/30" />
+        <RtgMark
+          className="text-3xl md:text-4xl"
+          wordClassName="tracking-[0.35em] text-cream"
+          markClassName="text-cream"
+        >
+          Media
+        </RtgMark>
+        <span className="h-px w-10 md:w-16 bg-cream/30" />
       </div>
 
-      <FooterCol title="Company" links={[
-        { to: "/about", label: "About" },
-        { to: "/team", label: "Team" },
-        { to: "/advertise", label: "Advertise" },
-        { to: "/book", label: "Contact" },
-      ]} />
+      <p className="mt-6 max-w-xl mx-auto text-sm md:text-base text-cream/65 leading-relaxed">
+        A Black-owned Chicago media &amp; production company documenting culture
+        and creating visual stories that last.
+      </p>
 
-      <FooterCol title="Content" links={[
-        { to: "/articles", label: "Articles" },
-        { to: "/breakdown", label: "RTG Breakdown" },
-        { to: "/portfolio", label: "Portfolio" },
-        { to: "/services", label: "Services" },
-      ]} />
-
-      <FooterCol title="Internal" links={[
-        { to: "/dashboard", label: "Team Dashboard" },
-        { to: "/dashboard", label: "Editor Login" },
-        { to: "/advertise", label: "Media Kit" },
-      ]} />
+      {/* Socials */}
+      <div className="mt-8 flex items-center justify-center gap-7 text-cream/70">
+        <a
+          href="#"
+          aria-label="Instagram"
+          className="hover:text-primary transition-colors"
+        >
+          <Instagram className="h-6 w-6" />
+        </a>
+        <a
+          href="#"
+          aria-label="YouTube"
+          className="hover:text-primary transition-colors"
+        >
+          <Youtube className="h-6 w-6" />
+        </a>
+        <a
+          href="#"
+          aria-label="X"
+          className="hover:text-primary transition-colors"
+        >
+          <X className="h-6 w-6" />
+        </a>
+      </div>
     </div>
 
-    <div className="border-t border-border">
-      <div className="container-rtg py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+    {/* ============ NAV COLUMNS ============ */}
+    <div className="relative border-t border-border/70">
+      <div className="container-rtg py-12 md:py-14 grid grid-cols-2 md:grid-cols-3 gap-10">
+        <FooterCol
+          title="Company"
+          links={[
+            { to: "/about", label: "About" },
+            { to: "/team", label: "Team" },
+            { to: "/advertise", label: "Advertise" },
+            { to: "/book", label: "Contact" },
+          ]}
+        />
+
+        <FooterCol
+          title="Content"
+          links={[
+            { to: "/articles", label: "Articles" },
+            { to: "/breakdown", label: "RTG Breakdown" },
+            { to: "/portfolio", label: "Portfolio" },
+            { to: "/services", label: "Services" },
+          ]}
+        />
+
+        <FooterCol
+          title="Internal"
+          links={[
+            { to: "/dashboard", label: "Team Dashboard" },
+            { to: "/dashboard", label: "Editor Login" },
+            { to: "/advertise", label: "Media Kit" },
+          ]}
+        />
+      </div>
+    </div>
+
+    {/* ============ COLOPHON ============ */}
+    <div className="relative border-t border-border/70">
+      <div className="container-rtg py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] uppercase tracking-[0.3em] text-cream/45">
         <span>© {new Date().getFullYear()} RTG Media. All rights reserved.</span>
-        <span className="font-gothic text-base text-foreground/70">Runners To Greatness&nbsp; ·&nbsp; Chicago</span>
+        <span className="flex items-center gap-3">
+          <span>Chicago</span>
+          <span className="h-1 w-1 rounded-full bg-cream/30" />
+          <a href="https://runnerstogreatness.com" className="hover:text-primary transition-colors normal-case tracking-normal">
+            runnerstogreatness.com
+          </a>
+        </span>
       </div>
     </div>
   </footer>
 );
 
-const FooterCol = ({ title, links }: { title: string; links: { to: string; label: string }[] }) => (
+const FooterCol = ({
+  title,
+  links,
+}: {
+  title: string;
+  links: { to: string; label: string }[];
+}) => (
   <div>
-    <div className="eyebrow mb-4">{title}</div>
+    <div className="text-[10px] uppercase tracking-[0.35em] text-cream/40 font-bold mb-4">
+      {title}
+    </div>
     <ul className="space-y-2.5 text-sm">
       {links.map((l) => (
         <li key={l.label}>
-          <Link to={l.to} className="text-foreground/80 hover:text-primary transition-colors">{l.label}</Link>
+          <Link
+            to={l.to}
+            className="text-cream/75 hover:text-primary transition-colors"
+          >
+            {l.label}
+          </Link>
         </li>
       ))}
     </ul>
