@@ -964,6 +964,12 @@ export const BookingsDashboard = () => {
                         </span>
                       )}
                       {b.no_preference && <span className="text-[9px] uppercase tracking-widest border border-gold/40 text-gold rounded-sm px-1.5 py-0.5">RTG Pick</span>}
+                      {b.crew_request_type && CREW_PACKAGES[b.crew_request_type as CrewPackageId] && (
+                        <span className="text-[9px] uppercase tracking-widest border border-primary/30 text-primary rounded-sm px-1.5 py-0.5">
+                          {CREW_PACKAGES[b.crew_request_type as CrewPackageId].label}
+                          {b.crew_price_modifier ? ` · +$${b.crew_price_modifier}` : ""}
+                        </span>
+                      )}
                     </div>
                     <div className="text-xs text-muted-foreground mt-1">
                       {b.service || "—"}{b.budget && ` · ${b.budget}`}{b.project_date && ` · ${b.project_date}`}
