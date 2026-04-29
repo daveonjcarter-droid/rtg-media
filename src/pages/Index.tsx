@@ -130,7 +130,7 @@ const Index = () => {
 
       {/* ============ RTG BREAKDOWN — empty state ============ */}
       <section className="relative overflow-hidden bg-ink py-20 md:py-28 grain-heavy">
-        <img src={breakdownBg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" />
+        <img src={breakdownImg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" />
         <div className="absolute inset-0 bg-gradient-to-b from-ink via-ink/85 to-ink" />
 
         <div className="container-rtg relative">
@@ -164,18 +164,20 @@ const Index = () => {
         <div className="container-rtg relative">
           <div className="grid md:grid-cols-12 gap-8 items-start">
             <div className="md:col-span-3 md:sticky md:top-24">
-              <div className="text-[10px] uppercase tracking-[0.4em] text-ink/60 mb-3">Manifesto</div>
+              <div className="text-[10px] uppercase tracking-[0.4em] text-ink/60 mb-3">{content.manifesto.headline}</div>
               <div className="font-condensed text-4xl md:text-5xl leading-none">No. 02</div>
             </div>
             <div className="md:col-span-9">
-              <p className="font-editorial text-3xl md:text-5xl leading-[1.05] tracking-tight">
-                We are not waiting for permission. We document the South Side at midnight, the studios at 4am, the
-                designers cutting silhouettes you'll see in Paris next year. <span className="text-primary">If you're not on RTG, you're missing what's next.</span>
+              <p className="font-editorial text-3xl md:text-5xl leading-[1.05] tracking-tight whitespace-pre-line">
+                {content.manifesto.body}
               </p>
               <div className="mt-10 flex flex-wrap gap-x-12 gap-y-4 text-xs uppercase tracking-[0.3em] text-ink/70">
-                <span>— Daveon J. Carter, Founder</span>
-                <span>— Brendan Shields, Co-CEO</span>
-                <span className="text-primary">Chicago · 2026</span>
+                {signatureLines.map((s, i) => (
+                  <span key={i}>{s}</span>
+                ))}
+                {content.manifesto.locationDate && (
+                  <span className="text-primary">{content.manifesto.locationDate}</span>
+                )}
               </div>
             </div>
           </div>
@@ -194,10 +196,10 @@ const Index = () => {
                 <span className="text-hollow-primary">Services</span>
               </h2>
               <p className="mt-6 text-muted-foreground leading-relaxed max-w-md">
-                Full-stack production. One team. One vision. From a single photo set to a full episodic series — we shoot, cut, score, and ship.
+                {content.servicesPreview.description}
               </p>
               <Button asChild className="mt-8 rounded-none uppercase tracking-[0.25em] text-xs h-12 px-7 bg-primary text-primary-foreground hover:bg-primary/90">
-                <Link to="/book">Book A Consult <ArrowUpRight className="ml-2 h-4 w-4" /></Link>
+                <Link to={content.servicesPreview.ctaLink || "/book"}>{content.servicesPreview.ctaText} <ArrowUpRight className="ml-2 h-4 w-4" /></Link>
               </Button>
             </div>
 
@@ -222,7 +224,7 @@ const Index = () => {
 
         {/* Full-bleed studio image with slant */}
         <div className="relative mt-16 md:mt-20 aspect-[21/8] overflow-hidden grain-heavy clip-slant">
-          <img src={servicesStudio} alt="RTG Media production studio" className="absolute inset-0 w-full h-full object-cover ken-burns" />
+          <img src={servicesImg} alt="RTG Media production studio" className="absolute inset-0 w-full h-full object-cover ken-burns" />
           <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/30 to-transparent" />
           <div className="container-rtg relative h-full flex items-center">
             <div className="max-w-xl">
