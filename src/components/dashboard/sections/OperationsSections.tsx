@@ -870,6 +870,9 @@ type BookingRow = {
   deposit_paid: boolean;
   archived: boolean;
   created_at: string;
+  crew_request_type: string | null;
+  crew_price_modifier: number | null;
+  internal_assignment_locked: boolean;
 };
 
 const BOOKING_STATUSES = ["new", "contacted", "pending_deposit", "booked", "completed", "declined"] as const;
