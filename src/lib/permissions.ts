@@ -16,6 +16,7 @@ export type SectionId =
   | "leads"
   | "production"
   | "portfolio"
+  | "staff"
   | "films"
   | "fest"
   | "chicago"
@@ -69,6 +70,7 @@ export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
   leads:              [HEAD, "admin", "editor", "booking_manager"],
   production:         [HEAD, "admin", "booking_manager"],
   portfolio:          [HEAD, "admin", "editor", "media_manager"],
+  staff:              [HEAD, "admin", "editor", "booking_manager"],
   films:              [HEAD, "admin", "editor"],
   fest:               [HEAD, "admin", "editor"],
   chicago:            [HEAD, "admin", "editor"],

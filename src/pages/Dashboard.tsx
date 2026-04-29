@@ -118,6 +118,7 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "bookings",          label: "Bookings",         icon: Briefcase,       group: "Ops" },
   { id: "leads",             label: "Leads",            icon: Mail,            group: "Ops" },
   { id: "production",        label: "Production Services", icon: Camera,       group: "Ops" },
+  { id: "staff",             label: "Staff & Crew",     icon: Users,           group: "Ops" },
   { id: "analytics",         label: "Analytics",        icon: BarChart3,       group: "Ops" },
   { id: "users",             label: "Users & Roles",    icon: Users,           group: "Admin" },
   { id: "site-updates",      label: "Quick Site Updates", icon: Wand2,         group: "Admin" },
@@ -377,6 +378,7 @@ const Dashboard = () => {
              {section === "settings" && <SettingsView canBilling={canManageBilling(roles)} />}
              {section === "production" && <ServicesManager />}
              {section === "portfolio" && <PortfolioWorksManager />}
+             {section === "staff" && <StaffManager />}
              {section === "films" && <RtgFilmsManager />}
              {section === "fest" && <RtgFestManager />}
             </>
