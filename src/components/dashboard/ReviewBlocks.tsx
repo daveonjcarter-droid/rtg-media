@@ -48,6 +48,7 @@ export const newBlock = (kind: BlockKind): ReviewBlock => {
     case "gallery": return { ...base, images: [{ url: "", caption: "", credit: "" }] };
     case "pros_cons": return { ...base, pros: [""], cons: [""] };
     case "spoiler": return { ...base, warning: "Spoiler warning", text: "" };
+    case "embed": return { ...base, url: "", caption: "" };
     case "verdict": return { ...base, headline: "Final Verdict", text: "", recommendation: "recommended" };
   }
 };
