@@ -430,7 +430,10 @@ export const StaffManager = () => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="font-display text-base uppercase leading-tight truncate">{s.display_name}</div>
-                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground truncate">{s.role_title}</div>
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground truncate">{s.role_title}{s.production_position ? ` · ${s.production_position}` : ""}</div>
+                  <span className={`inline-block mt-1 text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-sm border ${STATUS_STYLES[s.status] || STATUS_STYLES.active}`}>
+                    {s.status || "active"}
+                  </span>
                 </div>
               </div>
               {s.specialties?.length > 0 && (
@@ -440,9 +443,12 @@ export const StaffManager = () => {
                   ))}
                 </div>
               )}
-              <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-border">
+              <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-border flex-wrap">
                 <Button size="sm" variant="outline" onClick={() => setEditing(s)} className="h-7 text-[10px] uppercase tracking-widest">
                   <Pencil className="h-3 w-3 mr-1" /> Edit
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setAvailabilityFor(s)} className="h-7 text-[10px] uppercase tracking-widest" disabled={!s.id}>
+                  <Calendar className="h-3 w-3 mr-1" /> Availability
                 </Button>
                 <span className="ml-auto flex items-center gap-1.5">
                   {s.is_public ? <Eye className="h-3.5 w-3.5 text-emerald-400" /> : <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />}
