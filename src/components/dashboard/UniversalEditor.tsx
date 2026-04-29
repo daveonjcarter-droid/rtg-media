@@ -749,6 +749,64 @@ const UniversalEditor = ({
             </section>
           )}
 
+          {/* ---------- PUBLISH SETTINGS ---------- */}
+          <section className="space-y-3 border-t border-border pt-5">
+            <SectionHead>Publish Settings</SectionHead>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {([
+                { v: "draft" as PublishMode, label: "Save Draft", icon: DraftIcon },
+                { v: "submit" as PublishMode, label: "Submit for Review", icon: Inbox },
+                { v: "publish_now" as PublishMode, label: "Publish Now", icon: Globe },
+                { v: "schedule" as PublishMode, label: "Schedule Post", icon: CalendarClock },
+              ]).map((opt) => {
+                const active = publishMode === opt.v;
+                const Icon = opt.icon;
+                return (
+                  <button
+                    key={opt.v}
+                    type="button"
+                    onClick={() => setPublishMode(opt.v)}
+                    className={`flex flex-col items-start gap-1 p-3 rounded-sm border text-left transition-colors ${
+                      active ? "border-primary bg-primary/10 text-foreground" : "border-border hover:border-foreground/40 text-muted-foreground"
+                    }`}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    <span className="text-[10px] uppercase tracking-widest font-semibold leading-tight">{opt.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+            {publishMode === "schedule" && (
+              <div className="border border-border rounded-sm p-3 bg-surface/30 space-y-3">
+                <FieldGrid>
+                  <Field label="Publish Date">
+                    <Input type="date" value={schedDate} onChange={(e) => setSchedDate(e.target.value)} className={inputCls} />
+                  </Field>
+                  <Field label="Publish Time">
+                    <Input type="time" value={schedTime} onChange={(e) => setSchedTime(e.target.value)} className={inputCls} />
+                  </Field>
+                  <Field label="Timezone">
+                    <Input value={schedTz} onChange={(e) => setSchedTz(e.target.value)} className={inputCls} placeholder="America/Chicago" />
+                  </Field>
+                  <Field label="Featured Until (optional)">
+                    <Input type="date" value={featuredUntil ?? ""} onChange={(e) => setFeaturedUntil(e.target.value)} className={inputCls} />
+                  </Field>
+                </FieldGrid>
+                {schedDate && (
+                  <div className="text-[10px] text-muted-foreground uppercase tracking-widest">
+                    Will publish at {new Date(`${schedDate}T${schedTime || "09:00"}:00`).toLocaleString()} ({schedTz})
+                  </div>
+                )}
+              </div>
+            )}
+            {publishMode !== "schedule" && (
+              <div>
+                <Label className={labelCls}>Featured Until (optional)</Label>
+                <Input type="date" value={featuredUntil ?? ""} onChange={(e) => setFeaturedUntil(e.target.value)} className={inputCls} />
+              </div>
+            )}
+          </section>
+
           {/* ---------- SEO ---------- */}
           <section className="space-y-2.5 border-t border-border pt-5">
             <SectionHead>SEO</SectionHead>
