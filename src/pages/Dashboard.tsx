@@ -430,10 +430,11 @@ const Overview = ({ articles, onCreate, canCreate }: { articles: Article[]; onCr
   const count = (s: Status) => articles.filter((a) => a.status === s).length;
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <StatCard label="Drafts" value={String(count("draft"))} accent="bg-muted-foreground" />
         <StatCard label="In Review" value={String(count("submitted") + count("revisions"))} accent="bg-gold" />
         <StatCard label="Approved" value={String(count("approved"))} accent="bg-cream" />
+        <StatCard label="Scheduled" value={String(count("scheduled"))} sub="Auto-publish" accent="bg-sky-500" />
         <StatCard label="Published" value={String(count("published"))} sub="Live on site" accent="bg-emerald-500" />
       </div>
 
