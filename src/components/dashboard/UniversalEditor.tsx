@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   AddBlockBar, BlockEditor, ReviewBlock, StarRatingInput, newBlock, REVIEW_TEMPLATE,
 } from "./ReviewBlocks";
+import RevisionHistory from "./RevisionHistory";
 
 export type ArticleType =
   | "standard" | "film_review" | "album_review" | "single_review" | "game_review"
@@ -404,9 +405,20 @@ const UniversalEditor = ({
 
     const res = article?.id
       ? await supabase.from("articles").update(payload).eq("id", article.id)
-      : await supabase.from("articles").insert(payload);
+      : await supabase.from("articles").insert(payload).select("id").maybeSingle();
     setBusy(false);
     if (res.error) return toast.error(res.error.message);
+
+    // Save a revision snapshot for existing articles (skip on first insert)
+    if (article?.id) {
+      await supabase.from("article_revisions").insert({
+        article_id: article.id,
+        saved_by: userId,
+        reason: status,
+        snapshot: payload,
+      } as any);
+    }
+
     const msg =
       status === "draft" ? "Saved as draft" :
       status === "submitted" ? "Submitted for review" :
@@ -434,6 +446,9 @@ const UniversalEditor = ({
               <span className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground border border-border rounded-sm px-2 py-1">
                 {article.status}
               </span>
+            )}
+            {article?.id && (
+              <RevisionHistory articleId={article.id} onRestored={onSaved} />
             )}
             <Button type="button" variant="outline" size="sm" onClick={onClose} className="rounded-sm uppercase tracking-widest text-[10px] h-8">Close</Button>
             <Button type="button" size="sm" disabled={busy} onClick={() => save("draft")} className="rounded-sm uppercase tracking-widest text-[10px] h-8 bg-secondary text-foreground hover:bg-secondary/80">Save Draft</Button>
