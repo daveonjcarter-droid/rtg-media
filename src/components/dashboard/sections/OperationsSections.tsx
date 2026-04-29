@@ -998,6 +998,9 @@ export const BookingsDashboard = () => {
                         {BOOKING_STATUSES.map((s) => <SelectItem key={s} value={s}>{s.replace("_", " ")}</SelectItem>)}
                       </SelectContent>
                     </Select>
+                    <Button size="sm" variant="outline" onClick={() => setCrewSlotsFor(b)} className="h-8 text-[10px] uppercase tracking-widest">
+                      <Users className="h-3 w-3 mr-1" /> Crew Slots
+                    </Button>
                     <Button size="sm" variant="outline" onClick={() => setEditing(b)} className="h-8 text-[10px] uppercase tracking-widest">
                       <Pencil className="h-3 w-3 mr-1" /> Notes
                     </Button>
