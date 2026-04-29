@@ -2,7 +2,7 @@ import SiteLayout from "@/components/site/SiteLayout";
 
 const ROLES = [
   { role: "Founder / Creative Director", names: ["Daveon J. Carter"] },
-  { role: "Co-CEO / Operations", names: ["Brendan Shields"] },
+  { role: "Co-CEO / Operations", names: ["BRENDYN SHIELDS"] },
   { role: "Journalists", names: ["Open Position", "Open Position", "Open Position"] },
   { role: "Editors", names: ["Open Position", "Open Position"] },
   { role: "Photographers", names: ["Open Position", "Open Position"] },
