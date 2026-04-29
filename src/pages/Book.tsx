@@ -150,10 +150,14 @@ const Book = () => {
       phone: parsed.data.phone,
       instagram: parsed.data.instagram || null,
       project_type: parsed.data.project_type,
-      service: parsed.data.project_type, // keep legacy column populated
+      service: form.project_type === "Event Coverage" && form.event_type
+        ? `${parsed.data.project_type} — ${form.event_type}`
+        : parsed.data.project_type,
       timeline: parsed.data.timeline,
       budget: parsed.data.budget,
-      description: parsed.data.description,
+      description: form.project_type === "Event Coverage" && form.event_type
+        ? `[Event type: ${form.event_type}]\n\n${parsed.data.description}`
+        : parsed.data.description,
       preferred_contact: "email" as const,
     };
 
