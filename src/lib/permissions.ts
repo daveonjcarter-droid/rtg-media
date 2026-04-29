@@ -37,7 +37,7 @@ export type SectionId =
   | "my-portfolio"
   | "portfolio-approvals";
 
-export type Group = "Content" | "Pipeline" | "Studio" | "Ops" | "Ecosystem" | "Admin";
+export type Group = "Content" | "Pipeline" | "Studio" | "Ops" | "Ecosystem" | "Admin" | "Crew" | "My Work";
 
 export const ROLE_LABELS: Record<AppRole, string> = {
   head_admin: "Head Admin",
