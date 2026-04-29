@@ -601,7 +601,8 @@ const CalendarView = ({ articles }: { articles: Article[] }) => {
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const buckets: Record<string, Article[]> = {};
   articles.forEach((a) => {
-    const d = new Date(a.updated_at);
+    const dateStr = (a as any).scheduled_for ?? (a as any).published_at ?? a.updated_at;
+    const d = new Date(dateStr);
     const key = days[(d.getDay() + 6) % 7];
     (buckets[key] ||= []).push(a);
   });
