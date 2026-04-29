@@ -1787,6 +1787,25 @@ const Editor = ({ article, userId, onClose, onSaved, articleType = "standard" }:
             <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 block">Title</Label>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} className="h-12 text-xl font-display uppercase bg-background border-border rounded-sm" placeholder="Headline goes here" />
           </div>
+          <div>
+            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 block">Article Type</Label>
+            <Select value={type} onValueChange={(v) => setType(v as ArticleType)}>
+              <SelectTrigger className="h-9 text-xs rounded-sm bg-background"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="standard" className="text-xs">Standard Article</SelectItem>
+                <SelectItem value="film_review" className="text-xs">Film Review</SelectItem>
+                <SelectItem value="interview" className="text-xs">Interview</SelectItem>
+                <SelectItem value="opinion" className="text-xs">Opinion</SelectItem>
+                <SelectItem value="breakdown" className="text-xs">Breakdown</SelectItem>
+                <SelectItem value="news" className="text-xs">News</SelectItem>
+              </SelectContent>
+            </Select>
+            {type === "film_review" && (
+              <div className="mt-2 text-[10px] text-muted-foreground border border-border rounded-sm p-2 bg-surface/30">
+                Switching to Film Review unlocks the specialized review editor. Save & reopen to use it.
+              </div>
+            )}
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 block">Category</Label>
