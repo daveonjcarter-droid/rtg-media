@@ -106,11 +106,13 @@ const STATUS_COLOR: Record<Status, string> = {
   submitted: "bg-gold/15 text-gold border-gold/30",
   revisions: "bg-primary/15 text-primary border-primary/30",
   approved: "bg-cream/15 text-cream border-cream/30",
+  scheduled: "bg-sky-500/15 text-sky-400 border-sky-500/30",
   published: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+  archived: "bg-muted/40 text-muted-foreground border-border",
 };
 
 const STATUS_LABEL: Record<Status, string> = {
-  draft: "Draft", submitted: "Submitted", revisions: "Revisions", approved: "Approved", published: "Published",
+  draft: "Draft", submitted: "Submitted", revisions: "Revisions", approved: "Approved", scheduled: "Scheduled", published: "Published", archived: "Archived",
 };
 
 const Dashboard = () => {
