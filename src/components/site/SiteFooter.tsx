@@ -103,7 +103,7 @@ const SiteFooter = () => (
     {/* ============ COLOPHON ============ */}
     <div className="relative border-t border-border/70">
       <div className="container-rtg py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] uppercase tracking-[0.3em] text-cream/45">
-        <span>© {new Date().getFullYear()} RTG Media. All rights reserved.</span>
+        <span>© {new Date().getFullYear()} RTG MEDIA LLC. ALL RIGHTS RESERVED.</span>
         <span className="flex items-center gap-3">
           <span>Chicago</span>
           <span className="h-1 w-1 rounded-full bg-cream/30" />
