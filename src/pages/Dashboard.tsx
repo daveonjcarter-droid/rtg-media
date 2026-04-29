@@ -1729,7 +1729,7 @@ const UsersView = () => {
    ARTICLE EDITOR (drawer)
    ============================================================ */
 
-const Editor = ({ article, userId, onClose, onSaved }: { article: Article | null; userId: string; onClose: () => void; onSaved: () => void }) => {
+const Editor = ({ article, userId, onClose, onSaved, articleType = "standard" }: { article: Article | null; userId: string; onClose: () => void; onSaved: () => void; articleType?: ArticleType }) => {
   const [title, setTitle] = useState(article?.title ?? "");
   const [category, setCategory] = useState(article?.category ?? "Music");
   const [tags, setTags] = useState((article?.tags ?? []).join(", "));
@@ -1738,6 +1738,7 @@ const Editor = ({ article, userId, onClose, onSaved }: { article: Article | null
   const [body, setBody] = useState(article?.body ?? "");
   const [seoTitle, setSeoTitle] = useState(article?.seo_title ?? "");
   const [seoDesc, setSeoDesc] = useState(article?.seo_description ?? "");
+  const [type, setType] = useState<ArticleType>((article?.article_type as ArticleType) ?? articleType);
   const [busy, setBusy] = useState(false);
 
   const save = async (status: Status) => {
