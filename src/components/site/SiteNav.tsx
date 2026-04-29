@@ -12,14 +12,15 @@ const NAV = [
   { to: "/portfolio", label: "Portfolio" },
   { to: "/book", label: "Book" },
   { to: "/about", label: "About" },
+  { to: "/fest", label: "RTG Fest" },
 ];
 
 const ECOSYSTEM = [
-  { label: "RTG Studios", desc: "Creative production house" },
-  { label: "RTG Breakdown", desc: "Movies, TV, anime, comics" },
-  { label: "RTG Film", desc: "Original films & docs" },
-  { label: "RTG Tech", desc: "Platform & tooling" },
-  { label: "RTG Fest", desc: "Live culture events" },
+  { label: "RTG Studios", desc: "Creative production house", to: undefined as string | undefined },
+  { label: "RTG Breakdown", desc: "Movies, TV, anime, comics", to: "/breakdown" },
+  { label: "RTG Film", desc: "Original films & docs", to: undefined },
+  { label: "RTG Tech", desc: "Platform & tooling", to: undefined },
+  { label: "RTG Fest", desc: "Live culture events", to: "/fest" },
 ];
 
 const SiteNav = () => {
@@ -58,12 +59,19 @@ const SiteNav = () => {
               <div className="absolute right-0 top-full pt-3 w-72">
                 <div className="rounded-sm border border-border bg-card shadow-2xl overflow-hidden">
                   <div className="px-4 py-2 eyebrow border-b border-border">Coming soon</div>
-                  {ECOSYSTEM.map((e) => (
-                    <div key={e.label} className="px-4 py-3 hover:bg-secondary cursor-pointer transition-colors">
-                      <div className="font-display text-lg leading-none">{e.label}</div>
-                      <div className="text-xs text-muted-foreground mt-1">{e.desc}</div>
-                    </div>
-                  ))}
+                  {ECOSYSTEM.map((e) => {
+                    const inner = (
+                      <div className="px-4 py-3 hover:bg-secondary cursor-pointer transition-colors">
+                        <div className="font-display text-lg leading-none">{e.label}</div>
+                        <div className="text-xs text-muted-foreground mt-1">{e.desc}</div>
+                      </div>
+                    );
+                    return e.to ? (
+                      <Link key={e.label} to={e.to}>{inner}</Link>
+                    ) : (
+                      <div key={e.label}>{inner}</div>
+                    );
+                  })}
                 </div>
               </div>
             )}
