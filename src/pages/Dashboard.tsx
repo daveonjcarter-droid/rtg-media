@@ -302,6 +302,8 @@ const Dashboard = () => {
                     <DropdownMenuItem onClick={() => openEditor(null, "film_review")} className="text-xs">
                       <Film className="h-3 w-3 mr-2" /> Film Review
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditor(null, "album_review")} className="text-xs">Album Review</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditor(null, "single_review")} className="text-xs">Single Review</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => openEditor(null, "interview")} className="text-xs">Interview</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => openEditor(null, "opinion")} className="text-xs">Opinion</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => openEditor(null, "breakdown")} className="text-xs">Breakdown</DropdownMenuItem>
