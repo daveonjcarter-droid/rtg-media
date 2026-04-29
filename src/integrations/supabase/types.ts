@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_log: {
+        Row: {
+          actor_id: string | null
+          actor_name: string | null
+          created_at: string
+          detail: string | null
+          id: string
+          kind: string
+          link_url: string | null
+          meta: Json
+          title: string
+        }
+        Insert: {
+          actor_id?: string | null
+          actor_name?: string | null
+          created_at?: string
+          detail?: string | null
+          id?: string
+          kind: string
+          link_url?: string | null
+          meta?: Json
+          title: string
+        }
+        Update: {
+          actor_id?: string | null
+          actor_name?: string | null
+          created_at?: string
+          detail?: string | null
+          id?: string
+          kind?: string
+          link_url?: string | null
+          meta?: Json
+          title?: string
+        }
+        Relationships: []
+      }
       advertise_inquiries: {
         Row: {
           archived: boolean
@@ -47,6 +83,39 @@ export type Database = {
           message?: string
           name?: string
           status?: Database["public"]["Enums"]["advertise_status"]
+        }
+        Relationships: []
+      }
+      article_engagement: {
+        Row: {
+          article_id: string
+          avg_read_seconds: number
+          avg_scroll_pct: number
+          reactions: number
+          shares: number
+          unique_views: number
+          updated_at: string
+          views: number
+        }
+        Insert: {
+          article_id: string
+          avg_read_seconds?: number
+          avg_scroll_pct?: number
+          reactions?: number
+          shares?: number
+          unique_views?: number
+          updated_at?: string
+          views?: number
+        }
+        Update: {
+          article_id?: string
+          avg_read_seconds?: number
+          avg_scroll_pct?: number
+          reactions?: number
+          shares?: number
+          unique_views?: number
+          updated_at?: string
+          views?: number
         }
         Relationships: []
       }
@@ -648,6 +717,51 @@ export type Database = {
         }
         Relationships: []
       }
+      page_views: {
+        Row: {
+          article_id: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          device: string
+          id: string
+          path: string
+          referrer: string | null
+          session_id: string | null
+          source: string
+          user_agent: string | null
+          visitor_id: string | null
+        }
+        Insert: {
+          article_id?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string
+          id?: string
+          path: string
+          referrer?: string | null
+          session_id?: string | null
+          source?: string
+          user_agent?: string | null
+          visitor_id?: string | null
+        }
+        Update: {
+          article_id?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string
+          id?: string
+          path?: string
+          referrer?: string | null
+          session_id?: string | null
+          source?: string
+          user_agent?: string | null
+          visitor_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -744,35 +858,119 @@ export type Database = {
         }
         Relationships: []
       }
-      social_posts: {
+      social_ideas: {
         Row: {
-          article_id: string
-          caption: string | null
+          category: string
           created_at: string
+          created_by: string | null
           id: string
-          platform: Database["public"]["Enums"]["social_platform"]
-          posted_at: string | null
-          status: Database["public"]["Enums"]["social_status"]
+          notes: string | null
+          status: string
+          title: string
           updated_at: string
         }
         Insert: {
-          article_id: string
-          caption?: string | null
+          category?: string
           created_at?: string
+          created_by?: string | null
           id?: string
-          platform: Database["public"]["Enums"]["social_platform"]
-          posted_at?: string | null
-          status?: Database["public"]["Enums"]["social_status"]
+          notes?: string | null
+          status?: string
+          title: string
           updated_at?: string
         }
         Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      social_post_metrics: {
+        Row: {
+          comments: number
+          engagement_rate: number
+          id: string
+          likes: number
+          reach: number
+          recorded_at: string
+          shares: number
+          social_post_id: string
+          views: number
+        }
+        Insert: {
+          comments?: number
+          engagement_rate?: number
+          id?: string
+          likes?: number
+          reach?: number
+          recorded_at?: string
+          shares?: number
+          social_post_id: string
+          views?: number
+        }
+        Update: {
+          comments?: number
+          engagement_rate?: number
+          id?: string
+          likes?: number
+          reach?: number
+          recorded_at?: string
+          shares?: number
+          social_post_id?: string
+          views?: number
+        }
+        Relationships: []
+      }
+      social_posts: {
+        Row: {
+          archived: boolean
+          article_id: string
+          caption: string | null
+          created_at: string
+          hashtags: string | null
+          id: string
+          link_url: string | null
+          platform: Database["public"]["Enums"]["social_platform"]
+          posted_at: string | null
+          scheduled_for: string | null
+          status: Database["public"]["Enums"]["social_status"]
+          thumbnail_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          article_id: string
+          caption?: string | null
+          created_at?: string
+          hashtags?: string | null
+          id?: string
+          link_url?: string | null
+          platform: Database["public"]["Enums"]["social_platform"]
+          posted_at?: string | null
+          scheduled_for?: string | null
+          status?: Database["public"]["Enums"]["social_status"]
+          thumbnail_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
           article_id?: string
           caption?: string | null
           created_at?: string
+          hashtags?: string | null
           id?: string
+          link_url?: string | null
           platform?: Database["public"]["Enums"]["social_platform"]
           posted_at?: string | null
+          scheduled_for?: string | null
           status?: Database["public"]["Enums"]["social_status"]
+          thumbnail_url?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -811,6 +1009,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bump_article_view: { Args: { article_uuid: string }; Returns: undefined }
       get_user_roles: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
