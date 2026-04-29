@@ -143,8 +143,8 @@ const Book = () => {
     switch (step) {
       case 0: return !!form.service_id;
       case 1: return !!form.shoot_type;
-      case 2: return form.no_preference || !!form.staff_id;
-      case 3: return !!form.budget; // date is optional but budget required
+      case 2: return !!form.crew_request_type; // preferred crew member is optional now
+      case 3: return !!form.budget;
       case 4: return form.description.trim().length >= 10;
       case 5: return form.name.trim().length >= 2 && /\S+@\S+\.\S+/.test(form.email) && form.phone.trim().length >= 7;
       default: return false;
