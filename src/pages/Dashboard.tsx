@@ -96,6 +96,7 @@ const Dashboard = () => {
   const [section, setSection] = useState<SectionId>("overview");
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState<Article | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
