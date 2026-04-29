@@ -272,6 +272,33 @@ export type Database = {
         }
         Relationships: []
       }
+      site_content: {
+        Row: {
+          draft: Json
+          id: string
+          published: Json
+          section: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          draft?: Json
+          id?: string
+          published?: Json
+          section: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          draft?: Json
+          id?: string
+          published?: Json
+          section?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       social_posts: {
         Row: {
           article_id: string

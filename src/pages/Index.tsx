@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import heroImg from "@/assets/hero-videographer.jpg";
 import breakdownBg from "@/assets/breakdown-bg.jpg";
 import servicesStudio from "@/assets/services-studio.jpg";
+import { useHomepageContent } from "@/hooks/useHomepageContent";
 
 const TICKER = ["Music", "Film", "Fashion", "Chicago", "Entertainment", "Sports", "Anime", "Streetwear", "Culture"];
 
@@ -22,12 +23,27 @@ const SERVICES = [
 ];
 
 const Index = () => {
+  const { content } = useHomepageContent();
+  const heroLines = content.hero.headline.split("\n");
+  const signatureLines = content.manifesto.signatures.split("\n").filter(Boolean);
+  const breakdownImg = content.featured.breakdownImage || breakdownBg;
+  const servicesImg = content.servicesPreview.image || servicesStudio;
+
   return (
     <SiteLayout>
       {/* ============ HERO — cinematic, asymmetric ============ */}
       <section className="relative min-h-[100svh] overflow-hidden bg-ink grain-heavy light-leak">
-        <div className="absolute inset-0 bg-gradient-to-br from-ink via-background to-ink" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,hsl(var(--primary)/0.18),transparent_60%)]" />
+        {content.hero.backgroundImage ? (
+          <>
+            <img src={content.hero.backgroundImage} alt="" className="absolute inset-0 w-full h-full object-cover opacity-50" />
+            <div className="absolute inset-0 bg-gradient-to-b from-ink/40 via-ink/60 to-ink" />
+          </>
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-br from-ink via-background to-ink" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,hsl(var(--primary)/0.18),transparent_60%)]" />
+          </>
+        )}
 
         {/* Side vertical label */}
         <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 right-6 z-20 items-center gap-3 text-cream/60">
@@ -48,20 +64,26 @@ const Index = () => {
           </div>
 
           <h1 className="type-mega text-[22vw] md:text-[16vw] lg:text-[13vw] text-cream fade-in-up">
-            Runners
-            <br />
-            <span className="text-hollow-primary">To Greatness</span>
+            {heroLines.map((line, i) => (
+              <span key={i}>
+                {i === heroLines.length - 1 && heroLines.length > 1 ? (
+                  <span className="text-hollow-primary">{line}</span>
+                ) : (
+                  line
+                )}
+                {i < heroLines.length - 1 && <br />}
+              </span>
+            ))}
           </h1>
 
           <div className="mt-8 grid md:grid-cols-12 gap-6 items-end">
             <p className="md:col-span-5 text-cream/85 text-base md:text-lg leading-relaxed max-w-md">
-              We document the culture before it has a name. Film. Music. Fashion. The Chicago
-              stories the rest of the world will be talking about next.
+              {content.hero.subheadline}
             </p>
             <div className="md:col-span-4 md:col-start-9 flex flex-wrap gap-3 justify-start md:justify-end">
               <Button asChild size="lg" className="group bg-primary text-primary-foreground hover:bg-primary/90 rounded-none uppercase tracking-[0.25em] text-xs h-12 px-7">
-                <Link to="/articles">
-                  Read The Magazine
+                <Link to={content.hero.ctaLink || "/articles"}>
+                  {content.hero.ctaText}
                   <ArrowUpRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </Link>
               </Button>
@@ -108,7 +130,7 @@ const Index = () => {
 
       {/* ============ RTG BREAKDOWN — empty state ============ */}
       <section className="relative overflow-hidden bg-ink py-20 md:py-28 grain-heavy">
-        <img src={breakdownBg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" />
+        <img src={breakdownImg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" />
         <div className="absolute inset-0 bg-gradient-to-b from-ink via-ink/85 to-ink" />
 
         <div className="container-rtg relative">
@@ -142,18 +164,20 @@ const Index = () => {
         <div className="container-rtg relative">
           <div className="grid md:grid-cols-12 gap-8 items-start">
             <div className="md:col-span-3 md:sticky md:top-24">
-              <div className="text-[10px] uppercase tracking-[0.4em] text-ink/60 mb-3">Manifesto</div>
+              <div className="text-[10px] uppercase tracking-[0.4em] text-ink/60 mb-3">{content.manifesto.headline}</div>
               <div className="font-condensed text-4xl md:text-5xl leading-none">No. 02</div>
             </div>
             <div className="md:col-span-9">
-              <p className="font-editorial text-3xl md:text-5xl leading-[1.05] tracking-tight">
-                We are not waiting for permission. We document the South Side at midnight, the studios at 4am, the
-                designers cutting silhouettes you'll see in Paris next year. <span className="text-primary">If you're not on RTG, you're missing what's next.</span>
+              <p className="font-editorial text-3xl md:text-5xl leading-[1.05] tracking-tight whitespace-pre-line">
+                {content.manifesto.body}
               </p>
               <div className="mt-10 flex flex-wrap gap-x-12 gap-y-4 text-xs uppercase tracking-[0.3em] text-ink/70">
-                <span>— Daveon J. Carter, Founder</span>
-                <span>— Brendan Shields, Co-CEO</span>
-                <span className="text-primary">Chicago · 2026</span>
+                {signatureLines.map((s, i) => (
+                  <span key={i}>{s}</span>
+                ))}
+                {content.manifesto.locationDate && (
+                  <span className="text-primary">{content.manifesto.locationDate}</span>
+                )}
               </div>
             </div>
           </div>
@@ -172,10 +196,10 @@ const Index = () => {
                 <span className="text-hollow-primary">Services</span>
               </h2>
               <p className="mt-6 text-muted-foreground leading-relaxed max-w-md">
-                Full-stack production. One team. One vision. From a single photo set to a full episodic series — we shoot, cut, score, and ship.
+                {content.servicesPreview.description}
               </p>
               <Button asChild className="mt-8 rounded-none uppercase tracking-[0.25em] text-xs h-12 px-7 bg-primary text-primary-foreground hover:bg-primary/90">
-                <Link to="/book">Book A Consult <ArrowUpRight className="ml-2 h-4 w-4" /></Link>
+                <Link to={content.servicesPreview.ctaLink || "/book"}>{content.servicesPreview.ctaText} <ArrowUpRight className="ml-2 h-4 w-4" /></Link>
               </Button>
             </div>
 
@@ -200,7 +224,7 @@ const Index = () => {
 
         {/* Full-bleed studio image with slant */}
         <div className="relative mt-16 md:mt-20 aspect-[21/8] overflow-hidden grain-heavy clip-slant">
-          <img src={servicesStudio} alt="RTG Media production studio" className="absolute inset-0 w-full h-full object-cover ken-burns" />
+          <img src={servicesImg} alt="RTG Media production studio" className="absolute inset-0 w-full h-full object-cover ken-burns" />
           <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/30 to-transparent" />
           <div className="container-rtg relative h-full flex items-center">
             <div className="max-w-xl">
@@ -237,15 +261,23 @@ const Index = () => {
       <section className="relative bg-background py-24 md:py-32 overflow-hidden">
         <div className="container-rtg relative">
           <div className="text-center">
-            <div className="font-gothic text-3xl md:text-4xl text-primary mb-6">RTG Drops</div>
+            <div className="font-gothic text-3xl md:text-4xl text-primary mb-6">{content.drops.headline}</div>
+            {content.drops.image && (
+              <div className="mx-auto mb-8 max-w-md aspect-square overflow-hidden rounded-sm">
+                <img src={content.drops.image} alt={content.drops.headline} className="w-full h-full object-cover" />
+              </div>
+            )}
             <h2 className="type-mega text-[20vw] md:text-[14vw] lg:text-[12rem] leading-[0.85]">
               Coming
               <br />
               <span className="text-hollow">Soon.</span>
             </h2>
             <p className="mt-8 max-w-md mx-auto text-muted-foreground">
-              Apparel, hats, and limited drops built around the brand. Sign up for first access.
+              {content.drops.text}
             </p>
+            {content.drops.ctaText && (
+              <div className="mt-6 text-xs uppercase tracking-[0.3em] text-primary">{content.drops.ctaText} ↓</div>
+            )}
           </div>
         </div>
         {/* Marquee promo */}
