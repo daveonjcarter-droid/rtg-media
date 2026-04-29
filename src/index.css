@@ -297,6 +297,77 @@
     box-shadow: 3px 3px 0 hsl(var(--cream));
   }
 
+  /* Soft section bridges — kill hard cuts between blocks */
+  .section-bridge-top::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 80px;
+    pointer-events: none;
+    background: linear-gradient(180deg, hsl(var(--background)) 0%, transparent 100%);
+    z-index: 2;
+  }
+  .section-bridge-bottom::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 80px;
+    pointer-events: none;
+    background: linear-gradient(0deg, hsl(var(--background)) 0%, transparent 100%);
+    z-index: 2;
+  }
+  .section-bridge-ink-top::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 80px;
+    pointer-events: none;
+    background: linear-gradient(180deg, hsl(var(--ink)) 0%, transparent 100%);
+    z-index: 2;
+  }
+  .section-bridge-ink-bottom::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 80px;
+    pointer-events: none;
+    background: linear-gradient(0deg, hsl(var(--ink)) 0%, transparent 100%);
+    z-index: 2;
+  }
+
+  /* Subtle headline glitch — used once on the manifesto wow moment */
+  .glitch {
+    position: relative;
+    display: inline-block;
+  }
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.85;
+  }
+  .glitch::before {
+    color: hsl(var(--primary));
+    transform: translate(2px, 0);
+    mix-blend-mode: screen;
+    animation: glitch-x 3.6s infinite steps(1);
+  }
+  .glitch::after {
+    color: hsl(45 65% 52%);
+    transform: translate(-2px, 0);
+    mix-blend-mode: screen;
+    animation: glitch-x 3.6s infinite steps(1) reverse;
+    animation-delay: -1.2s;
+  }
+  @keyframes glitch-x {
+    0%, 92%, 100% { transform: translate(0, 0); opacity: 0; }
+    93% { transform: translate(2px, -1px); opacity: 0.9; }
+    95% { transform: translate(-3px, 1px); opacity: 0.9; }
+    97% { transform: translate(1px, 2px); opacity: 0.9; }
+  }
+
   .floating-rtg-logo {
     background: transparent;
     border: none;
