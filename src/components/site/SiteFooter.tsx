@@ -41,7 +41,7 @@ const SiteFooter = () => (
     <div className="border-t border-border">
       <div className="container-rtg py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
         <span>© {new Date().getFullYear()} RTG Media. All rights reserved.</span>
-        <span className="font-gothic text-base text-foreground/70">Runners To Greatness&nbsp; ·&nbsp; &nbsp;Chicago</span>
+        <span className="font-gothic text-base text-foreground/70">Runners To Greatness&nbsp; ·&nbsp; Chicago</span>
       </div>
     </div>
   </footer>
