@@ -164,12 +164,7 @@ const Book = () => {
     const svc = services.find((s) => s.id === parsed.data.service_id);
     const staffPick = staff.find((s) => s.id === parsed.data.staff_id);
 
-    const assignment_status = parsed.data.no_preference
-      ? "rtg_assigning"
-      : parsed.data.staff_id
-        ? "assigned"
-        : "needs_assignment";
-
+    const crewMod = CREW_PACKAGES[parsed.data.crew_request_type].priceModifier;
     const crewMod = CREW_PACKAGES[parsed.data.crew_request_type].priceModifier;
     const payload = {
       name: parsed.data.name,
