@@ -453,13 +453,13 @@ const Overview = ({ articles, onCreate, canCreate }: { articles: Article[]; onCr
         <div>
           <PageHead title="Workflow" sub="Pipeline" />
           <ol className="space-y-2">
-            {(["draft", "submitted", "approved", "published"] as Status[]).map((s, i) => (
+            {(["draft", "submitted", "approved", "scheduled", "published"] as Status[]).map((s, i) => (
               <li key={s} className="flex items-center gap-3 border border-border rounded-sm p-3 bg-surface/30">
                 <div className="font-display text-lg text-primary w-6">0{i + 1}</div>
                 <div className="flex-1 min-w-0">
                   <div className="font-display uppercase text-sm leading-none">{STATUS_LABEL[s]}</div>
                   <div className="text-[11px] text-muted-foreground mt-1">
-                    {{ draft: "Writer creates and saves", submitted: "Editor reviews", approved: "Ready to schedule", published: "Live on the site" }[s]}
+                    {{ draft: "Writer creates and saves", submitted: "Editor reviews", approved: "Ready to schedule", scheduled: "Queued for auto-publish", published: "Live on the site" }[s as "draft"|"submitted"|"approved"|"scheduled"|"published"]}
                   </div>
                 </div>
               </li>
