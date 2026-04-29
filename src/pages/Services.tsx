@@ -7,16 +7,22 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import servicesStudio from "@/assets/services-studio.jpg";
 
+type Pkg = { name?: string; price?: number; includes?: string };
+type AddOn = { name?: string; price?: number };
+
 type Service = {
   id: string;
   slug: string | null;
   name: string;
   short_description: string | null;
+  long_description: string | null;
   pricing_model: string;
   base_price: number | null;
   sale_price: number | null;
   cover_image_url: string | null;
   is_featured: boolean;
+  packages: Pkg[] | null;
+  add_ons: AddOn[] | null;
 };
 
 const priceLabel = (s: Service) => {
