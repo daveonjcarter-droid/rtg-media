@@ -675,6 +675,12 @@ const UniversalEditor = ({
                     <Field label="IMDb (0-10)"><Input type="number" min={0} max={10} step={0.1} value={imdb} onChange={(e) => setImdb(e.target.value)} className={inputCls} /></Field>
                   </>
                 )}
+                {isGame && (
+                  <>
+                    <Field label="Metacritic (0-100)"><Input type="number" min={0} max={100} value={meta} onChange={(e) => setMeta(e.target.value)} className={inputCls} /></Field>
+                    <Field label="Steam (0-100)"><Input type="number" min={0} max={100} value={steamScore} onChange={(e) => setSteamScore(e.target.value)} className={inputCls} /></Field>
+                  </>
+                )}
               </div>
               <div className="flex items-center justify-between border border-border rounded-sm px-3 py-2 bg-surface/30">
                 <div>
