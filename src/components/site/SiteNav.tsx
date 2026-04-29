@@ -96,7 +96,7 @@ const SiteNav = () => {
       </div>
 
       {open && (
-        <div className="lg:hidden border-t border-border bg-background">
+        <div className="lg:hidden border-t border-border bg-background mobile-menu-in">
           <div className="container-rtg py-4 flex flex-col gap-1">
             {NAV.map((n) => (
               <NavLink
