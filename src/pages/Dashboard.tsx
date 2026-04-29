@@ -5,9 +5,10 @@ import {
   Users, Plus, Copy, Instagram, Twitter, LogOut, Send, ArrowRight, Briefcase, Mail, Archive,
   Youtube, Search, Bell, ChevronsLeft, ChevronsRight, MoreHorizontal, Eye, Pencil, Trash2,
   Replace, Link as LinkIcon, Upload, Filter, ArrowUpDown, X, Tag, FolderInput, CheckSquare,
-  Wand2,
+  Wand2, Film,
 } from "lucide-react";
 import QuickSiteUpdates from "@/components/dashboard/QuickSiteUpdates";
+import ContentManagers from "@/components/dashboard/ContentManagers";
 import logoLight from "@/assets/rtg-logo-light.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,7 +58,7 @@ type Article = {
 
 type SectionId =
   | "overview" | "drafts" | "submitted" | "revisions" | "published"
-  | "calendar" | "media" | "social" | "bookings" | "leads" | "users" | "site-updates";
+  | "calendar" | "media" | "social" | "bookings" | "leads" | "users" | "site-updates" | "content-managers";
 
 const ALL_NAV: { id: SectionId; label: string; icon: any; roles: AppRole[]; group: "Content" | "Pipeline" | "Ops" | "Admin" }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard, roles: ["admin", "editor", "writer", "social_manager"], group: "Content" },
@@ -68,6 +69,7 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; roles: AppRole[]; grou
   { id: "calendar", label: "Calendar", icon: Calendar, roles: ["admin", "editor", "social_manager"], group: "Content" },
   { id: "media", label: "Media Library", icon: ImageIcon, roles: ["admin", "editor", "writer"], group: "Content" },
   { id: "social", label: "Social", icon: Instagram, roles: ["admin", "editor", "social_manager"], group: "Content" },
+  { id: "content-managers", label: "Pillars (Breakdown / Picks)", icon: Film, roles: ["admin", "editor"], group: "Content" },
   { id: "bookings", label: "Bookings", icon: Briefcase, roles: ["admin", "editor"], group: "Ops" },
   { id: "leads", label: "Leads", icon: Mail, roles: ["admin", "editor"], group: "Ops" },
   { id: "users", label: "Users", icon: Users, roles: ["admin"], group: "Admin" },
@@ -276,6 +278,7 @@ const Dashboard = () => {
               {section === "leads" && <LeadsView />}
              {section === "users" && <UsersView />}
              {section === "site-updates" && <QuickSiteUpdates />}
+             {section === "content-managers" && <ContentManagers />}
             </>
           )}
         </div>
