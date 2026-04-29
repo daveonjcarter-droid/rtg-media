@@ -14,7 +14,7 @@ const About = () => (
     <section className="relative h-[60vh] overflow-hidden grain">
       <img src={heroImg} alt="" className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
-      <div className="container-rtg relative h-full flex items-end pb-12">
+      <div className="container-rtg relative h-full flex items-end pb-12 bg-muted">
         <div>
           <div className="eyebrow text-cream/80 mb-3">About RTG Media</div>
           <h1 className="font-display text-5xl md:text-8xl uppercase leading-none">Built In<br /><span className="text-primary">Chicago.</span></h1>
@@ -30,7 +30,7 @@ const About = () => (
         </p>
       </div>
       <div className="space-y-5 text-muted-foreground leading-relaxed">
-        <p>Founded in 2024 by Daveon J. Carter with Co-CEO Brendan Shields, RTG — Runners To Greatness — was born from a refusal to wait for permission. We saw a generation of voices, artists, and stories the mainstream wasn't covering with the depth they deserved. So we picked up the cameras, the pens, and the platforms.</p>
+        <p>Founded in 2024 by Daveon J. Carter with Co-CEO BRENDYN SHIELDS, RTG — Runners To Greatness — was born from a refusal to wait for permission. We saw a generation of voices, artists, and stories the mainstream wasn't covering with the depth they deserved. So we picked up the cameras, the pens, and the platforms.</p>
         <p>Today, RTG Media operates as both a publication and a full-service production company — covering culture across music, film, fashion, sports, and entertainment, while building cinematic content for brands and artists who want to move differently.</p>
       </div>
     </section>
@@ -55,7 +55,7 @@ const About = () => (
       <h2 className="font-display text-4xl md:text-5xl uppercase mb-10">Founders</h2>
       <div className="grid md:grid-cols-2 gap-8">
         <FounderCard name="Daveon J. Carter" role="Founder · Creative Director" bio="Daveon founded RTG Media to give Chicago creatives a platform built by people who actually live the culture." />
-        <FounderCard name="Brendan Shields" role="Co-CEO · Operations" bio="Brendan leads operations and partnerships, making sure the vision scales without losing its soul." />
+        <FounderCard name="BRENDYN SHIELDS" role="Co-CEO · Operations" bio="Brendyn leads operations and partnerships, making sure the vision scales without losing its soul." />
       </div>
     </section>
 

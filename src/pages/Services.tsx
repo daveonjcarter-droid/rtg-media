@@ -20,7 +20,7 @@ const Services = () => (
     <section className="relative h-[55vh] overflow-hidden grain">
       <img src={servicesStudio} alt="RTG Media production studio" className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
-      <div className="container-rtg relative h-full flex items-end pb-12">
+      <div className="container-rtg relative h-full flex items-end pb-12 bg-muted">
         <div>
           <div className="eyebrow text-cream/80 mb-3">Production Services</div>
           <h1 className="font-display text-6xl md:text-8xl uppercase leading-none">Crafted For<br />The Culture.</h1>
