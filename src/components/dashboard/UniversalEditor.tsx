@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   AddBlockBar, BlockEditor, ReviewBlock, StarRatingInput, newBlock, REVIEW_TEMPLATE,
 } from "./ReviewBlocks";
+import RevisionHistory from "./RevisionHistory";
 
 export type ArticleType =
   | "standard" | "film_review" | "album_review" | "single_review" | "game_review"
