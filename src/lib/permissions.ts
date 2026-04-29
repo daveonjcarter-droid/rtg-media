@@ -29,7 +29,13 @@ export type SectionId =
   | "community"
   | "permissions"
   | "invites"
-  | "settings";
+  | "settings"
+  | "crew"
+  | "my-profile"
+  | "my-availability"
+  | "my-bookings"
+  | "my-portfolio"
+  | "portfolio-approvals";
 
 export type Group = "Content" | "Pipeline" | "Studio" | "Ops" | "Ecosystem" | "Admin";
 
