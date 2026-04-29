@@ -405,9 +405,20 @@ const UniversalEditor = ({
 
     const res = article?.id
       ? await supabase.from("articles").update(payload).eq("id", article.id)
-      : await supabase.from("articles").insert(payload);
+      : await supabase.from("articles").insert(payload).select("id").maybeSingle();
     setBusy(false);
     if (res.error) return toast.error(res.error.message);
+
+    // Save a revision snapshot for existing articles (skip on first insert)
+    if (article?.id) {
+      await supabase.from("article_revisions").insert({
+        article_id: article.id,
+        saved_by: userId,
+        reason: status,
+        snapshot: payload,
+      } as any);
+    }
+
     const msg =
       status === "draft" ? "Saved as draft" :
       status === "submitted" ? "Submitted for review" :
