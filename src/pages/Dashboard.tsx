@@ -420,6 +420,7 @@ const Dashboard = () => {
              {section === "import" && <ArticleImportView onOpenImport={() => setImportOpen(true)} />}
              {section === "analytics" && <AnalyticsView />}
              {section === "settings" && <SettingsView canBilling={canManageBilling(roles)} />}
+             {section === "permissions" && <PermissionsManager isHeadAdmin={isHeadAdmin(roles)} />}
              {section === "production" && <ServicesManager />}
              {section === "portfolio" && <PortfolioWorksManager />}
              {section === "staff" && <StaffManager />}
