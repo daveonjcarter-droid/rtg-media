@@ -237,7 +237,7 @@ const Index = () => {
                 <Play className="h-3 w-3 fill-current" /> Episode Series
               </div>
               <h2 className="type-mega text-6xl md:text-8xl lg:text-9xl text-cream">
-                RTG <span className="text-hollow">Breakdown</span>
+                <RtgMark wordClassName="text-hollow">Breakdown</RtgMark>
               </h2>
               <p className="mt-5 max-w-lg text-cream/75">
                 Frame-by-frame on the films, shows, and stories the culture is talking about.
@@ -278,7 +278,7 @@ const Index = () => {
           <div className="flex items-end justify-between mb-8 pb-4 border-b border-border">
             <div>
               <div className="eyebrow text-primary mb-2 flex items-center gap-2">
-                <Flame className="h-3 w-3" /> RTG Picks
+                <Flame className="h-3 w-3" /> <RtgMark wordClassName="tracking-[0.25em]">Picks</RtgMark>
               </div>
               <h2 className="type-mega text-5xl md:text-7xl">If You Know,<br/><span className="text-hollow-primary">You Know.</span></h2>
             </div>
