@@ -61,6 +61,7 @@ export const BLOCK_OPTIONS: { kind: BlockKind; label: string; icon: any }[] = [
   { kind: "highlight_quote", label: "Highlight Quote", icon: Quote },
   { kind: "image", label: "Image", icon: ImageIcon },
   { kind: "gallery", label: "Image Gallery", icon: Images },
+  { kind: "embed", label: "Embed", icon: Code2 },
   { kind: "pros_cons", label: "Pros / Cons", icon: ListChecks },
   { kind: "spoiler", label: "Spoiler Warning", icon: AlertTriangle },
   { kind: "verdict", label: "Final Verdict", icon: Star },
