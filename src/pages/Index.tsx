@@ -64,20 +64,26 @@ const Index = () => {
           </div>
 
           <h1 className="type-mega text-[22vw] md:text-[16vw] lg:text-[13vw] text-cream fade-in-up">
-            Runners
-            <br />
-            <span className="text-hollow-primary">To Greatness</span>
+            {heroLines.map((line, i) => (
+              <span key={i}>
+                {i === heroLines.length - 1 && heroLines.length > 1 ? (
+                  <span className="text-hollow-primary">{line}</span>
+                ) : (
+                  line
+                )}
+                {i < heroLines.length - 1 && <br />}
+              </span>
+            ))}
           </h1>
 
           <div className="mt-8 grid md:grid-cols-12 gap-6 items-end">
             <p className="md:col-span-5 text-cream/85 text-base md:text-lg leading-relaxed max-w-md">
-              We document the culture before it has a name. Film. Music. Fashion. The Chicago
-              stories the rest of the world will be talking about next.
+              {content.hero.subheadline}
             </p>
             <div className="md:col-span-4 md:col-start-9 flex flex-wrap gap-3 justify-start md:justify-end">
               <Button asChild size="lg" className="group bg-primary text-primary-foreground hover:bg-primary/90 rounded-none uppercase tracking-[0.25em] text-xs h-12 px-7">
-                <Link to="/articles">
-                  Read The Magazine
+                <Link to={content.hero.ctaLink || "/articles"}>
+                  {content.hero.ctaText}
                   <ArrowUpRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </Link>
               </Button>
