@@ -436,6 +436,9 @@ const UniversalEditor = ({
                 {article.status}
               </span>
             )}
+            {article?.id && (
+              <RevisionHistory articleId={article.id} onRestored={onSaved} />
+            )}
             <Button type="button" variant="outline" size="sm" onClick={onClose} className="rounded-sm uppercase tracking-widest text-[10px] h-8">Close</Button>
             <Button type="button" size="sm" disabled={busy} onClick={() => save("draft")} className="rounded-sm uppercase tracking-widest text-[10px] h-8 bg-secondary text-foreground hover:bg-secondary/80">Save Draft</Button>
             <Button type="button" size="sm" disabled={busy} onClick={() => save()} className="rounded-sm uppercase tracking-widest text-[10px] h-8 bg-primary text-primary-foreground hover:bg-primary/90">
