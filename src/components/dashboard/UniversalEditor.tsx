@@ -92,10 +92,29 @@ const NEWS_TEMPLATE: ReviewBlock[] = [
   { id: crypto.randomUUID(), kind: "paragraph", text: "" },
 ];
 
+const GAME_TEMPLATE: ReviewBlock[] = [
+  { id: crypto.randomUUID(), kind: "heading", text: "Gameplay", level: 2 },
+  { id: crypto.randomUUID(), kind: "paragraph", text: "" },
+  { id: crypto.randomUUID(), kind: "heading", text: "Story", level: 2 },
+  { id: crypto.randomUUID(), kind: "paragraph", text: "" },
+  { id: crypto.randomUUID(), kind: "heading", text: "Graphics / Art Direction", level: 2 },
+  { id: crypto.randomUUID(), kind: "paragraph", text: "" },
+  { id: crypto.randomUUID(), kind: "heading", text: "Sound / Music", level: 2 },
+  { id: crypto.randomUUID(), kind: "paragraph", text: "" },
+  { id: crypto.randomUUID(), kind: "heading", text: "Performance", level: 2 },
+  { id: crypto.randomUUID(), kind: "paragraph", text: "" },
+  { id: crypto.randomUUID(), kind: "heading", text: "Replay Value", level: 2 },
+  { id: crypto.randomUUID(), kind: "paragraph", text: "" },
+  { id: crypto.randomUUID(), kind: "pros_cons", pros: [""], cons: [""] },
+  { id: crypto.randomUUID(), kind: "highlight_quote", text: "", speaker: "" },
+  { id: crypto.randomUUID(), kind: "verdict", headline: "Final Verdict", text: "", recommendation: "recommended" },
+];
+
 const TEMPLATES: Partial<Record<ArticleType, ReviewBlock[]>> = {
   film_review: REVIEW_TEMPLATE,
   album_review: ALBUM_TEMPLATE,
   single_review: SINGLE_TEMPLATE,
+  game_review: GAME_TEMPLATE,
   interview: INTERVIEW_TEMPLATE,
   breakdown: BREAKDOWN_TEMPLATE,
   news: NEWS_TEMPLATE,
