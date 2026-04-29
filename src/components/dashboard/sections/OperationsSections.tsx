@@ -241,6 +241,65 @@ const ServiceEditor = ({ row, onClose, onSaved }: { row: ServiceRow; onClose: ()
           <Field label="Cover image URL">
             <Input value={r.cover_image_url ?? ""} onChange={(e) => setR({ ...r, cover_image_url: e.target.value })} placeholder="https://…" />
           </Field>
+
+          {/* PACKAGES */}
+          <div className="border-t border-border pt-3">
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Packages</Label>
+              <Button type="button" size="sm" variant="outline" className="h-7 text-[10px]"
+                onClick={() => setR({ ...r, packages: [...(Array.isArray(r.packages) ? r.packages : []), { name: "", price: 0, includes: "" }] })}>
+                <Plus className="h-3 w-3 mr-1" /> Add
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {(Array.isArray(r.packages) ? r.packages : []).map((pkg: any, i: number) => (
+                <div key={i} className="grid grid-cols-12 gap-2 items-start border border-border rounded-sm p-2 bg-background">
+                  <Input className="col-span-4 h-8 text-xs" placeholder="Package name" value={pkg.name ?? ""}
+                    onChange={(e) => { const arr = [...r.packages]; arr[i] = { ...arr[i], name: e.target.value }; setR({ ...r, packages: arr }); }} />
+                  <Input className="col-span-2 h-8 text-xs" type="number" placeholder="Price" value={pkg.price ?? ""}
+                    onChange={(e) => { const arr = [...r.packages]; arr[i] = { ...arr[i], price: e.target.value ? Number(e.target.value) : 0 }; setR({ ...r, packages: arr }); }} />
+                  <Input className="col-span-5 h-8 text-xs" placeholder="What's included" value={pkg.includes ?? ""}
+                    onChange={(e) => { const arr = [...r.packages]; arr[i] = { ...arr[i], includes: e.target.value }; setR({ ...r, packages: arr }); }} />
+                  <Button type="button" size="sm" variant="ghost" className="col-span-1 h-8 w-8 p-0"
+                    onClick={() => setR({ ...r, packages: r.packages.filter((_: any, j: number) => j !== i) })}>
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              ))}
+              {(!r.packages || r.packages.length === 0) && (
+                <div className="text-[11px] text-muted-foreground italic">No packages. Clients see only the base/sale price.</div>
+              )}
+            </div>
+          </div>
+
+          {/* ADD-ONS */}
+          <div className="border-t border-border pt-3">
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Add-ons</Label>
+              <Button type="button" size="sm" variant="outline" className="h-7 text-[10px]"
+                onClick={() => setR({ ...r, add_ons: [...(Array.isArray(r.add_ons) ? r.add_ons : []), { name: "", price: 0 }] })}>
+                <Plus className="h-3 w-3 mr-1" /> Add
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {(Array.isArray(r.add_ons) ? r.add_ons : []).map((ad: any, i: number) => (
+                <div key={i} className="grid grid-cols-12 gap-2 items-start border border-border rounded-sm p-2 bg-background">
+                  <Input className="col-span-8 h-8 text-xs" placeholder="Add-on name" value={ad.name ?? ""}
+                    onChange={(e) => { const arr = [...r.add_ons]; arr[i] = { ...arr[i], name: e.target.value }; setR({ ...r, add_ons: arr }); }} />
+                  <Input className="col-span-3 h-8 text-xs" type="number" placeholder="Price" value={ad.price ?? ""}
+                    onChange={(e) => { const arr = [...r.add_ons]; arr[i] = { ...arr[i], price: e.target.value ? Number(e.target.value) : 0 }; setR({ ...r, add_ons: arr }); }} />
+                  <Button type="button" size="sm" variant="ghost" className="col-span-1 h-8 w-8 p-0"
+                    onClick={() => setR({ ...r, add_ons: r.add_ons.filter((_: any, j: number) => j !== i) })}>
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              ))}
+              {(!r.add_ons || r.add_ons.length === 0) && (
+                <div className="text-[11px] text-muted-foreground italic">No add-ons configured.</div>
+              )}
+            </div>
+          </div>
+
           <div className="flex items-center gap-6 pt-2">
             <label className="flex items-center gap-2 text-xs uppercase tracking-widest">
               <Switch checked={r.is_available} onCheckedChange={(v) => setR({ ...r, is_available: v })} />
