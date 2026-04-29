@@ -94,9 +94,43 @@ const Services = () => {
                 {s.short_description && (
                   <p className="text-muted-foreground mt-3 leading-relaxed">{s.short_description}</p>
                 )}
+                {s.long_description && (
+                  <p className="text-muted-foreground/80 mt-2 text-sm leading-relaxed">{s.long_description}</p>
+                )}
+
+                {Array.isArray(s.packages) && s.packages.length > 0 && (
+                  <div className="mt-5 border-t border-border pt-4">
+                    <div className="eyebrow text-muted-foreground mb-3">Packages</div>
+                    <div className="space-y-2">
+                      {s.packages.filter((p) => p?.name).map((p, i) => (
+                        <div key={i} className="flex items-baseline justify-between gap-3 text-sm">
+                          <div>
+                            <div className="font-medium">{p.name}</div>
+                            {p.includes && <div className="text-xs text-muted-foreground">{p.includes}</div>}
+                          </div>
+                          {p.price != null && <div className="text-primary text-xs uppercase tracking-widest shrink-0">${p.price}</div>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {Array.isArray(s.add_ons) && s.add_ons.length > 0 && (
+                  <div className="mt-4 border-t border-border pt-3">
+                    <div className="eyebrow text-muted-foreground mb-2">Add-ons</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {s.add_ons.filter((a) => a?.name).map((a, i) => (
+                        <span key={i} className="text-[11px] uppercase tracking-wider border border-border px-2 py-1 rounded-sm">
+                          {a.name}{a.price != null ? ` · $${a.price}` : ""}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <Link
                   to={`/book?service=${s.id}`}
-                  className="inline-flex items-center gap-2 mt-6 text-xs uppercase tracking-widest text-foreground group-hover:text-primary transition-colors"
+                  className="inline-flex items-center gap-2 mt-6 text-xs uppercase tracking-widest text-foreground group-hover:text-primary transition-colors mt-auto pt-6"
                 >
                   Inquire <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
