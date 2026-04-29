@@ -116,6 +116,12 @@ export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
   community:          [HEAD, "admin", "editor", "social_manager", "social_articles_lead"],
   permissions:        [HEAD],
   settings:           [HEAD, "admin"],
+  crew:                [HEAD, "admin", "booking_manager"],
+  "portfolio-approvals": [HEAD, "admin", "editor", "media_manager"],
+  "my-profile":        [HEAD, "admin", "editor", "writer", "social_manager", "booking_manager", "media_manager", "social_articles_lead", "crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
+  "my-availability":   ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff", HEAD, "admin", "booking_manager"],
+  "my-bookings":       ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
+  "my-portfolio":      ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
 };
 
 export const OWNERSHIP_ONLY: SectionId[] = [];
