@@ -50,7 +50,7 @@ const RtgMark = ({
         RTG
       </span>
       {!only && trailing != null && (
-        <span className={cn("font-display tracking-wide", wordClassName)}>{trailing}</span>
+        <span className={cn("font-display tracking-wide", wordClassName)}>{trailing === "MEDIA" ? "\n" : trailing}</span>
       )}
     </span>
   );
