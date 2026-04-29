@@ -283,7 +283,7 @@ const Dashboard = () => {
           <div className="flex items-center gap-3 min-w-0">
             <div className="min-w-0">
               <div className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground leading-none">
-                {primaryRole.replace("_", " ")}
+                {ROLE_LABELS[primary]}
               </div>
               <div className="font-display text-base uppercase leading-tight truncate">
                 {currentNav?.label}
