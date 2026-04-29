@@ -616,12 +616,19 @@ const CalendarView = ({ articles }: { articles: Article[] }) => {
           <div key={d} className="bg-background min-h-[220px] p-2.5">
             <div className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground mb-2 font-semibold">{d}</div>
             <div className="space-y-1.5">
-              {(buckets[d] || []).map((a) => (
-                <div key={a.id} className="bg-surface border-l-2 border-primary p-2 rounded-sm hover:bg-surface/70 transition-colors cursor-pointer">
-                  <div className="text-[11px] font-medium leading-tight">{a.title}</div>
-                  <div className="text-[9px] text-primary uppercase tracking-widest mt-1">{a.category}</div>
-                </div>
-              ))}
+              {(buckets[d] || []).map((a) => {
+                const when = a.scheduled_for ?? (a as any).published_at;
+                const accent = a.status === "scheduled" ? "border-sky-500" : a.status === "published" ? "border-emerald-500" : "border-primary";
+                return (
+                  <div key={a.id} className={`bg-surface border-l-2 ${accent} p-2 rounded-sm hover:bg-surface/70 transition-colors cursor-pointer`}>
+                    <div className="text-[11px] font-medium leading-tight">{a.title}</div>
+                    <div className="text-[9px] text-muted-foreground uppercase tracking-widest mt-1 flex items-center justify-between gap-2">
+                      <span className="text-primary truncate">{a.category}</span>
+                      {when && <span>{new Date(when).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         ))}
