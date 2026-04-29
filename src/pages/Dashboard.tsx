@@ -18,6 +18,8 @@ import ImportArticleDialog from "@/components/dashboard/ImportArticleDialog";
 import UniversalEditor from "@/components/dashboard/UniversalEditor";
 import InvitesManager from "@/components/dashboard/InvitesManager";
 import WorkspaceSettingsPanel from "@/components/dashboard/WorkspaceSettingsPanel";
+import { CrewManagement, PortfolioApprovalsQueue } from "@/components/dashboard/CrewManagement";
+import { CrewProfilePanel, MyAssignedBookings } from "@/components/dashboard/CrewProfilePanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
