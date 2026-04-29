@@ -34,15 +34,17 @@ export const logActivity = async (entry: ActivityEntry): Promise<void> => {
         .maybeSingle();
       actorName = profile?.display_name ?? user.email ?? null;
     }
-    await supabase.from("activity_log").insert({
+    const row: Record<string, unknown> = {
       kind: entry.kind,
       title: entry.title,
-      detail: entry.detail ?? null,
-      link_url: entry.link_url ?? null,
-      actor_id: user?.id ?? null,
-      actor_name: actorName,
       meta: entry.meta ?? {},
-    });
+    };
+    if (entry.detail) row.detail = entry.detail;
+    if (entry.link_url) row.link_url = entry.link_url;
+    if (user?.id) row.actor_id = user.id;
+    if (actorName) row.actor_name = actorName;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await supabase.from("activity_log").insert(row as any);
   } catch {
     /* silent — activity log must never break user actions */
   }
