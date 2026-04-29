@@ -17,6 +17,7 @@ import {
   Camera, Home, MapPin, HelpCircle, ArrowRight, ArrowLeft,
   CheckCircle2, ShieldCheck, Clock, Users, Star, Sparkles, CalendarIcon, Briefcase,
 } from "lucide-react";
+import { CREW_PACKAGES, CREW_PACKAGE_ORDER, type CrewPackageId } from "@/lib/crewPackages";
 
 type Service = {
   id: string;
@@ -71,6 +72,7 @@ const STEP_TITLES = [
 const schema = z.object({
   service_id: z.string().uuid("Pick a service"),
   shoot_type: z.enum(["Studio", "Location", "Not Sure"]),
+  crew_request_type: z.enum(["videographer_only", "photographer_only", "small_crew", "full_crew"]),
   staff_id: z.string().uuid().nullable(),
   no_preference: z.boolean(),
   project_date: z.date().nullable(),
@@ -88,6 +90,7 @@ type Form = z.infer<typeof schema>;
 const EMPTY: Form = {
   service_id: "",
   shoot_type: "Studio",
+  crew_request_type: "videographer_only",
   staff_id: null,
   no_preference: false,
   project_date: null,
@@ -140,8 +143,8 @@ const Book = () => {
     switch (step) {
       case 0: return !!form.service_id;
       case 1: return !!form.shoot_type;
-      case 2: return form.no_preference || !!form.staff_id;
-      case 3: return !!form.budget; // date is optional but budget required
+      case 2: return !!form.crew_request_type; // preferred crew member is optional now
+      case 3: return !!form.budget;
       case 4: return form.description.trim().length >= 10;
       case 5: return form.name.trim().length >= 2 && /\S+@\S+\.\S+/.test(form.email) && form.phone.trim().length >= 7;
       default: return false;
@@ -161,12 +164,7 @@ const Book = () => {
     const svc = services.find((s) => s.id === parsed.data.service_id);
     const staffPick = staff.find((s) => s.id === parsed.data.staff_id);
 
-    const assignment_status = parsed.data.no_preference
-      ? "rtg_assigning"
-      : parsed.data.staff_id
-        ? "assigned"
-        : "needs_assignment";
-
+    const crewMod = CREW_PACKAGES[parsed.data.crew_request_type].priceModifier;
     const payload = {
       name: parsed.data.name,
       email: parsed.data.email,
@@ -180,9 +178,12 @@ const Book = () => {
       budget: parsed.data.budget,
       description: parsed.data.description,
       requested_staff_id: parsed.data.staff_id,
-      assigned_staff_id: parsed.data.staff_id, // pre-assigned if requested
+      assigned_staff_id: parsed.data.staff_id,
       no_preference: parsed.data.no_preference,
-      assignment_status,
+      assignment_status: "needs_assignment",
+      crew_request_type: parsed.data.crew_request_type,
+      crew_price_modifier: crewMod,
+      internal_assignment_locked: true,
       preferred_contact: "email" as const,
     };
 
@@ -303,7 +304,35 @@ const Book = () => {
           )}
 
           {step === 2 && (
-            <Step title="Pick your crew" sub="Choose someone specific, or let RTG assign the right team.">
+            <Step title="Choose your crew" sub="Pick a crew package, then optionally request a specific team member.">
+              {/* Crew packages */}
+              <div className="eyebrow mb-3">Crew package</div>
+              <div className="grid sm:grid-cols-2 gap-2 mb-6">
+                {CREW_PACKAGE_ORDER.map((id) => {
+                  const pkg = CREW_PACKAGES[id];
+                  const active = form.crew_request_type === id;
+                  return (
+                    <Choice key={id} active={active} onClick={() => set("crew_request_type", id)}>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="font-display uppercase text-sm leading-tight">{pkg.label}</div>
+                        <div className="text-[10px] uppercase tracking-widest text-primary whitespace-nowrap">
+                          {pkg.priceModifier === 0 ? "Base price" : `+$${pkg.priceModifier}`}
+                        </div>
+                      </div>
+                      <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1.5">{pkg.scale} · {pkg.qualityLabel}</div>
+                      <div className="mt-2 text-[11px] text-muted-foreground">
+                        <span className="text-foreground/80">Best for:</span> {pkg.bestFor.slice(0, 2).join(", ")}
+                      </div>
+                      <div className="mt-1.5 text-[11px] text-muted-foreground">
+                        <span className="text-foreground/80">Includes:</span> {pkg.includes.join(", ")}
+                      </div>
+                    </Choice>
+                  );
+                })}
+              </div>
+
+              {/* Optional preferred crew member */}
+              <div className="eyebrow mb-3">Preferred crew member <span className="text-muted-foreground/60 normal-case">(optional)</span></div>
               <Choice
                 active={form.no_preference}
                 onClick={() => { set("no_preference", true); set("staff_id", null); }}
@@ -354,6 +383,23 @@ const Book = () => {
                   ))}
                 </div>
               )}
+
+              {/* Live price preview */}
+              {(() => {
+                const svc = services.find((s) => s.id === form.service_id);
+                const base = svc?.sale_price ?? svc?.base_price ?? 0;
+                const mod = CREW_PACKAGES[form.crew_request_type as CrewPackageId].priceModifier;
+                if (!base && !mod) return null;
+                return (
+                  <div className="mt-6 border border-primary/40 p-4 bg-primary/5 rounded-sm">
+                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Estimated starting price</div>
+                    <div className="font-display text-2xl text-foreground mt-1">
+                      ${(Number(base) + mod).toLocaleString()}
+                      {mod > 0 && <span className="text-xs text-muted-foreground ml-2 normal-case">(${Number(base).toLocaleString()} base + ${mod} crew)</span>}
+                    </div>
+                  </div>
+                );
+              })()}
             </Step>
           )}
 

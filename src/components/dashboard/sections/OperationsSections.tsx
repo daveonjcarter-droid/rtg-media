@@ -21,6 +21,8 @@ import {
 import { PageHead, EmptyState } from "@/components/dashboard/shared/Primitives";
 import { logActivity } from "@/lib/activity";
 import AvailabilityCalendar from "@/components/dashboard/AvailabilityCalendar";
+import { CrewSlotsDialog } from "@/components/dashboard/CrewSlotsDialog";
+import { CREW_PACKAGES, type CrewPackageId } from "@/lib/crewPackages";
 
 const slugify = (s: string) =>
   s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -868,6 +870,9 @@ type BookingRow = {
   deposit_paid: boolean;
   archived: boolean;
   created_at: string;
+  crew_request_type: string | null;
+  crew_price_modifier: number | null;
+  internal_assignment_locked: boolean;
 };
 
 const BOOKING_STATUSES = ["new", "contacted", "pending_deposit", "booked", "completed", "declined"] as const;
@@ -878,6 +883,7 @@ export const BookingsDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("active");
   const [editing, setEditing] = useState<BookingRow | null>(null);
+  const [crewSlotsFor, setCrewSlotsFor] = useState<BookingRow | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -958,6 +964,12 @@ export const BookingsDashboard = () => {
                         </span>
                       )}
                       {b.no_preference && <span className="text-[9px] uppercase tracking-widest border border-gold/40 text-gold rounded-sm px-1.5 py-0.5">RTG Pick</span>}
+                      {b.crew_request_type && CREW_PACKAGES[b.crew_request_type as CrewPackageId] && (
+                        <span className="text-[9px] uppercase tracking-widest border border-primary/30 text-primary rounded-sm px-1.5 py-0.5">
+                          {CREW_PACKAGES[b.crew_request_type as CrewPackageId].label}
+                          {b.crew_price_modifier ? ` · +$${b.crew_price_modifier}` : ""}
+                        </span>
+                      )}
                     </div>
                     <div className="text-xs text-muted-foreground mt-1">
                       {b.service || "—"}{b.budget && ` · ${b.budget}`}{b.project_date && ` · ${b.project_date}`}
@@ -986,6 +998,9 @@ export const BookingsDashboard = () => {
                         {BOOKING_STATUSES.map((s) => <SelectItem key={s} value={s}>{s.replace("_", " ")}</SelectItem>)}
                       </SelectContent>
                     </Select>
+                    <Button size="sm" variant="outline" onClick={() => setCrewSlotsFor(b)} className="h-8 text-[10px] uppercase tracking-widest">
+                      <Users className="h-3 w-3 mr-1" /> Crew Slots
+                    </Button>
                     <Button size="sm" variant="outline" onClick={() => setEditing(b)} className="h-8 text-[10px] uppercase tracking-widest">
                       <Pencil className="h-3 w-3 mr-1" /> Notes
                     </Button>
@@ -1000,6 +1015,15 @@ export const BookingsDashboard = () => {
 
       {editing && (
         <BookingNotesEditor row={editing} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); load(); }} />
+      )}
+      {crewSlotsFor && (
+        <CrewSlotsDialog
+          bookingId={crewSlotsFor.id}
+          bookingName={crewSlotsFor.name}
+          crewRequestType={crewSlotsFor.crew_request_type}
+          internalAssignmentLocked={crewSlotsFor.internal_assignment_locked ?? true}
+          onClose={() => { setCrewSlotsFor(null); load(); }}
+        />
       )}
     </div>
   );

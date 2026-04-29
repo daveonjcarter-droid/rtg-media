@@ -409,6 +409,8 @@ export type Database = {
           base_cost: number | null
           budget: string | null
           created_at: string
+          crew_price_modifier: number
+          crew_request_type: string
           crew_response_notes: string | null
           crew_response_status: string
           deposit_paid: boolean
@@ -418,6 +420,7 @@ export type Database = {
           equipment_cost: number | null
           id: string
           instagram: string | null
+          internal_assignment_locked: boolean
           location_detail: string | null
           name: string
           no_preference: boolean
@@ -448,6 +451,8 @@ export type Database = {
           base_cost?: number | null
           budget?: string | null
           created_at?: string
+          crew_price_modifier?: number
+          crew_request_type?: string
           crew_response_notes?: string | null
           crew_response_status?: string
           deposit_paid?: boolean
@@ -457,6 +462,7 @@ export type Database = {
           equipment_cost?: number | null
           id?: string
           instagram?: string | null
+          internal_assignment_locked?: boolean
           location_detail?: string | null
           name: string
           no_preference?: boolean
@@ -487,6 +493,8 @@ export type Database = {
           base_cost?: number | null
           budget?: string | null
           created_at?: string
+          crew_price_modifier?: number
+          crew_request_type?: string
           crew_response_notes?: string | null
           crew_response_status?: string
           deposit_paid?: boolean
@@ -496,6 +504,7 @@ export type Database = {
           equipment_cost?: number | null
           id?: string
           instagram?: string | null
+          internal_assignment_locked?: boolean
           location_detail?: string | null
           name?: string
           no_preference?: boolean
@@ -663,6 +672,69 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      crew_assignments: {
+        Row: {
+          booking_id: string
+          call_time: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_backup: boolean
+          notes: string | null
+          pay_rate: number | null
+          role_label: string
+          sort_order: number
+          staff_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          booking_id: string
+          call_time?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_backup?: boolean
+          notes?: string | null
+          pay_rate?: number | null
+          role_label: string
+          sort_order?: number
+          staff_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string
+          call_time?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_backup?: boolean
+          notes?: string | null
+          pay_rate?: number | null
+          role_label?: string
+          sort_order?: number
+          staff_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crew_assignments_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crew_assignments_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       editor_notes: {
         Row: {
@@ -1019,9 +1091,11 @@ export type Database = {
       services: {
         Row: {
           add_ons: Json
+          available_crew_packages: string[]
           base_price: number | null
           cover_image_url: string | null
           created_at: string
+          default_crew_package: string
           icon: string | null
           id: string
           is_available: boolean
@@ -1038,9 +1112,11 @@ export type Database = {
         }
         Insert: {
           add_ons?: Json
+          available_crew_packages?: string[]
           base_price?: number | null
           cover_image_url?: string | null
           created_at?: string
+          default_crew_package?: string
           icon?: string | null
           id?: string
           is_available?: boolean
@@ -1057,9 +1133,11 @@ export type Database = {
         }
         Update: {
           add_ons?: Json
+          available_crew_packages?: string[]
           base_price?: number | null
           cover_image_url?: string | null
           created_at?: string
+          default_crew_package?: string
           icon?: string | null
           id?: string
           is_available?: boolean
