@@ -1,7 +1,7 @@
 // RTG OS — Operations admin sections (Services, Staff, Portfolio)
 // CRUD against services / staff_profiles / portfolio_items tables.
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Pencil, Trash2, Save, ExternalLink, Camera, Users, Briefcase, Image as ImageIcon, Star, Eye, EyeOff } from "lucide-react";
+import { Plus, Pencil, Trash2, Save, ExternalLink, Camera, Users, Briefcase, Image as ImageIcon, Star, Eye, EyeOff, Calendar, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { PageHead, EmptyState } from "@/components/dashboard/shared/Primitives";
 import { logActivity } from "@/lib/activity";
+import AvailabilityCalendar from "@/components/dashboard/AvailabilityCalendar";
 
 const slugify = (s: string) =>
   s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
