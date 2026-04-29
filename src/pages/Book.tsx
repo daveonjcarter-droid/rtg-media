@@ -165,7 +165,6 @@ const Book = () => {
     const staffPick = staff.find((s) => s.id === parsed.data.staff_id);
 
     const crewMod = CREW_PACKAGES[parsed.data.crew_request_type].priceModifier;
-    const crewMod = CREW_PACKAGES[parsed.data.crew_request_type].priceModifier;
     const payload = {
       name: parsed.data.name,
       email: parsed.data.email,
