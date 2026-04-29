@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Send, Sparkles, Plus, Trash2 } from "lucide-react";
+import { Send, Sparkles, Plus, Trash2, CalendarClock, Globe, FileEdit as DraftIcon, Inbox } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,16 +13,18 @@ import {
 } from "./ReviewBlocks";
 
 export type ArticleType =
-  | "standard" | "film_review" | "album_review" | "single_review"
+  | "standard" | "film_review" | "album_review" | "single_review" | "game_review"
   | "interview" | "opinion" | "breakdown" | "news";
 
-type Status = "draft" | "submitted" | "revisions" | "approved" | "published";
+type Status = "draft" | "submitted" | "revisions" | "approved" | "scheduled" | "published" | "archived";
+type PublishMode = "draft" | "submit" | "publish_now" | "schedule";
 
 const TYPE_LABEL: Record<ArticleType, string> = {
   standard: "Standard Article",
   film_review: "Film Review",
   album_review: "Album Review",
   single_review: "Single Review",
+  game_review: "Game Review",
   interview: "Interview",
   opinion: "Opinion",
   breakdown: "Breakdown",
