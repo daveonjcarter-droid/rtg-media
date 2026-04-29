@@ -125,6 +125,7 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "staff",             label: "Staff & Crew",     icon: Users,           group: "Ops" },
   { id: "analytics",         label: "Analytics",        icon: BarChart3,       group: "Ops" },
   { id: "users",             label: "Users & Roles",    icon: Users,           group: "Admin" },
+  { id: "invites",           label: "Invites & Roles",  icon: Mail,            group: "Admin" },
   { id: "permissions",       label: "Role Permissions", icon: ShieldCheck,     group: "Admin" },
   { id: "site-updates",      label: "Quick Site Updates", icon: Wand2,         group: "Admin" },
   { id: "settings",          label: "Settings",         icon: SettingsIcon,    group: "Admin" },
