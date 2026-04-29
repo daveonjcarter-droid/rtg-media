@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowDown, ArrowUp, Copy, Trash2, Plus, Type, Heading1, Quote, Image as ImageIcon, Images, AlertTriangle, ListChecks, Star } from "lucide-react";
+import { ArrowDown, ArrowUp, Copy, Trash2, Plus, Type, Heading1, Quote, Image as ImageIcon, Images, AlertTriangle, ListChecks, Star, Code2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
