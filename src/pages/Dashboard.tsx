@@ -254,7 +254,7 @@ const Dashboard = () => {
               <div className="flex flex-wrap gap-1 mt-1">
                 {roles.length ? roles.map((r) => (
                   <span key={r} className="text-[8px] uppercase tracking-widest bg-background/60 text-foreground/80 px-1.5 py-0.5 rounded-sm">
-                    {r.replace("_", " ")}
+                    {ROLE_LABELS[r]}
                   </span>
                 )) : <span className="text-[8px] uppercase tracking-widest text-muted-foreground">No role</span>}
               </div>
