@@ -659,129 +659,120 @@ const CalendarView = ({ articles }: { articles: Article[] }) => {
 };
 
 /* ============================================================
-   MEDIA LIBRARY  (front-end state, ready for Supabase Storage)
+   MEDIA LIBRARY  (Lovable Cloud Storage — site-content bucket, media/ prefix)
    ============================================================ */
 
 type MediaType = "image" | "video" | "audio";
-type MediaUsage = "in_use" | "unused" | "archived";
 type MediaItem = {
-  id: string;
-  title: string;
-  url: string;
+  id: string;          // storage object path (relative to bucket)
+  name: string;        // filename
+  url: string;         // public URL
   type: MediaType;
-  category: string;
-  alt: string;
-  tags: string[];
-  credit?: string;
-  attached_to?: string;
-  uploaded_at: string; // ISO
   size_kb: number;
-  usage: MediaUsage;
+  uploaded_at: string; // ISO date
 };
 
-// Media library starts empty — assets are added via the upload dialog.
-const SEED_MEDIA: MediaItem[] = [];
+const MEDIA_PREFIX = "media";
+const MEDIA_BUCKET = "site-content";
 
-const MEDIA_CATEGORIES = ["All", "Portrait", "City", "Music Video", "Live", "Cover Art", "Film", "Fashion", "Thumbnail", "Other"];
+const detectType = (name: string): MediaType => {
+  const ext = name.split(".").pop()?.toLowerCase() ?? "";
+  if (["mp4", "mov", "webm", "m4v"].includes(ext)) return "video";
+  if (["mp3", "wav", "m4a", "aac", "ogg"].includes(ext)) return "audio";
+  return "image";
+};
 
 const MediaLibrary = () => {
-  const [items, setItems] = useState<MediaItem[]>(SEED_MEDIA);
+  const [items, setItems] = useState<MediaItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All");
   const [type, setType] = useState<"all" | MediaType>("all");
   const [sort, setSort] = useState<"new" | "old" | "name">("new");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [uploadOpen, setUploadOpen] = useState(false);
-  const [editing, setEditing] = useState<MediaItem | null>(null);
   const [viewing, setViewing] = useState<MediaItem | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<MediaItem | null>(null);
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
-  const [bulkTagOpen, setBulkTagOpen] = useState(false);
-  const [bulkCategoryOpen, setBulkCategoryOpen] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.storage
+      .from(MEDIA_BUCKET)
+      .list(MEDIA_PREFIX, { limit: 1000, sortBy: { column: "created_at", order: "desc" } });
+    if (error) {
+      toast.error(error.message);
+      setItems([]);
+      setLoading(false);
+      return;
+    }
+    const mapped: MediaItem[] = (data ?? [])
+      .filter((o) => o.name && !o.name.endsWith("/"))
+      .map((o) => {
+        const path = `${MEDIA_PREFIX}/${o.name}`;
+        const { data: pub } = supabase.storage.from(MEDIA_BUCKET).getPublicUrl(path);
+        return {
+          id: path,
+          name: o.name,
+          url: pub.publicUrl,
+          type: detectType(o.name),
+          size_kb: Math.round(((o.metadata as any)?.size ?? 0) / 1024),
+          uploaded_at: (o.created_at as string) ?? new Date().toISOString(),
+        };
+      });
+    setItems(mapped);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
 
   const filtered = useMemo(() => {
     let r = items;
     if (search.trim()) {
       const q = search.toLowerCase();
-      r = r.filter((i) => i.title.toLowerCase().includes(q) || i.tags.some((t) => t.includes(q)) || i.alt.toLowerCase().includes(q));
+      r = r.filter((i) => i.name.toLowerCase().includes(q));
     }
-    if (category !== "All") r = r.filter((i) => i.category === category);
     if (type !== "all") r = r.filter((i) => i.type === type);
     r = [...r].sort((a, b) => {
-      if (sort === "name") return a.title.localeCompare(b.title);
+      if (sort === "name") return a.name.localeCompare(b.name);
       if (sort === "old") return a.uploaded_at.localeCompare(b.uploaded_at);
       return b.uploaded_at.localeCompare(a.uploaded_at);
     });
     return r;
-  }, [items, search, category, type, sort]);
+  }, [items, search, type, sort]);
 
-  const toggleSelect = (id: string) => {
+  const toggleSelect = (id: string) =>
     setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
+      const n = new Set(prev);
+      n.has(id) ? n.delete(id) : n.add(id);
+      return n;
     });
-  };
   const clearSelect = () => setSelected(new Set());
   const selectAll = () => setSelected(new Set(filtered.map((i) => i.id)));
 
-  const handleUpload = (newItems: MediaItem[]) => {
-    setItems((prev) => [...newItems, ...prev]);
-    setUploadOpen(false);
-    toast.success(`${newItems.length} file${newItems.length > 1 ? "s" : ""} uploaded`);
-  };
-
-  const handleSaveEdit = (updated: MediaItem) => {
-    setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
-    setEditing(null);
-    toast.success("Media updated");
-  };
-
-  const handleDelete = (item: MediaItem) => {
-    setItems((prev) => prev.filter((i) => i.id !== item.id));
-    setSelected((prev) => { const n = new Set(prev); n.delete(item.id); return n; });
+  const handleDelete = async (item: MediaItem) => {
+    const { error } = await supabase.storage.from(MEDIA_BUCKET).remove([item.id]);
     setConfirmDelete(null);
+    if (error) return toast.error(error.message);
     toast.success("Deleted");
+    setSelected((p) => { const n = new Set(p); n.delete(item.id); return n; });
+    load();
   };
 
-  const handleArchive = (item: MediaItem) => {
-    setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, usage: "archived" as MediaUsage } : i)));
-    toast.success("Archived");
-  };
-
-  const bulkDelete = () => {
-    setItems((prev) => prev.filter((i) => !selected.has(i.id)));
-    toast.success(`${selected.size} item${selected.size > 1 ? "s" : ""} deleted`);
-    clearSelect();
+  const bulkDelete = async () => {
+    const paths = Array.from(selected);
+    const { error } = await supabase.storage.from(MEDIA_BUCKET).remove(paths);
     setConfirmBulkDelete(false);
-  };
-
-  const bulkArchive = () => {
-    setItems((prev) => prev.map((i) => (selected.has(i.id) ? { ...i, usage: "archived" as MediaUsage } : i)));
-    toast.success(`${selected.size} archived`);
+    if (error) return toast.error(error.message);
+    toast.success(`${paths.length} deleted`);
     clearSelect();
-  };
-
-  const bulkAddTag = (tag: string) => {
-    if (!tag.trim()) return;
-    setItems((prev) => prev.map((i) => selected.has(i.id) ? { ...i, tags: Array.from(new Set([...i.tags, tag.trim()])) } : i));
-    toast.success(`Tag added to ${selected.size}`);
-    setBulkTagOpen(false);
-    clearSelect();
-  };
-
-  const bulkSetCategory = (cat: string) => {
-    setItems((prev) => prev.map((i) => selected.has(i.id) ? { ...i, category: cat } : i));
-    toast.success(`Category set on ${selected.size}`);
-    setBulkCategoryOpen(false);
-    clearSelect();
+    load();
   };
 
   return (
     <div className="space-y-4">
       <PageHead
         title="Media Library"
-        sub={`${items.length} assets`}
+        sub={loading ? "Loading…" : `${items.length} assets`}
         actions={
           <Button
             onClick={() => setUploadOpen(true)}
@@ -800,7 +791,7 @@ const MediaLibrary = () => {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search media…"
+            placeholder="Search filename…"
             className="bg-transparent outline-none px-2 h-full text-xs flex-1 placeholder:text-muted-foreground"
           />
           {search && (
@@ -810,18 +801,9 @@ const MediaLibrary = () => {
           )}
         </div>
 
-        <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger className="h-8 w-[140px] text-xs rounded-sm bg-background">
-            <Filter className="h-3 w-3 mr-1 text-muted-foreground" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {MEDIA_CATEGORIES.map((c) => <SelectItem key={c} value={c} className="text-xs">{c}</SelectItem>)}
-          </SelectContent>
-        </Select>
-
         <Select value={type} onValueChange={(v) => setType(v as any)}>
           <SelectTrigger className="h-8 w-[120px] text-xs rounded-sm bg-background">
+            <Filter className="h-3 w-3 mr-1 text-muted-foreground" />
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -856,29 +838,22 @@ const MediaLibrary = () => {
           <span className="text-xs font-medium">{selected.size} selected</span>
           <button onClick={selectAll} className="text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground ml-2">Select All Filtered</button>
           <button onClick={clearSelect} className="text-[10px] uppercase tracking-widest text-muted-foreground hover:text-foreground">Clear</button>
-          <div className="ml-auto flex items-center gap-1.5">
-            <Button size="sm" variant="outline" onClick={() => setBulkTagOpen(true)} className="h-7 rounded-sm text-[10px] uppercase tracking-widest px-2.5">
-              <Tag className="h-3 w-3 mr-1" /> Add Tag
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => setBulkCategoryOpen(true)} className="h-7 rounded-sm text-[10px] uppercase tracking-widest px-2.5">
-              <FolderInput className="h-3 w-3 mr-1" /> Category
-            </Button>
-            <Button size="sm" variant="outline" onClick={bulkArchive} className="h-7 rounded-sm text-[10px] uppercase tracking-widest px-2.5">
-              <Archive className="h-3 w-3 mr-1" /> Archive
-            </Button>
+          <div className="ml-auto">
             <Button size="sm" onClick={() => setConfirmBulkDelete(true)} className="h-7 rounded-sm text-[10px] uppercase tracking-widest px-2.5 bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              <Trash2 className="h-3 w-3 mr-1" /> Delete
+              <Trash2 className="h-3 w-3 mr-1" /> Delete Selected
             </Button>
           </div>
         </div>
       )}
 
       {/* Grid */}
-      {filtered.length === 0 ? (
+      {loading ? (
+        <div className="text-muted-foreground text-sm">Loading library…</div>
+      ) : filtered.length === 0 ? (
         <EmptyState
           icon={ImageIcon}
           title={items.length === 0 ? "No media uploaded yet" : "No media matches your filters."}
-          body={items.length === 0 ? "Upload your first asset to begin." : "Try clearing search or changing the category."}
+          body={items.length === 0 ? "Upload your first asset to begin building the library." : "Try clearing search or changing the type."}
           action={items.length === 0 ? (
             <Button size="sm" onClick={() => setUploadOpen(true)} className="rounded-sm uppercase tracking-widest text-[10px] h-8 px-4 bg-primary text-primary-foreground">
               <Upload className="h-3 w-3 mr-1.5" /> Upload Media
@@ -894,26 +869,22 @@ const MediaLibrary = () => {
               selected={selected.has(m.id)}
               onToggleSelect={() => toggleSelect(m.id)}
               onView={() => setViewing(m)}
-              onEdit={() => setEditing(m)}
               onDelete={() => setConfirmDelete(m)}
-              onArchive={() => handleArchive(m)}
-              onReplace={() => toast.info("Replace flow opens upload dialog")}
               onCopyUrl={() => { navigator.clipboard.writeText(m.url); toast.success("URL copied"); }}
             />
           ))}
         </div>
       )}
 
-      {uploadOpen && <MediaUploadDialog onClose={() => setUploadOpen(false)} onUpload={handleUpload} />}
-      {editing && <MediaEditDialog item={editing} onClose={() => setEditing(null)} onSave={handleSaveEdit} />}
+      {uploadOpen && <MediaUploadDialog onClose={() => setUploadOpen(false)} onUploaded={() => { setUploadOpen(false); load(); }} />}
       {viewing && <MediaViewDialog item={viewing} onClose={() => setViewing(null)} />}
 
       <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure you want to delete this media item?</AlertDialogTitle>
+            <AlertDialogTitle>Delete this asset?</AlertDialogTitle>
             <AlertDialogDescription>
-              "{confirmDelete?.title}" will be permanently removed from your library. This cannot be undone.
+              "{confirmDelete?.name}" will be permanently removed from cloud storage. This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -932,9 +903,7 @@ const MediaLibrary = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete {selected.size} selected items?</AlertDialogTitle>
-            <AlertDialogDescription>
-              These media items will be permanently removed. This cannot be undone.
-            </AlertDialogDescription>
+            <AlertDialogDescription>These assets will be permanently removed. This cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="rounded-sm uppercase tracking-widest text-[10px]">Cancel</AlertDialogCancel>
@@ -944,12 +913,10 @@ const MediaLibrary = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <BulkTagDialog open={bulkTagOpen} onClose={() => setBulkTagOpen(false)} onApply={bulkAddTag} />
-      <BulkCategoryDialog open={bulkCategoryOpen} onClose={() => setBulkCategoryOpen(false)} onApply={bulkSetCategory} />
     </div>
   );
 };
+
 
 const usageColor: Record<MediaUsage, string> = {
   in_use: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
