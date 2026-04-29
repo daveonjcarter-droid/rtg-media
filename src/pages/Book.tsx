@@ -83,6 +83,7 @@ const fullSchema = z.object({
 
 type FormState = {
   project_type: string;
+  event_type: string;
   shoot_type: string;
   budget: string;
   timeline: string;
@@ -94,9 +95,15 @@ type FormState = {
 };
 
 const EMPTY: FormState = {
-  project_type: "", shoot_type: "", budget: "", timeline: "",
+  project_type: "", event_type: "", shoot_type: "", budget: "", timeline: "",
   description: "", name: "", email: "", phone: "", instagram: "",
 };
+
+const EVENT_TYPES = [
+  { value: "Concert", desc: "Live performance, artist shows, and stage coverage." },
+  { value: "Event", desc: "Private events, celebrations, parties, and special occasions." },
+  { value: "Other", desc: "For anything outside standard categories." },
+] as const;
 
 /* ============ Page ============ */
 
