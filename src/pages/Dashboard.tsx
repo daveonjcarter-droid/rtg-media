@@ -287,13 +287,27 @@ const Dashboard = () => {
                 >
                   <Upload className="h-3 w-3 mr-1" /> Import
                 </Button>
-                <Button
-                  onClick={() => openEditor(null)}
-                  size="sm"
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm uppercase tracking-widest text-[10px] h-8 px-3"
-                >
-                  <Plus className="h-3 w-3 mr-1" /> New Article
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      size="sm"
+                      className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm uppercase tracking-widest text-[10px] h-8 px-3"
+                    >
+                      <Plus className="h-3 w-3 mr-1" /> New
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuLabel className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Article Type</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => openEditor(null, "standard")} className="text-xs">Standard Article</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditor(null, "film_review")} className="text-xs">
+                      <Film className="h-3 w-3 mr-2" /> Film Review
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditor(null, "interview")} className="text-xs">Interview</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditor(null, "opinion")} className="text-xs">Opinion</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditor(null, "breakdown")} className="text-xs">Breakdown</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditor(null, "news")} className="text-xs">News</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
             )}
             <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-ink flex items-center justify-center text-[10px] font-semibold border border-border">
