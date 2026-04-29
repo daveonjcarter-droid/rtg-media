@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import heroImg from "@/assets/hero-videographer.jpg";
 import breakdownBg from "@/assets/breakdown-bg.jpg";
 import servicesStudio from "@/assets/services-studio.jpg";
+import { useHomepageContent } from "@/hooks/useHomepageContent";
 
 const TICKER = ["Music", "Film", "Fashion", "Chicago", "Entertainment", "Sports", "Anime", "Streetwear", "Culture"];
 
@@ -22,12 +23,27 @@ const SERVICES = [
 ];
 
 const Index = () => {
+  const { content } = useHomepageContent();
+  const heroLines = content.hero.headline.split("\n");
+  const signatureLines = content.manifesto.signatures.split("\n").filter(Boolean);
+  const breakdownImg = content.featured.breakdownImage || breakdownBg;
+  const servicesImg = content.servicesPreview.image || servicesStudio;
+
   return (
     <SiteLayout>
       {/* ============ HERO — cinematic, asymmetric ============ */}
       <section className="relative min-h-[100svh] overflow-hidden bg-ink grain-heavy light-leak">
-        <div className="absolute inset-0 bg-gradient-to-br from-ink via-background to-ink" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,hsl(var(--primary)/0.18),transparent_60%)]" />
+        {content.hero.backgroundImage ? (
+          <>
+            <img src={content.hero.backgroundImage} alt="" className="absolute inset-0 w-full h-full object-cover opacity-50" />
+            <div className="absolute inset-0 bg-gradient-to-b from-ink/40 via-ink/60 to-ink" />
+          </>
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-br from-ink via-background to-ink" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,hsl(var(--primary)/0.18),transparent_60%)]" />
+          </>
+        )}
 
         {/* Side vertical label */}
         <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 right-6 z-20 items-center gap-3 text-cream/60">
