@@ -1062,7 +1062,7 @@ export type Database = {
       lead_source: "booking" | "newsletter" | "advertise" | "contact" | "other"
       shoot_type: "studio" | "location" | "hybrid"
       social_platform: "instagram" | "tiktok" | "x" | "youtube"
-      social_status: "draft" | "ready" | "posted"
+      social_status: "draft" | "ready" | "posted" | "scheduled" | "archived"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1233,7 +1233,7 @@ export const Constants = {
       lead_source: ["booking", "newsletter", "advertise", "contact", "other"],
       shoot_type: ["studio", "location", "hybrid"],
       social_platform: ["instagram", "tiktok", "x", "youtube"],
-      social_status: ["draft", "ready", "posted"],
+      social_status: ["draft", "ready", "posted", "scheduled", "archived"],
     },
   },
 } as const
