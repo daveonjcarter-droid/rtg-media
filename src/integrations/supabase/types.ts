@@ -690,6 +690,51 @@ export type Database = {
           },
         ]
       }
+      invited_users: {
+        Row: {
+          accepted_at: string | null
+          accepted_user_id: string | null
+          created_at: string
+          email: string
+          id: string
+          internal_title: string | null
+          invited_by: string | null
+          notes: string | null
+          reports_to: string | null
+          roles: Database["public"]["Enums"]["app_role"][]
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_user_id?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          internal_title?: string | null
+          invited_by?: string | null
+          notes?: string | null
+          reports_to?: string | null
+          roles?: Database["public"]["Enums"]["app_role"][]
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_user_id?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          internal_title?: string | null
+          invited_by?: string | null
+          notes?: string | null
+          reports_to?: string | null
+          roles?: Database["public"]["Enums"]["app_role"][]
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           archived: boolean
@@ -1322,6 +1367,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_hierarchy: {
+        Row: {
+          internal_title: string | null
+          reports_to: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          internal_title?: string | null
+          reports_to?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          internal_title?: string | null
+          reports_to?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1340,6 +1406,27 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      workspace_settings: {
+        Row: {
+          config: Json
+          section: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          config?: Json
+          section: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          config?: Json
+          section?: string
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
@@ -1371,6 +1458,7 @@ export type Database = {
         | "head_admin"
         | "booking_manager"
         | "media_manager"
+        | "social_articles_lead"
       article_status:
         | "draft"
         | "submitted"
@@ -1539,6 +1627,7 @@ export const Constants = {
         "head_admin",
         "booking_manager",
         "media_manager",
+        "social_articles_lead",
       ],
       article_status: [
         "draft",
