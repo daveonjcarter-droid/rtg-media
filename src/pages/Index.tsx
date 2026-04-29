@@ -263,7 +263,7 @@ const Index = () => {
               <EmptyState
                 eyebrow="The Vault"
                 title="First episodes drop with Issue 001."
-                description="Deep dives on film, TV, anime, and culture — coming soon."
+                description="Deep dives on film, TV, anime, and culture coming soon."
                 icon={Film}
                 tone="dark"
                 ribbon="Premiere · 001"
