@@ -38,6 +38,35 @@ type Article = {
   verdict_headline?: string | null;
   verdict_paragraph?: string | null;
   verdict_recommendation?: "recommended" | "mixed" | "not_recommended" | null;
+  writer_name?: string | null;
+  // music
+  music_artist?: string | null;
+  music_album_title?: string | null;
+  music_song_title?: string | null;
+  music_label?: string | null;
+  music_release_date?: string | null;
+  music_genre?: string | null;
+  music_runtime?: string | null;
+  music_track_count?: number | null;
+  music_producer?: string | null;
+  music_embed_url?: string | null;
+  music_tracklist?: string[] | null;
+  // interview
+  interview_interviewee?: string | null;
+  interview_role?: string | null;
+  interview_date?: string | null;
+  interview_location?: string | null;
+  interview_photographer?: string | null;
+  // breakdown
+  breakdown_subject?: string | null;
+  breakdown_category?: string | null;
+  breakdown_episode?: string | null;
+  breakdown_spoiler?: boolean | null;
+  // news
+  news_subheadline?: string | null;
+  news_source?: string | null;
+  news_date?: string | null;
+  news_location?: string | null;
 };
 
 const formatDate = (d: string | null | undefined) => {
