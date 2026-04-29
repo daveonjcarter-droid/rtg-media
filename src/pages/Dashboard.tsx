@@ -333,8 +333,8 @@ const Dashboard = () => {
       )}
 
       {/* ============ MAIN ============ */}
-      <div className="flex-1 min-w-0 flex flex-col">
-        <header className="h-14 border-b border-border bg-background/85 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between px-3 sm:px-5 gap-2">
+      <div className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
+        <header className="h-14 border-b border-border bg-background/85 backdrop-blur-xl shrink-0 z-30 flex items-center justify-between px-3 sm:px-5 gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <button
               onClick={() => setMobileNavOpen(true)}
