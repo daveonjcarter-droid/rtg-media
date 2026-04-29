@@ -67,7 +67,7 @@ export const STORIES: Story[] = [
     id: "midnight-chicago",
     title: "Midnight in Chicago",
     category: "Chicago Culture",
-    author: "Brendan Shields",
+    author: "BRENDYN SHIELDS",
     date: "May 10, 2026",
     image: portfolio2,
     excerpt: "A photo essay on the city after the lights go down.",
