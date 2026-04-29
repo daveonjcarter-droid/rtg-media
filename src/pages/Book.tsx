@@ -46,7 +46,7 @@ const TIMELINES = [
 
 const TRUST = [
   { icon: ShieldCheck, label: "Black-owned & operated" },
-  { icon: Clock, label: "24-hour response time" },
+  { icon: Clock, label: "48-HOUR RESPONSE TIME" },
   { icon: Users, label: "Full in-house team" },
   { icon: Star, label: "Cinematic quality" },
 ];
