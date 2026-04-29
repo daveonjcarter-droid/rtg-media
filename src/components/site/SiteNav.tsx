@@ -59,12 +59,19 @@ const SiteNav = () => {
               <div className="absolute right-0 top-full pt-3 w-72">
                 <div className="rounded-sm border border-border bg-card shadow-2xl overflow-hidden">
                   <div className="px-4 py-2 eyebrow border-b border-border">Coming soon</div>
-                  {ECOSYSTEM.map((e) => (
-                    <div key={e.label} className="px-4 py-3 hover:bg-secondary cursor-pointer transition-colors">
-                      <div className="font-display text-lg leading-none">{e.label}</div>
-                      <div className="text-xs text-muted-foreground mt-1">{e.desc}</div>
-                    </div>
-                  ))}
+                  {ECOSYSTEM.map((e) => {
+                    const inner = (
+                      <div className="px-4 py-3 hover:bg-secondary cursor-pointer transition-colors">
+                        <div className="font-display text-lg leading-none">{e.label}</div>
+                        <div className="text-xs text-muted-foreground mt-1">{e.desc}</div>
+                      </div>
+                    );
+                    return e.to ? (
+                      <Link key={e.label} to={e.to}>{inner}</Link>
+                    ) : (
+                      <div key={e.label}>{inner}</div>
+                    );
+                  })}
                 </div>
               </div>
             )}
