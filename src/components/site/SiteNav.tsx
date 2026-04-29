@@ -30,7 +30,7 @@ const SiteNav = () => {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <div className="container-rtg flex h-16 items-center justify-between gap-6">
-        <Logo tone="auto" className="h-9" to="/" ariaLabel="RTG Media" />
+        <Logo tone="auto" className="h-9 logo-hover" to="/" ariaLabel="RTG Media" />
 
         <nav className="hidden lg:flex items-center gap-7 text-sm">
           {NAV.map((n) => (
@@ -39,7 +39,7 @@ const SiteNav = () => {
               to={n.to}
               end={n.to === "/"}
               className={({ isActive }) =>
-                `uppercase tracking-wider font-medium transition-colors ${
+                `nav-underline uppercase tracking-wider font-medium transition-colors ${
                   isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
                 }`
               }
@@ -56,12 +56,12 @@ const SiteNav = () => {
               Ecosystem <ChevronDown className="h-3 w-3" />
             </button>
             {eco && (
-              <div className="absolute right-0 top-full pt-3 w-72">
+              <div className="absolute right-0 top-full pt-3 w-72 menu-in">
                 <div className="rounded-sm border border-border bg-card shadow-2xl overflow-hidden">
                   <div className="px-4 py-2 eyebrow border-b border-border">Coming soon</div>
                   {ECOSYSTEM.map((e) => {
                     const inner = (
-                      <div className="px-4 py-3 hover:bg-secondary cursor-pointer transition-colors">
+                      <div className="card-glow px-4 py-3 hover:bg-secondary cursor-pointer">
                         <div className="font-display text-lg leading-none">{e.label}</div>
                         <div className="text-xs text-muted-foreground mt-1">{e.desc}</div>
                       </div>
@@ -82,7 +82,7 @@ const SiteNav = () => {
           <Link to="/login" className="hidden md:inline-flex text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
             Studio
           </Link>
-          <Button asChild variant="default" size="sm" className="hidden md:inline-flex bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm uppercase tracking-wider">
+          <Button asChild variant="default" size="sm" className="btn-cinematic hidden md:inline-flex bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm uppercase tracking-wider">
             <Link to="/book">Book Now</Link>
           </Button>
           <button
@@ -96,7 +96,7 @@ const SiteNav = () => {
       </div>
 
       {open && (
-        <div className="lg:hidden border-t border-border bg-background">
+        <div className="lg:hidden border-t border-border bg-background mobile-menu-in">
           <div className="container-rtg py-4 flex flex-col gap-1">
             {NAV.map((n) => (
               <NavLink

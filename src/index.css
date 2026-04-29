@@ -188,6 +188,159 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
+  /* ============ CINEMATIC MOTION SYSTEM ============ */
+
+  /* Page-level transition wrapper */
+  .page-transition {
+    animation: pageIn 520ms var(--transition-smooth) both;
+  }
+  @keyframes pageIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Hero load-in stagger — slow, editorial */
+  .hero-rise {
+    animation: heroRise 1100ms var(--transition-smooth) both;
+  }
+  @keyframes heroRise {
+    0%   { opacity: 0; transform: translateY(36px); letter-spacing: 0.02em; }
+    60%  { opacity: 1; }
+    100% { opacity: 1; transform: translateY(0); letter-spacing: normal; }
+  }
+
+  .hero-fade {
+    animation: heroFade 900ms var(--transition-smooth) both;
+  }
+  @keyframes heroFade {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Mask reveal — wipes a soft band over the text */
+  .mask-reveal {
+    animation: maskReveal 1200ms var(--transition-smooth) both;
+    -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 100%);
+  }
+  @keyframes maskReveal {
+    0%   { clip-path: inset(0 100% 0 0); opacity: 0; }
+    20%  { opacity: 1; }
+    100% { clip-path: inset(0 0 0 0); opacity: 1; }
+  }
+
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-500 { animation-delay: 500ms; }
+  .delay-700 { animation-delay: 700ms; }
+  .delay-900 { animation-delay: 900ms; }
+
+  /* Divider line expanding from left */
+  .divider-expand {
+    transform-origin: left center;
+    animation: dividerExpand 900ms var(--transition-smooth) both;
+  }
+  @keyframes dividerExpand {
+    from { transform: scaleX(0); opacity: 0.3; }
+    to   { transform: scaleX(1); opacity: 1; }
+  }
+
+  /* Premium button hover: subtle lift + red glow */
+  .btn-cinematic {
+    transition:
+      transform 380ms var(--transition-smooth),
+      box-shadow 380ms var(--transition-smooth),
+      background-color 280ms ease;
+    will-change: transform, box-shadow;
+  }
+  .btn-cinematic:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 10px 24px -10px hsl(var(--primary) / 0.55),
+      0 0 0 1px hsl(var(--primary) / 0.25);
+  }
+
+  /* Nav link underline */
+  .nav-underline {
+    position: relative;
+  }
+  .nav-underline::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: -6px;
+    height: 1px;
+    background: hsl(var(--primary));
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 420ms var(--transition-smooth);
+  }
+  .nav-underline:hover::after,
+  .nav-underline[aria-current="page"]::after {
+    transform: scaleX(1);
+  }
+
+  /* Dropdown / mobile menu motion */
+  .menu-in {
+    animation: menuIn 280ms var(--transition-smooth) both;
+    transform-origin: top right;
+  }
+  @keyframes menuIn {
+    from { opacity: 0; transform: translateY(-6px) scale(0.985); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .mobile-menu-in {
+    animation: mobileMenuIn 320ms var(--transition-smooth) both;
+  }
+  @keyframes mobileMenuIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Ecosystem / card hover glow */
+  .card-glow {
+    transition:
+      transform 420ms var(--transition-smooth),
+      box-shadow 420ms var(--transition-smooth),
+      border-color 280ms ease;
+  }
+  .card-glow:hover {
+    transform: translateY(-3px) scale(1.01);
+    border-color: hsl(var(--primary) / 0.5);
+    box-shadow: 0 12px 32px -12px hsl(var(--primary) / 0.4);
+  }
+
+  /* Logo hover polish */
+  .logo-hover {
+    transition: filter 380ms ease, transform 380ms var(--transition-smooth);
+  }
+  .logo-hover:hover {
+    filter: brightness(1.15) drop-shadow(0 0 12px hsl(var(--primary) / 0.4));
+    transform: scale(1.03);
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .page-transition,
+    .hero-rise,
+    .hero-fade,
+    .mask-reveal,
+    .divider-expand,
+    .menu-in,
+    .mobile-menu-in,
+    .fade-in-up,
+    .ken-burns,
+    .marquee,
+    .marquee-slow,
+    .marquee-reverse {
+      animation: none !important;
+    }
+    .btn-cinematic:hover,
+    .card-glow:hover,
+    .logo-hover:hover {
+      transform: none !important;
+    }
+  }
+
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { scrollbar-width: none; }
 
