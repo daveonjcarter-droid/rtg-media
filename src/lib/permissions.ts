@@ -23,6 +23,9 @@ export type SectionId =
   | "users"
   | "site-updates"
   | "analytics"
+  | "audience"
+  | "trends"
+  | "community"
   | "settings";
 
 export type Group = "Content" | "Pipeline" | "Studio" | "Ops" | "Ecosystem" | "Admin";
@@ -73,11 +76,13 @@ export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
   users:              [HEAD, "admin"],
   "site-updates":     [HEAD, "admin", "media_manager"],
   analytics:          [HEAD, "admin", "editor", "social_manager", "booking_manager"],
+  audience:           [HEAD, "admin", "editor", "social_manager"],
+  trends:             [HEAD, "admin", "editor", "writer", "social_manager"],
+  community:          [HEAD, "admin", "editor", "social_manager"],
   settings:           [HEAD, "admin"],
 };
 
-/** What head-admin-only operations look like (locked for plain admin). */
-export const OWNERSHIP_ONLY: SectionId[] = []; // Already gated above; reserved for fine-grained UI locks.
+export const OWNERSHIP_ONLY: SectionId[] = [];
 
 export const can = (roles: AppRole[], section: SectionId): boolean => {
   return SECTION_ACCESS[section].some((r) => roles.includes(r));
