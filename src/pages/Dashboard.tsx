@@ -10,7 +10,7 @@ import {
 import QuickSiteUpdates from "@/components/dashboard/QuickSiteUpdates";
 import ContentManagers from "@/components/dashboard/ContentManagers";
 import ImportArticleDialog from "@/components/dashboard/ImportArticleDialog";
-import FilmReviewEditor from "@/components/dashboard/FilmReviewEditor";
+import UniversalEditor from "@/components/dashboard/UniversalEditor";
 import logoLight from "@/assets/rtg-logo-light.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,7 +42,7 @@ import storyBreakdown from "@/assets/story-breakdown.jpg";
 
 type Status = "draft" | "submitted" | "revisions" | "approved" | "published";
 
-type ArticleType = "standard" | "film_review" | "interview" | "opinion" | "breakdown" | "news";
+type ArticleType = "standard" | "film_review" | "album_review" | "single_review" | "interview" | "opinion" | "breakdown" | "news";
 
 type Article = {
   id: string;
@@ -302,6 +302,8 @@ const Dashboard = () => {
                     <DropdownMenuItem onClick={() => openEditor(null, "film_review")} className="text-xs">
                       <Film className="h-3 w-3 mr-2" /> Film Review
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditor(null, "album_review")} className="text-xs">Album Review</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditor(null, "single_review")} className="text-xs">Single Review</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => openEditor(null, "interview")} className="text-xs">Interview</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => openEditor(null, "opinion")} className="text-xs">Opinion</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => openEditor(null, "breakdown")} className="text-xs">Breakdown</DropdownMenuItem>
@@ -340,9 +342,13 @@ const Dashboard = () => {
       </div>
 
       {editorOpen && (
-        (newType === "film_review" || editing?.article_type === "film_review")
-          ? <FilmReviewEditor article={editing as any} userId={user!.id} onClose={() => setEditorOpen(false)} onSaved={() => { setEditorOpen(false); loadArticles(); }} />
-          : <Editor article={editing} userId={user!.id} onClose={() => setEditorOpen(false)} onSaved={() => { setEditorOpen(false); loadArticles(); }} articleType={newType} />
+        <UniversalEditor
+          article={editing}
+          userId={user!.id}
+          initialType={(editing?.article_type as any) ?? newType}
+          onClose={() => setEditorOpen(false)}
+          onSaved={() => { setEditorOpen(false); loadArticles(); }}
+        />
       )}
 
       <ImportArticleDialog

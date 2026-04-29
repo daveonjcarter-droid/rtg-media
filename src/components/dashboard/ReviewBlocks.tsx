@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowDown, ArrowUp, Copy, Trash2, Plus, Type, Heading1, Quote, Image as ImageIcon, Images, AlertTriangle, ListChecks, Star } from "lucide-react";
+import { ArrowDown, ArrowUp, Copy, Trash2, Plus, Type, Heading1, Quote, Image as ImageIcon, Images, AlertTriangle, ListChecks, Star, Code2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,6 +14,7 @@ export type BlockKind =
   | "highlight_quote"
   | "image"
   | "gallery"
+  | "embed"
   | "pros_cons"
   | "spoiler"
   | "verdict";
@@ -47,6 +48,7 @@ export const newBlock = (kind: BlockKind): ReviewBlock => {
     case "gallery": return { ...base, images: [{ url: "", caption: "", credit: "" }] };
     case "pros_cons": return { ...base, pros: [""], cons: [""] };
     case "spoiler": return { ...base, warning: "Spoiler warning", text: "" };
+    case "embed": return { ...base, url: "", caption: "" };
     case "verdict": return { ...base, headline: "Final Verdict", text: "", recommendation: "recommended" };
   }
 };
@@ -59,6 +61,7 @@ export const BLOCK_OPTIONS: { kind: BlockKind; label: string; icon: any }[] = [
   { kind: "highlight_quote", label: "Highlight Quote", icon: Quote },
   { kind: "image", label: "Image", icon: ImageIcon },
   { kind: "gallery", label: "Image Gallery", icon: Images },
+  { kind: "embed", label: "Embed", icon: Code2 },
   { kind: "pros_cons", label: "Pros / Cons", icon: ListChecks },
   { kind: "spoiler", label: "Spoiler Warning", icon: AlertTriangle },
   { kind: "verdict", label: "Final Verdict", icon: Star },
@@ -197,6 +200,16 @@ export const BlockEditor = ({
           <>
             <Input value={block.warning ?? ""} onChange={(e) => set({ warning: e.target.value })} placeholder="Warning headline" className={inputCls} />
             <Textarea rows={3} value={block.text ?? ""} onChange={(e) => set({ text: e.target.value })} placeholder="Spoiler content" className={textareaCls} />
+          </>
+        )}
+
+        {block.kind === "embed" && (
+          <>
+            <Input value={block.url ?? ""} onChange={(e) => set({ url: e.target.value })} placeholder="Embed URL (YouTube, Spotify, SoundCloud, Twitter…)" className={inputCls} />
+            <Input value={block.caption ?? ""} onChange={(e) => set({ caption: e.target.value })} placeholder="Caption (optional)" className={inputCls} />
+            {block.url && (
+              <div className="text-[10px] text-muted-foreground border border-dashed border-border rounded-sm px-2 py-1.5 truncate">↪ {block.url}</div>
+            )}
           </>
         )}
 

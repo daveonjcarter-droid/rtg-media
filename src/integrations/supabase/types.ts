@@ -57,6 +57,10 @@ export type Database = {
           author_id: string
           body: string | null
           body_blocks: Json
+          breakdown_category: string | null
+          breakdown_episode: string | null
+          breakdown_spoiler: boolean
+          breakdown_subject: string | null
           category: string | null
           cover_image_url: string | null
           created_at: string
@@ -72,11 +76,31 @@ export type Database = {
           film_title: string | null
           id: string
           imdb_score: number | null
+          interview_date: string | null
+          interview_interviewee: string | null
+          interview_location: string | null
+          interview_photographer: string | null
+          interview_role: string | null
           is_featured: boolean
           is_official_rtg_review: boolean
           is_rtg_pick: boolean
           is_trending: boolean
           metacritic_score: number | null
+          music_album_title: string | null
+          music_artist: string | null
+          music_embed_url: string | null
+          music_genre: string | null
+          music_label: string | null
+          music_producer: string | null
+          music_release_date: string | null
+          music_runtime: string | null
+          music_song_title: string | null
+          music_track_count: number | null
+          music_tracklist: Json | null
+          news_date: string | null
+          news_location: string | null
+          news_source: string | null
+          news_subheadline: string | null
           published_at: string | null
           rotten_tomatoes_score: number | null
           rtg_rating: number | null
@@ -92,6 +116,7 @@ export type Database = {
           verdict_recommendation:
             | Database["public"]["Enums"]["film_verdict"]
             | null
+          writer_name: string | null
         }
         Insert: {
           article_type?: Database["public"]["Enums"]["article_type"]
@@ -99,6 +124,10 @@ export type Database = {
           author_id: string
           body?: string | null
           body_blocks?: Json
+          breakdown_category?: string | null
+          breakdown_episode?: string | null
+          breakdown_spoiler?: boolean
+          breakdown_subject?: string | null
           category?: string | null
           cover_image_url?: string | null
           created_at?: string
@@ -114,11 +143,31 @@ export type Database = {
           film_title?: string | null
           id?: string
           imdb_score?: number | null
+          interview_date?: string | null
+          interview_interviewee?: string | null
+          interview_location?: string | null
+          interview_photographer?: string | null
+          interview_role?: string | null
           is_featured?: boolean
           is_official_rtg_review?: boolean
           is_rtg_pick?: boolean
           is_trending?: boolean
           metacritic_score?: number | null
+          music_album_title?: string | null
+          music_artist?: string | null
+          music_embed_url?: string | null
+          music_genre?: string | null
+          music_label?: string | null
+          music_producer?: string | null
+          music_release_date?: string | null
+          music_runtime?: string | null
+          music_song_title?: string | null
+          music_track_count?: number | null
+          music_tracklist?: Json | null
+          news_date?: string | null
+          news_location?: string | null
+          news_source?: string | null
+          news_subheadline?: string | null
           published_at?: string | null
           rotten_tomatoes_score?: number | null
           rtg_rating?: number | null
@@ -134,6 +183,7 @@ export type Database = {
           verdict_recommendation?:
             | Database["public"]["Enums"]["film_verdict"]
             | null
+          writer_name?: string | null
         }
         Update: {
           article_type?: Database["public"]["Enums"]["article_type"]
@@ -141,6 +191,10 @@ export type Database = {
           author_id?: string
           body?: string | null
           body_blocks?: Json
+          breakdown_category?: string | null
+          breakdown_episode?: string | null
+          breakdown_spoiler?: boolean
+          breakdown_subject?: string | null
           category?: string | null
           cover_image_url?: string | null
           created_at?: string
@@ -156,11 +210,31 @@ export type Database = {
           film_title?: string | null
           id?: string
           imdb_score?: number | null
+          interview_date?: string | null
+          interview_interviewee?: string | null
+          interview_location?: string | null
+          interview_photographer?: string | null
+          interview_role?: string | null
           is_featured?: boolean
           is_official_rtg_review?: boolean
           is_rtg_pick?: boolean
           is_trending?: boolean
           metacritic_score?: number | null
+          music_album_title?: string | null
+          music_artist?: string | null
+          music_embed_url?: string | null
+          music_genre?: string | null
+          music_label?: string | null
+          music_producer?: string | null
+          music_release_date?: string | null
+          music_runtime?: string | null
+          music_song_title?: string | null
+          music_track_count?: number | null
+          music_tracklist?: Json | null
+          news_date?: string | null
+          news_location?: string | null
+          news_source?: string | null
+          news_subheadline?: string | null
           published_at?: string | null
           rotten_tomatoes_score?: number | null
           rtg_rating?: number | null
@@ -176,6 +250,7 @@ export type Database = {
           verdict_recommendation?:
             | Database["public"]["Enums"]["film_verdict"]
             | null
+          writer_name?: string | null
         }
         Relationships: []
       }
@@ -655,6 +730,8 @@ export type Database = {
         | "opinion"
         | "breakdown"
         | "news"
+        | "album_review"
+        | "single_review"
       booking_status:
         | "new"
         | "contacted"
@@ -811,6 +888,8 @@ export const Constants = {
         "opinion",
         "breakdown",
         "news",
+        "album_review",
+        "single_review",
       ],
       booking_status: [
         "new",
