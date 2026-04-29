@@ -723,6 +723,8 @@ export type Database = {
         | "revisions"
         | "approved"
         | "published"
+        | "scheduled"
+        | "archived"
       article_type:
         | "standard"
         | "film_review"
@@ -732,6 +734,7 @@ export type Database = {
         | "news"
         | "album_review"
         | "single_review"
+        | "game_review"
       booking_status:
         | "new"
         | "contacted"
@@ -880,6 +883,8 @@ export const Constants = {
         "revisions",
         "approved",
         "published",
+        "scheduled",
+        "archived",
       ],
       article_type: [
         "standard",
@@ -890,6 +895,7 @@ export const Constants = {
         "news",
         "album_review",
         "single_review",
+        "game_review",
       ],
       booking_status: [
         "new",
