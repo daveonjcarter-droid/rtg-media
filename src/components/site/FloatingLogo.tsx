@@ -15,7 +15,7 @@ const FloatingLogo = () => {
       <span className="relative z-10 flex w-[100px] md:w-[150px] flex-col items-start leading-none transition-all duration-300 ease-out will-change-transform group-hover:scale-105 group-hover:brightness-110">
         <span className="font-gothic text-[2.9rem] md:text-[4.1rem] leading-[0.78] tracking-normal">RTG</span>
         <span className="font-gothic text-[1.45rem] md:text-[2.05rem] leading-[0.82] tracking-normal -mt-1">{"\n"}</span>
-        <span className="mt-1.5 font-sans text-[0.55rem] md:text-[0.66rem] leading-tight tracking-[0.22em] uppercase whitespace-nowrap font-medium opacity-85">
+        <span className="mt-1.5 font-sans text-[0.55rem] md:text-[0.66rem] leading-tight tracking-[0.22em] uppercase whitespace-nowrap font-medium opacity-85 my-px py-[25px]">
           Runners To Greatness · Chicago
         </span>
       </span>
