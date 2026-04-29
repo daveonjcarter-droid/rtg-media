@@ -10,6 +10,7 @@ import {
 import QuickSiteUpdates from "@/components/dashboard/QuickSiteUpdates";
 import ContentManagers from "@/components/dashboard/ContentManagers";
 import ImportArticleDialog from "@/components/dashboard/ImportArticleDialog";
+import FilmReviewEditor from "@/components/dashboard/FilmReviewEditor";
 import logoLight from "@/assets/rtg-logo-light.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +42,8 @@ import storyBreakdown from "@/assets/story-breakdown.jpg";
 
 type Status = "draft" | "submitted" | "revisions" | "approved" | "published";
 
+type ArticleType = "standard" | "film_review" | "interview" | "opinion" | "breakdown" | "news";
+
 type Article = {
   id: string;
   title: string;
@@ -55,6 +58,27 @@ type Article = {
   seo_description: string | null;
   slug: string | null;
   updated_at: string;
+  article_type?: ArticleType | null;
+  // film review extras (carried through; only set when type = film_review)
+  body_blocks?: any;
+  film_title?: string | null;
+  film_release_date?: string | null;
+  film_runtime?: string | null;
+  film_director?: string | null;
+  film_studio?: string | null;
+  film_genre?: string | null;
+  film_mpaa_rating?: string | null;
+  film_reviewer?: string | null;
+  film_review_date?: string | null;
+  rtg_rating?: number | null;
+  audience_score?: number | null;
+  rotten_tomatoes_score?: number | null;
+  metacritic_score?: number | null;
+  imdb_score?: number | null;
+  is_official_rtg_review?: boolean | null;
+  verdict_headline?: string | null;
+  verdict_paragraph?: string | null;
+  verdict_recommendation?: "recommended" | "mixed" | "not_recommended" | null;
 };
 
 type SectionId =
@@ -96,6 +120,7 @@ const Dashboard = () => {
   const [section, setSection] = useState<SectionId>("overview");
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState<Article | null>(null);
+  const [newType, setNewType] = useState<ArticleType>("standard");
   const [importOpen, setImportOpen] = useState(false);
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
@@ -118,7 +143,11 @@ const Dashboard = () => {
     if (!navItems.find((n) => n.id === section)) setSection("overview");
   }, [navItems, section]);
 
-  const openEditor = (a: Article | null = null) => { setEditing(a); setEditorOpen(true); };
+  const openEditor = (a: Article | null = null, type: ArticleType = "standard") => {
+    setEditing(a);
+    setNewType((a?.article_type as ArticleType) ?? type);
+    setEditorOpen(true);
+  };
 
   const updateStatus = async (id: string, status: Status) => {
     const patch: any = { status };
@@ -258,13 +287,27 @@ const Dashboard = () => {
                 >
                   <Upload className="h-3 w-3 mr-1" /> Import
                 </Button>
-                <Button
-                  onClick={() => openEditor(null)}
-                  size="sm"
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm uppercase tracking-widest text-[10px] h-8 px-3"
-                >
-                  <Plus className="h-3 w-3 mr-1" /> New Article
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      size="sm"
+                      className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm uppercase tracking-widest text-[10px] h-8 px-3"
+                    >
+                      <Plus className="h-3 w-3 mr-1" /> New
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuLabel className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Article Type</DropdownMenuLabel>
+                    <DropdownMenuItem onClick={() => openEditor(null, "standard")} className="text-xs">Standard Article</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditor(null, "film_review")} className="text-xs">
+                      <Film className="h-3 w-3 mr-2" /> Film Review
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditor(null, "interview")} className="text-xs">Interview</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditor(null, "opinion")} className="text-xs">Opinion</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditor(null, "breakdown")} className="text-xs">Breakdown</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => openEditor(null, "news")} className="text-xs">News</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
             )}
             <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-ink flex items-center justify-center text-[10px] font-semibold border border-border">
@@ -296,7 +339,11 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {editorOpen && <Editor article={editing} userId={user!.id} onClose={() => setEditorOpen(false)} onSaved={() => { setEditorOpen(false); loadArticles(); }} />}
+      {editorOpen && (
+        (newType === "film_review" || editing?.article_type === "film_review")
+          ? <FilmReviewEditor article={editing as any} userId={user!.id} onClose={() => setEditorOpen(false)} onSaved={() => { setEditorOpen(false); loadArticles(); }} />
+          : <Editor article={editing} userId={user!.id} onClose={() => setEditorOpen(false)} onSaved={() => { setEditorOpen(false); loadArticles(); }} articleType={newType} />
+      )}
 
       <ImportArticleDialog
         open={importOpen}
@@ -1682,7 +1729,7 @@ const UsersView = () => {
    ARTICLE EDITOR (drawer)
    ============================================================ */
 
-const Editor = ({ article, userId, onClose, onSaved }: { article: Article | null; userId: string; onClose: () => void; onSaved: () => void }) => {
+const Editor = ({ article, userId, onClose, onSaved, articleType = "standard" }: { article: Article | null; userId: string; onClose: () => void; onSaved: () => void; articleType?: ArticleType }) => {
   const [title, setTitle] = useState(article?.title ?? "");
   const [category, setCategory] = useState(article?.category ?? "Music");
   const [tags, setTags] = useState((article?.tags ?? []).join(", "));
@@ -1691,12 +1738,13 @@ const Editor = ({ article, userId, onClose, onSaved }: { article: Article | null
   const [body, setBody] = useState(article?.body ?? "");
   const [seoTitle, setSeoTitle] = useState(article?.seo_title ?? "");
   const [seoDesc, setSeoDesc] = useState(article?.seo_description ?? "");
+  const [type, setType] = useState<ArticleType>((article?.article_type as ArticleType) ?? articleType);
   const [busy, setBusy] = useState(false);
 
   const save = async (status: Status) => {
     if (!title.trim()) { toast.error("Title is required"); return; }
     setBusy(true);
-    const payload = {
+    const payload: any = {
       title: title.trim(),
       category,
       tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
@@ -1707,6 +1755,7 @@ const Editor = ({ article, userId, onClose, onSaved }: { article: Article | null
       seo_description: seoDesc || null,
       status,
       author_id: userId,
+      article_type: type,
     };
     const res = article
       ? await supabase.from("articles").update(payload).eq("id", article.id)
@@ -1737,6 +1786,25 @@ const Editor = ({ article, userId, onClose, onSaved }: { article: Article | null
           <div>
             <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 block">Title</Label>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} className="h-12 text-xl font-display uppercase bg-background border-border rounded-sm" placeholder="Headline goes here" />
+          </div>
+          <div>
+            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 block">Article Type</Label>
+            <Select value={type} onValueChange={(v) => setType(v as ArticleType)}>
+              <SelectTrigger className="h-9 text-xs rounded-sm bg-background"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="standard" className="text-xs">Standard Article</SelectItem>
+                <SelectItem value="film_review" className="text-xs">Film Review</SelectItem>
+                <SelectItem value="interview" className="text-xs">Interview</SelectItem>
+                <SelectItem value="opinion" className="text-xs">Opinion</SelectItem>
+                <SelectItem value="breakdown" className="text-xs">Breakdown</SelectItem>
+                <SelectItem value="news" className="text-xs">News</SelectItem>
+              </SelectContent>
+            </Select>
+            {type === "film_review" && (
+              <div className="mt-2 text-[10px] text-muted-foreground border border-border rounded-sm p-2 bg-surface/30">
+                Switching to Film Review unlocks the specialized review editor. Save & reopen to use it.
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
