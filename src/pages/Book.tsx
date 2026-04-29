@@ -117,7 +117,10 @@ const Book = () => {
 
   const stepValid = useMemo(() => {
     switch (step) {
-      case 0: return !!form.project_type;
+      case 0:
+        if (!form.project_type) return false;
+        if (form.project_type === "Event Coverage" && !form.event_type) return false;
+        return true;
       case 1: return !!form.shoot_type;
       case 2: return !!form.budget;
       case 3: return !!form.timeline;
