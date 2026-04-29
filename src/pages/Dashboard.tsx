@@ -6,10 +6,12 @@ import {
   Youtube, Search, Bell, ChevronsLeft, ChevronsRight, MoreHorizontal, Eye, Pencil, Trash2,
   Replace, Link as LinkIcon, Upload, Filter, ArrowUpDown, X, Tag, FolderInput, CheckSquare,
   Wand2, Film, BarChart3, Settings as SettingsIcon, Globe, Camera, Lock, FileText, ShoppingBag,
+  Menu, ShieldCheck,
 } from "lucide-react";
-import { SECTION_ACCESS, ROLE_LABELS, ROLE_DESCRIPTIONS, can, primaryRole, canManageUsers, canManageBilling, type SectionId, type Group } from "@/lib/permissions";
+import { SECTION_ACCESS, ROLE_LABELS, ROLE_DESCRIPTIONS, can, primaryRole, canManageUsers, canManageBilling, isHeadAdmin, type SectionId, type Group } from "@/lib/permissions";
 import { AnalyticsView, SettingsView, RtgFilmsManager, RtgFestManager, ArticleImportView } from "@/components/dashboard/AdminSections";
 import { ServicesManager, StaffManager, PortfolioWorksManager, BookingsDashboard } from "@/components/dashboard/sections/OperationsSections";
+import PermissionsManager from "@/components/dashboard/PermissionsManager";
 import QuickSiteUpdates from "@/components/dashboard/QuickSiteUpdates";
 import ContentManagers from "@/components/dashboard/ContentManagers";
 import ImportArticleDialog from "@/components/dashboard/ImportArticleDialog";
