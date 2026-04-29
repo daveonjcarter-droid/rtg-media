@@ -40,9 +40,9 @@ import storyFilm from "@/assets/story-film.jpg";
 import storyFashion from "@/assets/story-fashion.jpg";
 import storyBreakdown from "@/assets/story-breakdown.jpg";
 
-type Status = "draft" | "submitted" | "revisions" | "approved" | "published";
+type Status = "draft" | "submitted" | "revisions" | "approved" | "scheduled" | "published" | "archived";
 
-type ArticleType = "standard" | "film_review" | "album_review" | "single_review" | "interview" | "opinion" | "breakdown" | "news";
+type ArticleType = "standard" | "film_review" | "album_review" | "single_review" | "game_review" | "interview" | "opinion" | "breakdown" | "news";
 
 type Article = {
   id: string;
