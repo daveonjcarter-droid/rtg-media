@@ -8,7 +8,8 @@ import {
   Wand2, Film, BarChart3, Settings as SettingsIcon, Globe, Camera, Lock, FileText, ShoppingBag,
 } from "lucide-react";
 import { SECTION_ACCESS, ROLE_LABELS, ROLE_DESCRIPTIONS, can, primaryRole, canManageUsers, canManageBilling, type SectionId, type Group } from "@/lib/permissions";
-import { AnalyticsView, SettingsView, ProductionServicesView, PortfolioManager, RtgFilmsManager, RtgFestManager, ArticleImportView } from "@/components/dashboard/AdminSections";
+import { AnalyticsView, SettingsView, RtgFilmsManager, RtgFestManager, ArticleImportView } from "@/components/dashboard/AdminSections";
+import { ServicesManager, StaffManager, PortfolioWorksManager, BookingsDashboard } from "@/components/dashboard/sections/OperationsSections";
 import QuickSiteUpdates from "@/components/dashboard/QuickSiteUpdates";
 import ContentManagers from "@/components/dashboard/ContentManagers";
 import ImportArticleDialog from "@/components/dashboard/ImportArticleDialog";
@@ -366,7 +367,7 @@ const Dashboard = () => {
               {section === "calendar" && <CalendarView articles={filtered(["approved", "scheduled", "published"])} />}
               {section === "media" && <MediaLibrary />}
               {section === "social" && <SocialKit articles={filtered(["published"])} />}
-              {section === "bookings" && <BookingsView />}
+              {section === "bookings" && <BookingsDashboard />}
               {section === "leads" && <LeadsView />}
              {section === "users" && <UsersView />}
              {section === "site-updates" && <QuickSiteUpdates />}
@@ -374,8 +375,8 @@ const Dashboard = () => {
              {section === "import" && <ArticleImportView onOpenImport={() => setImportOpen(true)} />}
              {section === "analytics" && <AnalyticsView />}
              {section === "settings" && <SettingsView canBilling={canManageBilling(roles)} />}
-             {section === "production" && <ProductionServicesView />}
-             {section === "portfolio" && <PortfolioManager />}
+             {section === "production" && <ServicesManager />}
+             {section === "portfolio" && <PortfolioWorksManager />}
              {section === "films" && <RtgFilmsManager />}
              {section === "fest" && <RtgFestManager />}
             </>
