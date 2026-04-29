@@ -404,6 +404,7 @@ export type Database = {
         Row: {
           archived: boolean
           assigned_staff_id: string | null
+          assignment_priority: string
           assignment_status: string
           base_cost: number | null
           budget: string | null
@@ -440,6 +441,7 @@ export type Database = {
         Insert: {
           archived?: boolean
           assigned_staff_id?: string | null
+          assignment_priority?: string
           assignment_status?: string
           base_cost?: number | null
           budget?: string | null
@@ -476,6 +478,7 @@ export type Database = {
         Update: {
           archived?: boolean
           assigned_staff_id?: string | null
+          assignment_priority?: string
           assignment_status?: string
           base_cost?: number | null
           budget?: string | null
@@ -878,6 +881,42 @@ export type Database = {
         }
         Relationships: []
       }
+      role_permissions: {
+        Row: {
+          booking_can_override_availability: boolean
+          editor_can_publish: boolean
+          id: string
+          media_can_delete: boolean
+          role: Database["public"]["Enums"]["app_role"]
+          social_can_autopost: boolean
+          updated_at: string
+          updated_by: string | null
+          writer_can_edit_published: boolean
+        }
+        Insert: {
+          booking_can_override_availability?: boolean
+          editor_can_publish?: boolean
+          id?: string
+          media_can_delete?: boolean
+          role: Database["public"]["Enums"]["app_role"]
+          social_can_autopost?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          writer_can_edit_published?: boolean
+        }
+        Update: {
+          booking_can_override_availability?: boolean
+          editor_can_publish?: boolean
+          id?: string
+          media_can_delete?: boolean
+          role?: Database["public"]["Enums"]["app_role"]
+          social_can_autopost?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          writer_can_edit_published?: boolean
+        }
+        Relationships: []
+      }
       rtg_picks: {
         Row: {
           created_at: string
@@ -1208,15 +1247,20 @@ export type Database = {
           email: string | null
           id: string
           instagram: string | null
+          internal_notes: string | null
           is_bookable: boolean
           is_public: boolean
           location: string | null
           photo_url: string | null
+          preferred_service_ids: string[]
+          production_position: string | null
           role_title: string | null
           service_ids: string[]
           slug: string
           sort_order: number
           specialties: string[]
+          status: string
+          travel_radius_miles: number | null
           twitter: string | null
           updated_at: string
           user_id: string | null
@@ -1230,15 +1274,20 @@ export type Database = {
           email?: string | null
           id?: string
           instagram?: string | null
+          internal_notes?: string | null
           is_bookable?: boolean
           is_public?: boolean
           location?: string | null
           photo_url?: string | null
+          preferred_service_ids?: string[]
+          production_position?: string | null
           role_title?: string | null
           service_ids?: string[]
           slug: string
           sort_order?: number
           specialties?: string[]
+          status?: string
+          travel_radius_miles?: number | null
           twitter?: string | null
           updated_at?: string
           user_id?: string | null
@@ -1252,15 +1301,20 @@ export type Database = {
           email?: string | null
           id?: string
           instagram?: string | null
+          internal_notes?: string | null
           is_bookable?: boolean
           is_public?: boolean
           location?: string | null
           photo_url?: string | null
+          preferred_service_ids?: string[]
+          production_position?: string | null
           role_title?: string | null
           service_ids?: string[]
           slug?: string
           sort_order?: number
           specialties?: string[]
+          status?: string
+          travel_radius_miles?: number | null
           twitter?: string | null
           updated_at?: string
           user_id?: string | null

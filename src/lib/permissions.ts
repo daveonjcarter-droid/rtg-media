@@ -27,6 +27,7 @@ export type SectionId =
   | "audience"
   | "trends"
   | "community"
+  | "permissions"
   | "settings";
 
 export type Group = "Content" | "Pipeline" | "Studio" | "Ops" | "Ecosystem" | "Admin";
@@ -81,6 +82,7 @@ export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
   audience:           [HEAD, "admin", "editor", "social_manager"],
   trends:             [HEAD, "admin", "editor", "writer", "social_manager"],
   community:          [HEAD, "admin", "editor", "social_manager"],
+  permissions:        [HEAD],
   settings:           [HEAD, "admin"],
 };
 

@@ -11,7 +11,9 @@ export type ActivityKind =
   | "lead_captured"
   | "inquiry_received"
   | "idea_saved"
-  | "media_uploaded";
+  | "media_uploaded"
+  | "settings"
+  | "permission_changed";
 
 export type ActivityEntry = {
   kind: ActivityKind;

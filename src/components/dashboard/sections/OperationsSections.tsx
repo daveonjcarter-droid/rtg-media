@@ -1,7 +1,7 @@
 // RTG OS — Operations admin sections (Services, Staff, Portfolio)
 // CRUD against services / staff_profiles / portfolio_items tables.
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Pencil, Trash2, Save, ExternalLink, Camera, Users, Briefcase, Image as ImageIcon, Star, Eye, EyeOff } from "lucide-react";
+import { Plus, Pencil, Trash2, Save, ExternalLink, Camera, Users, Briefcase, Image as ImageIcon, Star, Eye, EyeOff, Calendar, AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { PageHead, EmptyState } from "@/components/dashboard/shared/Primitives";
 import { logActivity } from "@/lib/activity";
+import AvailabilityCalendar from "@/components/dashboard/AvailabilityCalendar";
 
 const slugify = (s: string) =>
   s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -333,12 +334,17 @@ type StaffRow = {
   slug: string;
   display_name: string;
   role_title: string | null;
+  production_position: string | null;
   bio: string | null;
   photo_url: string | null;
   cover_image_url: string | null;
   location: string | null;
   specialties: string[];
   service_ids: string[];
+  preferred_service_ids: string[];
+  travel_radius_miles: number | null;
+  internal_notes: string | null;
+  status: string;
   instagram: string | null;
   twitter: string | null;
   website: string | null;
@@ -348,11 +354,18 @@ type StaffRow = {
   sort_order: number;
 };
 
+const STATUS_STYLES: Record<string, string> = {
+  active: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+  pending: "bg-gold/15 text-gold border-gold/30",
+  suspended: "bg-destructive/15 text-destructive border-destructive/30",
+};
+
 export const StaffManager = () => {
   const [rows, setRows] = useState<StaffRow[]>([]);
   const [services, setServices] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<StaffRow | null>(null);
+  const [availabilityFor, setAvailabilityFor] = useState<StaffRow | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -367,8 +380,9 @@ export const StaffManager = () => {
   useEffect(() => { load(); }, []);
 
   const create = () => setEditing({
-    id: "", user_id: null, slug: "", display_name: "", role_title: "", bio: "",
+    id: "", user_id: null, slug: "", display_name: "", role_title: "", production_position: "", bio: "",
     photo_url: "", cover_image_url: "", location: "Chicago", specialties: [], service_ids: [],
+    preferred_service_ids: [], travel_radius_miles: null, internal_notes: "", status: "active",
     instagram: "", twitter: "", website: "", email: "",
     is_public: true, is_bookable: true, sort_order: rows.length,
   });
@@ -416,7 +430,10 @@ export const StaffManager = () => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="font-display text-base uppercase leading-tight truncate">{s.display_name}</div>
-                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground truncate">{s.role_title}</div>
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground truncate">{s.role_title}{s.production_position ? ` · ${s.production_position}` : ""}</div>
+                  <span className={`inline-block mt-1 text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-sm border ${STATUS_STYLES[s.status] || STATUS_STYLES.active}`}>
+                    {s.status || "active"}
+                  </span>
                 </div>
               </div>
               {s.specialties?.length > 0 && (
@@ -426,9 +443,12 @@ export const StaffManager = () => {
                   ))}
                 </div>
               )}
-              <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-border">
+              <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-border flex-wrap">
                 <Button size="sm" variant="outline" onClick={() => setEditing(s)} className="h-7 text-[10px] uppercase tracking-widest">
                   <Pencil className="h-3 w-3 mr-1" /> Edit
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setAvailabilityFor(s)} className="h-7 text-[10px] uppercase tracking-widest" disabled={!s.id}>
+                  <Calendar className="h-3 w-3 mr-1" /> Availability
                 </Button>
                 <span className="ml-auto flex items-center gap-1.5">
                   {s.is_public ? <Eye className="h-3.5 w-3.5 text-emerald-400" /> : <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />}
@@ -462,6 +482,15 @@ export const StaffManager = () => {
           services={services}
           onClose={() => setEditing(null)}
           onSaved={() => { setEditing(null); load(); }}
+        />
+      )}
+
+      {availabilityFor && (
+        <AvailabilityCalendar
+          staffId={availabilityFor.id}
+          staffName={availabilityFor.display_name}
+          open={!!availabilityFor}
+          onClose={() => setAvailabilityFor(null)}
         />
       )}
     </div>
@@ -511,19 +540,36 @@ const StaffEditor = ({ row, services, onClose, onSaved }: {
           <DialogTitle className="font-display uppercase tracking-widest text-lg">{r.id ? "Edit Member" : "New Member"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3 max-h-[65vh] overflow-y-auto pr-1">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Display name"><Input value={r.display_name} onChange={(e) => setR({ ...r, display_name: e.target.value })} /></Field>
             <Field label="Role / title"><Input value={r.role_title ?? ""} onChange={(e) => setR({ ...r, role_title: e.target.value })} placeholder="Director of Photography" /></Field>
           </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Field label="Production position"><Input value={r.production_position ?? ""} onChange={(e) => setR({ ...r, production_position: e.target.value })} placeholder="DP, Editor, Producer…" /></Field>
+            <Field label="Status">
+              <Select value={r.status || "active"} onValueChange={(v) => setR({ ...r, status: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="suspended">Suspended</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
           <Field label="Bio"><Textarea rows={4} value={r.bio ?? ""} onChange={(e) => setR({ ...r, bio: e.target.value })} /></Field>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Photo URL"><Input value={r.photo_url ?? ""} onChange={(e) => setR({ ...r, photo_url: e.target.value })} /></Field>
             <Field label="Cover image URL"><Input value={r.cover_image_url ?? ""} onChange={(e) => setR({ ...r, cover_image_url: e.target.value })} /></Field>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Field label="Location"><Input value={r.location ?? ""} onChange={(e) => setR({ ...r, location: e.target.value })} /></Field>
             <Field label="Email"><Input value={r.email ?? ""} onChange={(e) => setR({ ...r, email: e.target.value })} /></Field>
+            <Field label="Travel radius (mi)"><Input type="number" value={r.travel_radius_miles ?? ""} onChange={(e) => setR({ ...r, travel_radius_miles: e.target.value ? Number(e.target.value) : null })} /></Field>
           </div>
+          <Field label="Internal notes (admin only)">
+            <Textarea rows={3} value={r.internal_notes ?? ""} onChange={(e) => setR({ ...r, internal_notes: e.target.value })} placeholder="Rates, availability quirks, gear preferences…" />
+          </Field>
           <div className="grid grid-cols-3 gap-3">
             <Field label="Instagram"><Input value={r.instagram ?? ""} onChange={(e) => setR({ ...r, instagram: e.target.value })} placeholder="@handle" /></Field>
             <Field label="Twitter"><Input value={r.twitter ?? ""} onChange={(e) => setR({ ...r, twitter: e.target.value })} /></Field>
