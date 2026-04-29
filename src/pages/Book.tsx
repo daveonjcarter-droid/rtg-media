@@ -72,6 +72,7 @@ const STEP_TITLES = [
 const schema = z.object({
   service_id: z.string().uuid("Pick a service"),
   shoot_type: z.enum(["Studio", "Location", "Not Sure"]),
+  crew_request_type: z.enum(["videographer_only", "photographer_only", "small_crew", "full_crew"]),
   staff_id: z.string().uuid().nullable(),
   no_preference: z.boolean(),
   project_date: z.date().nullable(),
@@ -89,6 +90,7 @@ type Form = z.infer<typeof schema>;
 const EMPTY: Form = {
   service_id: "",
   shoot_type: "Studio",
+  crew_request_type: "videographer_only",
   staff_id: null,
   no_preference: false,
   project_date: null,
