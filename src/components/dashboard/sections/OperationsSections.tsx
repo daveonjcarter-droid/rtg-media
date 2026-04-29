@@ -21,6 +21,8 @@ import {
 import { PageHead, EmptyState } from "@/components/dashboard/shared/Primitives";
 import { logActivity } from "@/lib/activity";
 import AvailabilityCalendar from "@/components/dashboard/AvailabilityCalendar";
+import { CrewSlotsDialog } from "@/components/dashboard/CrewSlotsDialog";
+import { CREW_PACKAGES, type CrewPackageId } from "@/lib/crewPackages";
 
 const slugify = (s: string) =>
   s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
