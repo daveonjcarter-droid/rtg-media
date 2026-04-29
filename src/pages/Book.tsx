@@ -170,6 +170,7 @@ const Book = () => {
         ? "assigned"
         : "needs_assignment";
 
+    const crewMod = CREW_PACKAGES[parsed.data.crew_request_type].priceModifier;
     const payload = {
       name: parsed.data.name,
       email: parsed.data.email,
@@ -183,9 +184,12 @@ const Book = () => {
       budget: parsed.data.budget,
       description: parsed.data.description,
       requested_staff_id: parsed.data.staff_id,
-      assigned_staff_id: parsed.data.staff_id, // pre-assigned if requested
+      assigned_staff_id: parsed.data.staff_id,
       no_preference: parsed.data.no_preference,
-      assignment_status,
+      assignment_status: "needs_assignment",
+      crew_request_type: parsed.data.crew_request_type,
+      crew_price_modifier: crewMod,
+      internal_assignment_locked: true,
       preferred_contact: "email" as const,
     };
 
