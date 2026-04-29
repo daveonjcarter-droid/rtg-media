@@ -116,6 +116,9 @@ const SiteNav = () => {
             <Link to="/book" onClick={() => setOpen(false)} className="mt-3 text-center bg-primary text-primary-foreground py-3 uppercase tracking-wider text-sm font-medium rounded-sm">
               Book Now
             </Link>
+            <Link to="/login" onClick={() => setOpen(false)} className="mt-2 text-center border border-border py-3 uppercase tracking-wider text-xs font-medium rounded-sm text-muted-foreground hover:text-foreground transition-colors">
+              Studio Login
+            </Link>
           </div>
         </div>
       )}
