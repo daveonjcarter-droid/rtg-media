@@ -171,7 +171,7 @@ const Book = () => {
             </div>
             <div className="mt-6 pt-6 border-t border-border text-sm">
               <div className="eyebrow mb-2">Contact</div>
-              <div>hello@rtgmedia.com</div>
+              <div>runnerstogreatness.com</div>
               <div className="text-muted-foreground mt-1">Chicago, IL</div>
             </div>
           </div>
