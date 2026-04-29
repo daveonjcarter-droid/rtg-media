@@ -5,7 +5,9 @@ import {
   Users, Plus, Copy, Instagram, Twitter, LogOut, Send, ArrowRight, Briefcase, Mail, Archive,
   Youtube, Search, Bell, ChevronsLeft, ChevronsRight, MoreHorizontal, Eye, Pencil, Trash2,
   Replace, Link as LinkIcon, Upload, Filter, ArrowUpDown, X, Tag, FolderInput, CheckSquare,
+  Wand2,
 } from "lucide-react";
+import QuickSiteUpdates from "@/components/dashboard/QuickSiteUpdates";
 import logoLight from "@/assets/rtg-logo-light.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,7 +57,7 @@ type Article = {
 
 type SectionId =
   | "overview" | "drafts" | "submitted" | "revisions" | "published"
-  | "calendar" | "media" | "social" | "bookings" | "leads" | "users";
+  | "calendar" | "media" | "social" | "bookings" | "leads" | "users" | "site-updates";
 
 const ALL_NAV: { id: SectionId; label: string; icon: any; roles: AppRole[]; group: "Content" | "Pipeline" | "Ops" | "Admin" }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard, roles: ["admin", "editor", "writer", "social_manager"], group: "Content" },
@@ -69,6 +71,7 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; roles: AppRole[]; grou
   { id: "bookings", label: "Bookings", icon: Briefcase, roles: ["admin", "editor"], group: "Ops" },
   { id: "leads", label: "Leads", icon: Mail, roles: ["admin", "editor"], group: "Ops" },
   { id: "users", label: "Users", icon: Users, roles: ["admin"], group: "Admin" },
+  { id: "site-updates", label: "Quick Site Updates", icon: Wand2, roles: ["admin"], group: "Admin" },
 ];
 
 const STATUS_COLOR: Record<Status, string> = {
@@ -271,7 +274,8 @@ const Dashboard = () => {
               {section === "social" && <SocialKit articles={filtered(["published"])} />}
               {section === "bookings" && <BookingsView />}
               {section === "leads" && <LeadsView />}
-              {section === "users" && <UsersView />}
+             {section === "users" && <UsersView />}
+             {section === "site-updates" && <QuickSiteUpdates />}
             </>
           )}
         </div>
