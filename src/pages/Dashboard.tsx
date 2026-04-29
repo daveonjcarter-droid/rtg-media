@@ -42,6 +42,8 @@ import storyBreakdown from "@/assets/story-breakdown.jpg";
 
 type Status = "draft" | "submitted" | "revisions" | "approved" | "published";
 
+type ArticleType = "standard" | "film_review" | "interview" | "opinion" | "breakdown" | "news";
+
 type Article = {
   id: string;
   title: string;
@@ -56,6 +58,27 @@ type Article = {
   seo_description: string | null;
   slug: string | null;
   updated_at: string;
+  article_type?: ArticleType | null;
+  // film review extras (carried through; only set when type = film_review)
+  body_blocks?: any;
+  film_title?: string | null;
+  film_release_date?: string | null;
+  film_runtime?: string | null;
+  film_director?: string | null;
+  film_studio?: string | null;
+  film_genre?: string | null;
+  film_mpaa_rating?: string | null;
+  film_reviewer?: string | null;
+  film_review_date?: string | null;
+  rtg_rating?: number | null;
+  audience_score?: number | null;
+  rotten_tomatoes_score?: number | null;
+  metacritic_score?: number | null;
+  imdb_score?: number | null;
+  is_official_rtg_review?: boolean | null;
+  verdict_headline?: string | null;
+  verdict_paragraph?: string | null;
+  verdict_recommendation?: "recommended" | "mixed" | "not_recommended" | null;
 };
 
 type SectionId =
