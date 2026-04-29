@@ -758,7 +758,14 @@ export type Database = {
     }
     Enums: {
       advertise_status: "new" | "in_review" | "accepted" | "declined"
-      app_role: "admin" | "editor" | "writer" | "social_manager"
+      app_role:
+        | "admin"
+        | "editor"
+        | "writer"
+        | "social_manager"
+        | "head_admin"
+        | "booking_manager"
+        | "media_manager"
       article_status:
         | "draft"
         | "submitted"
@@ -918,7 +925,15 @@ export const Constants = {
   public: {
     Enums: {
       advertise_status: ["new", "in_review", "accepted", "declined"],
-      app_role: ["admin", "editor", "writer", "social_manager"],
+      app_role: [
+        "admin",
+        "editor",
+        "writer",
+        "social_manager",
+        "head_admin",
+        "booking_manager",
+        "media_manager",
+      ],
       article_status: [
         "draft",
         "submitted",
