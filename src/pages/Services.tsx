@@ -1,29 +1,49 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Camera } from "lucide-react";
+import {
+  ArrowRight,
+  Camera,
+  Video,
+  Music,
+  Film,
+  Scissors,
+  Mic,
+  Headphones,
+  Sparkles,
+  type LucideIcon,
+} from "lucide-react";
 import SiteLayout from "@/components/site/SiteLayout";
-import EmptyState from "@/components/site/EmptyState";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import servicesStudio from "@/assets/services-studio.jpg";
-
-type Pkg = { name?: string; price?: number; includes?: string };
-type AddOn = { name?: string; price?: number };
 
 type Service = {
   id: string;
   slug: string | null;
   name: string;
+  icon: string | null;
   short_description: string | null;
-  long_description: string | null;
-  pricing_model: string;
   base_price: number | null;
   sale_price: number | null;
-  cover_image_url: string | null;
+  pricing_model: string;
   is_featured: boolean;
-  packages: Pkg[] | null;
-  add_ons: AddOn[] | null;
 };
+
+const ICONS: Record<string, LucideIcon> = {
+  Camera, Video, Music, Film, Scissors, Mic, Headphones, Sparkles,
+};
+
+// Fallback list if DB is empty (matches seed)
+const FALLBACK: Service[] = [
+  { id: "photography", slug: "photography", name: "Photography", icon: "Camera", short_description: "Editorial, portrait, and brand photography.", base_price: 350, sale_price: null, pricing_model: "starting_at", is_featured: true },
+  { id: "videography", slug: "videography", name: "Videography", icon: "Video", short_description: "Cinematic video production for brands and artists.", base_price: 750, sale_price: null, pricing_model: "starting_at", is_featured: true },
+  { id: "music-videos", slug: "music-videos", name: "Music Videos", icon: "Music", short_description: "Story-first music videos with a director's eye.", base_price: 1500, sale_price: null, pricing_model: "starting_at", is_featured: false },
+  { id: "film-production", slug: "film-production", name: "Film Production", icon: "Film", short_description: "Short films, docs, and branded narratives.", base_price: 2500, sale_price: null, pricing_model: "starting_at", is_featured: false },
+  { id: "editing", slug: "editing", name: "Editing", icon: "Scissors", short_description: "Color, sound, and edit services for outside footage.", base_price: 95, sale_price: null, pricing_model: "hourly", is_featured: false },
+  { id: "live-events", slug: "live-events", name: "Live Events", icon: "Mic", short_description: "Multi-cam live coverage for concerts and activations.", base_price: 1200, sale_price: null, pricing_model: "starting_at", is_featured: false },
+  { id: "podcast-audio", slug: "podcast-audio", name: "Podcast / Audio", icon: "Headphones", short_description: "Studio-quality podcast and audio production.", base_price: 250, sale_price: null, pricing_model: "starting_at", is_featured: false },
+  { id: "brand-content", slug: "brand-content", name: "Brand Content", icon: "Sparkles", short_description: "Always-on social and brand content packages.", base_price: 2000, sale_price: null, pricing_model: "starting_at", is_featured: false },
+];
 
 const priceLabel = (s: Service) => {
   if (s.sale_price != null) return `Now $${s.sale_price}`;
@@ -42,11 +62,12 @@ const Services = () => {
     (async () => {
       const { data } = await supabase
         .from("services" as any)
-        .select("id,slug,name,short_description,long_description,pricing_model,base_price,sale_price,cover_image_url,is_featured,packages,add_ons")
+        .select("id,slug,name,icon,short_description,base_price,sale_price,pricing_model,is_featured")
         .eq("is_available", true)
         .order("is_featured", { ascending: false })
         .order("sort_order");
-      setServices((data as any) || []);
+      const list = (data as any as Service[]) || [];
+      setServices(list.length > 0 ? list : FALLBACK);
       setLoading(false);
     })();
   }, []);
@@ -69,73 +90,38 @@ const Services = () => {
       <section className="container-rtg py-20">
         {loading ? (
           <div className="text-sm text-muted-foreground">Loading services…</div>
-        ) : services.length === 0 ? (
-          <EmptyState
-            eyebrow="Production"
-            title="Services coming soon."
-            description="Our production menu will appear here as it's published."
-            icon={Camera}
-          />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-border border border-border">
-            {services.map((s) => (
-              <div key={s.id} className="bg-background p-8 md:p-10 hover:bg-surface transition-colors group flex flex-col">
-                <div className="flex items-start justify-between gap-4">
-                  <h3 className="font-display text-3xl uppercase leading-tight">{s.name}</h3>
-                  <div className="text-right shrink-0">
-                    <div className={`text-xs uppercase tracking-widest ${s.sale_price != null ? "text-primary" : "text-muted-foreground"}`}>
-                      {priceLabel(s)}
-                    </div>
-                    {s.sale_price != null && s.base_price != null && (
-                      <div className="text-[10px] text-muted-foreground line-through">${s.base_price}</div>
+          <div className="border-t border-border">
+            {services.map((s, i) => {
+              const Icon = ICONS[s.icon || ""] || Camera;
+              const num = String(i + 1).padStart(2, "0");
+              return (
+                <Link
+                  key={s.id}
+                  to={`/book?service=${s.id}`}
+                  className="group flex items-center gap-4 md:gap-8 border-b border-border py-6 md:py-8 px-2 md:px-4 hover:bg-surface transition-colors min-h-[88px]"
+                >
+                  <div className="text-xs md:text-sm font-mono text-muted-foreground tabular-nums shrink-0 w-8 md:w-12">
+                    {num}
+                  </div>
+                  <Icon className="h-6 w-6 md:h-8 md:w-8 shrink-0 text-foreground group-hover:text-primary transition-colors" />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-display text-2xl md:text-4xl uppercase leading-tight truncate">
+                      {s.name}
+                    </h3>
+                    {s.short_description && (
+                      <p className="hidden md:block text-sm text-muted-foreground mt-1 truncate">
+                        {s.short_description}
+                      </p>
                     )}
                   </div>
-                </div>
-                {s.short_description && (
-                  <p className="text-muted-foreground mt-3 leading-relaxed">{s.short_description}</p>
-                )}
-                {s.long_description && (
-                  <p className="text-muted-foreground/80 mt-2 text-sm leading-relaxed">{s.long_description}</p>
-                )}
-
-                {Array.isArray(s.packages) && s.packages.length > 0 && (
-                  <div className="mt-5 border-t border-border pt-4">
-                    <div className="eyebrow text-muted-foreground mb-3">Packages</div>
-                    <div className="space-y-2">
-                      {s.packages.filter((p) => p?.name).map((p, i) => (
-                        <div key={i} className="flex items-baseline justify-between gap-3 text-sm">
-                          <div>
-                            <div className="font-medium">{p.name}</div>
-                            {p.includes && <div className="text-xs text-muted-foreground">{p.includes}</div>}
-                          </div>
-                          {p.price != null && <div className="text-primary text-xs uppercase tracking-widest shrink-0">${p.price}</div>}
-                        </div>
-                      ))}
-                    </div>
+                  <div className="hidden md:block text-xs uppercase tracking-widest text-muted-foreground shrink-0">
+                    {priceLabel(s)}
                   </div>
-                )}
-
-                {Array.isArray(s.add_ons) && s.add_ons.length > 0 && (
-                  <div className="mt-4 border-t border-border pt-3">
-                    <div className="eyebrow text-muted-foreground mb-2">Add-ons</div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {s.add_ons.filter((a) => a?.name).map((a, i) => (
-                        <span key={i} className="text-[11px] uppercase tracking-wider border border-border px-2 py-1 rounded-sm">
-                          {a.name}{a.price != null ? ` · $${a.price}` : ""}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <Link
-                  to={`/book?service=${s.id}`}
-                  className="inline-flex items-center gap-2 mt-6 text-xs uppercase tracking-widest text-foreground group-hover:text-primary transition-colors mt-auto pt-6"
-                >
-                  Inquire <ArrowRight className="h-3.5 w-3.5" />
+                  <ArrowRight className="h-5 w-5 md:h-6 md:w-6 shrink-0 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
                 </Link>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
