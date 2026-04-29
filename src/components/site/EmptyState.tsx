@@ -7,13 +7,15 @@ type EmptyStateProps = {
   description?: string;
   icon?: LucideIcon;
   tone?: "dark" | "light";
+  /** Pre-launch ribbon text. Defaults to "First drops coming soon". */
+  ribbon?: string;
   children?: ReactNode;
   className?: string;
 };
 
 /**
- * RTG-branded empty state. Use anywhere fake/seed content used to live.
- * Keeps page structure intact while signalling pre-launch intentionality.
+ * RTG-branded pre-launch state. Reads as intentional, not unfinished:
+ * crosshair frame, faint editorial number, and a "first drops coming soon" ribbon.
  */
 const EmptyState = ({
   eyebrow = "RTG Media",
@@ -21,6 +23,7 @@ const EmptyState = ({
   description,
   icon: Icon,
   tone = "light",
+  ribbon = "First drops coming soon",
   children,
   className = "",
 }: EmptyStateProps) => {
@@ -31,6 +34,40 @@ const EmptyState = ({
         isDark ? "bg-ink text-cream grain-heavy" : "bg-surface/40"
       } border border-border ${className}`}
     >
+      {/* Faint editorial number */}
+      <div
+        aria-hidden
+        className={`pointer-events-none absolute -right-2 -top-6 type-mega text-[10rem] md:text-[16rem] leading-none select-none ${
+          isDark ? "text-cream/[0.04]" : "text-foreground/[0.05]"
+        }`}
+      >
+        001
+      </div>
+
+      {/* Corner crosshairs */}
+      {[
+        "top-3 left-3 border-l border-t",
+        "top-3 right-3 border-r border-t",
+        "bottom-3 left-3 border-l border-b",
+        "bottom-3 right-3 border-r border-b",
+      ].map((pos) => (
+        <span
+          key={pos}
+          aria-hidden
+          className={`absolute h-4 w-4 ${pos} ${
+            isDark ? "border-cream/40" : "border-foreground/30"
+          }`}
+        />
+      ))}
+
+      {/* Diagonal ribbon */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-16 top-6 -rotate-[18deg] sticker text-[9px]"
+      >
+        {ribbon}
+      </div>
+
       <div className="relative px-6 py-16 md:px-12 md:py-24 flex flex-col items-center text-center">
         {Icon && (
           <div
@@ -65,6 +102,17 @@ const EmptyState = ({
           </p>
         )}
         {children && <div className="mt-8">{children}</div>}
+
+        {/* Issue stamp */}
+        <div
+          className={`mt-10 inline-flex items-center gap-3 text-[10px] uppercase tracking-[0.4em] ${
+            isDark ? "text-cream/50" : "text-muted-foreground"
+          }`}
+        >
+          <span className="h-px w-8 bg-current" />
+          Issue 001 · Spring 2026
+          <span className="h-px w-8 bg-current" />
+        </div>
       </div>
     </div>
   );
