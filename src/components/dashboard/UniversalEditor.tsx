@@ -205,13 +205,42 @@ const UniversalEditor = ({
   const [newsDate, setNewsDate] = useState(article?.news_date ?? "");
   const [newsLocation, setNewsLocation] = useState(article?.news_location ?? "");
 
-  // Ratings (film + music)
+  // Game
+  const [gameTitle, setGameTitle] = useState(article?.game_title ?? "");
+  const [gameDeveloper, setGameDeveloper] = useState(article?.game_developer ?? "");
+  const [gamePublisher, setGamePublisher] = useState(article?.game_publisher ?? "");
+  const [gameReleaseDate, setGameReleaseDate] = useState(article?.game_release_date ?? "");
+  const [gamePlatforms, setGamePlatforms] = useState(article?.game_platforms ?? "");
+  const [gameGenre, setGameGenre] = useState(article?.game_genre ?? "");
+  const [gameEsrb, setGameEsrb] = useState(article?.game_esrb_rating ?? "");
+  const [gameReviewer, setGameReviewer] = useState(article?.game_reviewer ?? "");
+  const [steamScore, setSteamScore] = useState<string>(article?.steam_score?.toString() ?? "");
+  const [gameTrailer, setGameTrailer] = useState(article?.game_trailer_url ?? "");
+  const [gameScreenshots, setGameScreenshots] = useState<string[]>(
+    Array.isArray(article?.game_screenshots) ? article.game_screenshots : [],
+  );
+
+  // Ratings (film + music + game)
   const [rtgRating, setRtgRating] = useState<number>(Number(article?.rtg_rating ?? 0));
   const [audience, setAudience] = useState<string>(article?.audience_score?.toString() ?? "");
   const [rt, setRt] = useState<string>(article?.rotten_tomatoes_score?.toString() ?? "");
   const [meta, setMeta] = useState<string>(article?.metacritic_score?.toString() ?? "");
   const [imdb, setImdb] = useState<string>(article?.imdb_score?.toString() ?? "");
   const [official, setOfficial] = useState<boolean>(!!article?.is_official_rtg_review);
+
+  // Publish settings
+  const initStatus = (article?.status as Status) ?? "draft";
+  const initMode: PublishMode =
+    initStatus === "scheduled" ? "schedule" :
+    initStatus === "published" ? "publish_now" :
+    initStatus === "submitted" ? "submit" : "draft";
+  const [publishMode, setPublishMode] = useState<PublishMode>(initMode);
+  const initSched = article?.scheduled_for ? new Date(article.scheduled_for) : null;
+  const [schedDate, setSchedDate] = useState<string>(initSched ? initSched.toISOString().slice(0, 10) : "");
+  const [schedTime, setSchedTime] = useState<string>(initSched ? initSched.toTimeString().slice(0, 5) : "09:00");
+  const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  const [schedTz, setSchedTz] = useState<string>(article?.scheduled_timezone ?? browserTz);
+  const [featuredUntil, setFeaturedUntil] = useState<string>(article?.featured_until ?? "");
 
   // Verdict
   const [verdictHeadline, setVerdictHeadline] = useState(article?.verdict_headline ?? "");
