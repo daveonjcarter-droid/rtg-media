@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Play, BookOpen, Film, Clock } from "lucide-react";
 import SiteLayout from "@/components/site/SiteLayout";
 import EmptyState from "@/components/site/EmptyState";
+import RtgMark from "@/components/site/RtgMark";
 import EpisodeCard from "@/components/site/EpisodeCard";
 import { supabase } from "@/integrations/supabase/client";
 import type { BreakdownEpisode } from "@/hooks/useRtgContent";
@@ -68,7 +69,7 @@ const BreakdownDetail = () => {
             <ArrowLeft className="h-3 w-3" /> Back to Breakdown
           </Link>
           <EmptyState
-            eyebrow="RTG Breakdown"
+            eyebrow={<RtgMark wordClassName="tracking-[0.25em]">Breakdown</RtgMark>}
             title="This episode isn't live yet."
             description="The breakdown you're looking for hasn't been published."
             icon={Film}

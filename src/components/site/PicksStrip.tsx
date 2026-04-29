@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Eye, Headphones, Flame, ArrowUpRight } from "lucide-react";
 import { useRtgPicks } from "@/hooks/useRtgContent";
 import EmptyState from "./EmptyState";
+import RtgMark from "./RtgMark";
 
 const KIND_META: Record<string, { label: string; icon: any }> = {
   watching: { label: "What we're watching", icon: Eye },
@@ -19,7 +20,7 @@ const PicksStrip = () => {
   if (!picks.length) {
     return (
       <EmptyState
-        eyebrow="RTG Picks"
+        eyebrow={<RtgMark wordClassName="tracking-[0.25em]">Picks</RtgMark>}
         title="The picks board is loading."
         description="What we're watching, listening to, and what matters — curated by RTG."
         icon={Flame}
