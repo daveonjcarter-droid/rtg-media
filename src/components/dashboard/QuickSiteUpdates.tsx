@@ -68,7 +68,7 @@ export const DEFAULT_HOMEPAGE: HomepageContent = {
   hero: {
     headline: "Runners\nTo Greatness",
     subheadline:
-      "Culture before it has a name. Film. Music. Fashion. Chicago — first.",
+      "Culture before it has a name. Film. Music. Fashion. Chicago first.",
     backgroundImage: "",
     ctaText: "Read The Magazine",
     ctaLink: "/articles",
@@ -93,7 +93,7 @@ export const DEFAULT_HOMEPAGE: HomepageContent = {
   servicesPreview: {
     headline: "Production Services",
     description:
-      "Full-stack production. One team. One vision. From a single photo set to a full episodic series — we shoot, cut, score, and ship.",
+      "Full-stack production. One team. One vision. From a single photo set to a full episodic series we shoot, cut, score, and ship.",
     image: "",
     ctaText: "Book A Consult",
     ctaLink: "/book",

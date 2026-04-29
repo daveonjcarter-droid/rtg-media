@@ -22,7 +22,7 @@ const PicksStrip = () => {
       <EmptyState
         eyebrow={<RtgMark wordClassName="tracking-[0.25em]">Picks</RtgMark>}
         title="The picks board is loading."
-        description="What we're watching, listening to, and what matters — curated by RTG."
+        description="What we're watching, listening to, and what matters curated by RTG."
         icon={Flame}
         ribbon="Curating in real time"
       />
