@@ -772,12 +772,17 @@ export type Database = {
         Row: {
           accepted_at: string | null
           accepted_user_id: string | null
+          availability_required: boolean
           created_at: string
+          default_rate: number | null
           email: string
+          full_name: string | null
           id: string
           internal_title: string | null
+          invite_type: string
           invited_by: string | null
           notes: string | null
+          portfolio_required: boolean
           reports_to: string | null
           roles: Database["public"]["Enums"]["app_role"][]
           status: string
@@ -786,12 +791,17 @@ export type Database = {
         Insert: {
           accepted_at?: string | null
           accepted_user_id?: string | null
+          availability_required?: boolean
           created_at?: string
+          default_rate?: number | null
           email: string
+          full_name?: string | null
           id?: string
           internal_title?: string | null
+          invite_type?: string
           invited_by?: string | null
           notes?: string | null
+          portfolio_required?: boolean
           reports_to?: string | null
           roles?: Database["public"]["Enums"]["app_role"][]
           status?: string
@@ -800,12 +810,17 @@ export type Database = {
         Update: {
           accepted_at?: string | null
           accepted_user_id?: string | null
+          availability_required?: boolean
           created_at?: string
+          default_rate?: number | null
           email?: string
+          full_name?: string | null
           id?: string
           internal_title?: string | null
+          invite_type?: string
           invited_by?: string | null
           notes?: string | null
+          portfolio_required?: boolean
           reports_to?: string | null
           roles?: Database["public"]["Enums"]["app_role"][]
           status?: string
