@@ -79,6 +79,20 @@ type Article = {
   verdict_headline?: string | null;
   verdict_paragraph?: string | null;
   verdict_recommendation?: "recommended" | "mixed" | "not_recommended" | null;
+  scheduled_for?: string | null;
+  scheduled_timezone?: string | null;
+  featured_until?: string | null;
+  game_title?: string | null;
+  game_developer?: string | null;
+  game_publisher?: string | null;
+  game_release_date?: string | null;
+  game_platforms?: string | null;
+  game_genre?: string | null;
+  game_esrb_rating?: string | null;
+  game_reviewer?: string | null;
+  steam_score?: number | null;
+  game_trailer_url?: string | null;
+  game_screenshots?: any;
 };
 
 type SectionId =
