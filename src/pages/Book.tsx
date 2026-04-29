@@ -17,6 +17,7 @@ import {
   Camera, Home, MapPin, HelpCircle, ArrowRight, ArrowLeft,
   CheckCircle2, ShieldCheck, Clock, Users, Star, Sparkles, CalendarIcon, Briefcase,
 } from "lucide-react";
+import { CREW_PACKAGES, CREW_PACKAGE_ORDER, type CrewPackageId } from "@/lib/crewPackages";
 
 type Service = {
   id: string;
