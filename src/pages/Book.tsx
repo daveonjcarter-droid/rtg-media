@@ -83,6 +83,7 @@ const fullSchema = z.object({
 
 type FormState = {
   project_type: string;
+  event_type: string;
   shoot_type: string;
   budget: string;
   timeline: string;
@@ -94,9 +95,15 @@ type FormState = {
 };
 
 const EMPTY: FormState = {
-  project_type: "", shoot_type: "", budget: "", timeline: "",
+  project_type: "", event_type: "", shoot_type: "", budget: "", timeline: "",
   description: "", name: "", email: "", phone: "", instagram: "",
 };
+
+const EVENT_TYPES = [
+  { value: "Concert", desc: "Live performance, artist shows, and stage coverage." },
+  { value: "Event", desc: "Private events, celebrations, parties, and special occasions." },
+  { value: "Other", desc: "For anything outside standard categories." },
+] as const;
 
 /* ============ Page ============ */
 
@@ -110,7 +117,10 @@ const Book = () => {
 
   const stepValid = useMemo(() => {
     switch (step) {
-      case 0: return !!form.project_type;
+      case 0:
+        if (!form.project_type) return false;
+        if (form.project_type === "Event Coverage" && !form.event_type) return false;
+        return true;
       case 1: return !!form.shoot_type;
       case 2: return !!form.budget;
       case 3: return !!form.timeline;
@@ -140,10 +150,14 @@ const Book = () => {
       phone: parsed.data.phone,
       instagram: parsed.data.instagram || null,
       project_type: parsed.data.project_type,
-      service: parsed.data.project_type, // keep legacy column populated
+      service: form.project_type === "Event Coverage" && form.event_type
+        ? `${parsed.data.project_type} — ${form.event_type}`
+        : parsed.data.project_type,
       timeline: parsed.data.timeline,
       budget: parsed.data.budget,
-      description: parsed.data.description,
+      description: form.project_type === "Event Coverage" && form.event_type
+        ? `[Event type: ${form.event_type}]\n\n${parsed.data.description}`
+        : parsed.data.description,
       preferred_contact: "email" as const,
     };
 
@@ -275,18 +289,40 @@ const Book = () => {
             {/* STEP BODY */}
             <div className="min-h-[280px]">
               {step === 0 && (
-                <CardGrid>
-                  {PROJECT_TYPES.map((p) => (
-                    <ChoiceCard
-                      key={p.value}
-                      icon={p.icon}
-                      label={p.value}
-                      desc={p.desc}
-                      active={form.project_type === p.value}
-                      onClick={() => set("project_type", p.value)}
-                    />
-                  ))}
-                </CardGrid>
+                <>
+                  <CardGrid>
+                    {PROJECT_TYPES.map((p) => (
+                      <ChoiceCard
+                        key={p.value}
+                        icon={p.icon}
+                        label={p.value}
+                        desc={p.desc}
+                        active={form.project_type === p.value}
+                        onClick={() => {
+                          set("project_type", p.value);
+                          if (p.value !== "Event Coverage") set("event_type", "");
+                        }}
+                      />
+                    ))}
+                  </CardGrid>
+
+                  {form.project_type === "Event Coverage" && (
+                    <div className="mt-8 pt-6 border-t border-border animate-in fade-in slide-in-from-top-2 duration-300">
+                      <Label className="eyebrow mb-3 block">What type of event? *</Label>
+                      <CardGrid cols={3}>
+                        {EVENT_TYPES.map((e) => (
+                          <ChoiceCard
+                            key={e.value}
+                            label={e.value}
+                            desc={e.desc}
+                            active={form.event_type === e.value}
+                            onClick={() => set("event_type", e.value)}
+                          />
+                        ))}
+                      </CardGrid>
+                    </div>
+                  )}
+                </>
               )}
 
               {step === 1 && (
