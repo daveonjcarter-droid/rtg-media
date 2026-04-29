@@ -286,32 +286,44 @@ const Index = () => {
           </Link>
         </div>
         <div className="container-rtg">
-          <EmptyState
-            eyebrow="The Reel"
-            title="No projects uploaded yet."
-            description="RTG production work will appear here as projects ship."
-            icon={Camera}
-            tone="dark"
-          />
+          <Reveal>
+            <EmptyState
+              eyebrow="The Reel"
+              title="The reel ships with our first projects."
+              description="RTG production work will appear here as projects drop."
+              icon={Camera}
+              tone="dark"
+              ribbon="In production"
+            />
+          </Reveal>
         </div>
       </section>
 
-      {/* ============ MERCH TEASER — streetwear energy ============ */}
+      {/* ============ MERCH TEASER — asymmetric streetwear energy ============ */}
       <section className="relative bg-background py-24 md:py-32 overflow-hidden">
-        <div className="container-rtg relative">
-          <div className="text-center">
-            <div className="font-gothic text-3xl md:text-4xl text-primary mb-6">{content.drops.headline}</div>
-            {content.drops.image && (
-              <div className="mx-auto mb-8 max-w-md aspect-square overflow-hidden rounded-sm">
-                <img src={content.drops.image} alt={content.drops.headline} className="w-full h-full object-cover" />
+        <div className="container-rtg relative grid md:grid-cols-12 gap-10 items-center">
+          {/* Image — offset, smaller, left */}
+          <div className="md:col-span-5 md:translate-y-6">
+            {content.drops.image ? (
+              <div className="aspect-[4/5] overflow-hidden rounded-sm border border-border grain">
+                <img src={content.drops.image} alt={content.drops.headline} className="w-full h-full object-cover img-kinetic" />
+              </div>
+            ) : (
+              <div className="aspect-[4/5] border border-border bg-surface/40 flex items-center justify-center">
+                <span className="font-gothic text-6xl text-primary/60">RTG</span>
               </div>
             )}
-            <h2 className="type-mega text-[20vw] md:text-[14vw] lg:text-[12rem] leading-[0.85]">
+          </div>
+
+          {/* Text — right, slightly offset up */}
+          <div className="md:col-span-7 md:-translate-y-4 md:pl-6">
+            <div className="font-gothic text-3xl md:text-4xl text-primary mb-4">{content.drops.headline}</div>
+            <h2 className="type-mega text-[18vw] md:text-[12vw] lg:text-[10rem] leading-[0.85]">
               Coming
               <br />
               <span className="text-hollow">Soon.</span>
             </h2>
-            <p className="mt-8 max-w-md mx-auto text-muted-foreground">
+            <p className="mt-8 max-w-md text-muted-foreground">
               {content.drops.text}
             </p>
             {content.drops.ctaText && (
@@ -341,7 +353,7 @@ const Index = () => {
               <span className="text-primary">list.</span>
             </h2>
             <p className="mt-6 text-cream/75 max-w-md">
-              Stories, breakdowns, and drops — straight to your inbox. No spam, just culture before everyone else.
+              Culture before everyone else. No noise.
             </p>
           </div>
           <div className="lg:col-span-5">
