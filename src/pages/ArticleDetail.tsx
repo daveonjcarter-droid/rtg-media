@@ -153,12 +153,164 @@ const ArticleDetail = () => {
     );
   }
 
-  if (article.article_type === "film_review") {
-    return <FilmReviewView article={article} related={related} />;
-  }
+  if (article.article_type === "film_review") return <FilmReviewView article={article} related={related} />;
+  if (article.article_type === "album_review" || article.article_type === "single_review") return <MusicReviewView article={article} related={related} />;
+  if (article.article_type === "interview") return <TypedView article={article} related={related} kind="interview" />;
+  if (article.article_type === "breakdown") return <TypedView article={article} related={related} kind="breakdown" />;
+  if (article.article_type === "news") return <TypedView article={article} related={related} kind="news" />;
 
   return <StandardArticleView article={article} related={related} />;
 };
+
+/* =========== Music Review (album / single) =========== */
+const MusicReviewView = ({ article, related }: { article: Article; related: Article[] }) => {
+  const isAlbum = article.article_type === "album_review";
+  const v = article.verdict_recommendation ? verdictMeta[article.verdict_recommendation] : null;
+  const headline = isAlbum ? article.music_album_title : article.music_song_title;
+  return (
+    <SiteLayout>
+      <section className="relative bg-ink border-b border-border">
+        {article.cover_image_url && (
+          <div className="absolute inset-0">
+            <img src={article.cover_image_url} alt="" className="w-full h-full object-cover opacity-30" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+          </div>
+        )}
+        <div className="container-rtg relative pt-20 md:pt-28 pb-10 md:pb-16">
+          <Link to="/articles" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-primary mb-6"><ArrowLeft className="h-3 w-3" /> All Stories</Link>
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            {article.is_official_rtg_review && (
+              <span className="inline-flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.25em] px-2 py-1"><Award className="h-3 w-3" /> RTG Review</span>
+            )}
+            <span className="inline-flex items-center gap-1 border border-border bg-background/50 text-[10px] font-bold uppercase tracking-[0.25em] px-2 py-1 text-muted-foreground">
+              {isAlbum ? <Layers className="h-3 w-3" /> : <Radio className="h-3 w-3" />} {isAlbum ? "Album Review" : "Single Review"}
+            </span>
+            {article.music_genre && <span className="border border-border bg-background/50 text-[10px] font-bold uppercase tracking-[0.25em] px-2 py-1 text-muted-foreground">{article.music_genre}</span>}
+          </div>
+          <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">{article.music_artist}</div>
+          <h1 className="type-mega text-4xl md:text-6xl lg:text-7xl leading-[0.92] max-w-4xl">{headline || article.title}</h1>
+          {article.excerpt && <p className="mt-6 font-editorial text-lg text-muted-foreground max-w-3xl">{article.excerpt}</p>}
+          {article.rtg_rating != null && article.rtg_rating > 0 && (
+            <div className="mt-6 flex items-center gap-3">
+              <StarRatingDisplay value={Number(article.rtg_rating)} size={26} />
+              <span className="font-display text-2xl tabular-nums">{Number(article.rtg_rating).toFixed(1)}</span>
+              <span className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">RTG Rating</span>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="container-rtg py-10 md:py-14">
+        <div className="grid lg:grid-cols-[1fr_300px] gap-10 max-w-5xl mx-auto">
+          <div className="order-2 lg:order-1 max-w-2xl space-y-7">
+            {article.music_embed_url && (
+              <div className="border border-border rounded-sm p-3 bg-surface/30 text-xs">
+                <div className="text-[9px] uppercase tracking-[0.3em] text-primary mb-1">Listen</div>
+                <a href={article.music_embed_url} target="_blank" rel="noreferrer" className="text-foreground hover:text-primary truncate block">{article.music_embed_url}</a>
+              </div>
+            )}
+            {Array.isArray(article.body_blocks) && article.body_blocks.map((b) => <BlockView key={b.id} block={b} />)}
+            {isAlbum && article.music_tracklist && article.music_tracklist.length > 0 && (
+              <div className="border border-border rounded-sm p-5 bg-surface/30">
+                <div className="text-[10px] uppercase tracking-[0.3em] text-primary mb-3">Tracklist</div>
+                <ol className="space-y-1.5 text-sm">
+                  {article.music_tracklist.map((t, i) => (
+                    <li key={i} className="flex gap-3 border-b border-border/50 pb-1.5 last:border-0">
+                      <span className="text-muted-foreground tabular-nums w-6">{(i + 1).toString().padStart(2, "0")}</span>
+                      <span>{t}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+            {(article.verdict_headline || article.verdict_paragraph || v) && <VerdictCard article={article} v={v} />}
+          </div>
+          <aside className="order-1 lg:order-2 lg:sticky lg:top-24 self-start">
+            <div className="border border-border rounded-sm bg-surface/40 p-5 space-y-3">
+              <div className="text-[10px] uppercase tracking-[0.3em] text-primary font-semibold">Release Info</div>
+              {article.music_artist && <InfoRow icon={Music} label="Artist" value={article.music_artist} />}
+              {article.music_label && <InfoRow icon={Award} label="Label" value={article.music_label} />}
+              {article.music_release_date && <InfoRow icon={CalendarIcon} label="Released" value={formatDate(article.music_release_date)} />}
+              {article.music_runtime && <InfoRow icon={Clock} label="Runtime" value={article.music_runtime} />}
+              {isAlbum && article.music_track_count != null && <InfoRow icon={Layers} label="Tracks" value={String(article.music_track_count)} />}
+              {!isAlbum && article.music_producer && <InfoRow icon={User} label="Producer" value={article.music_producer} />}
+              {article.writer_name && <InfoRow icon={User} label="Reviewer" value={article.writer_name} />}
+            </div>
+          </aside>
+        </div>
+      </section>
+      <RelatedSection related={related} category="" eyebrow="More Reviews" title="Keep Listening" />
+    </SiteLayout>
+  );
+};
+
+/* =========== Generic typed view (interview/breakdown/news) =========== */
+const TypedView = ({ article, related, kind }: { article: Article; related: Article[]; kind: "interview" | "breakdown" | "news" }) => {
+  const meta = {
+    interview: { label: "Interview", icon: Mic },
+    breakdown: { label: "RTG Breakdown", icon: Layers },
+    news: { label: "News", icon: Newspaper },
+  }[kind];
+  const headline = kind === "interview" ? article.interview_interviewee || article.title
+                 : kind === "breakdown" ? article.breakdown_subject || article.title
+                 : article.title;
+  return (
+    <SiteLayout>
+      <section className="border-b border-border bg-background">
+        <div className="container-rtg pt-16 md:pt-24 pb-10">
+          <Link to="/articles" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-primary mb-8"><ArrowLeft className="h-3 w-3" /> All Stories</Link>
+          <span className="inline-flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.25em] px-2 py-1 mb-5"><meta.icon className="h-3 w-3" /> {meta.label}</span>
+          {kind === "interview" && article.interview_role && <div className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground mb-2">{article.interview_role}</div>}
+          {kind === "breakdown" && article.breakdown_category && <div className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground mb-2">{article.breakdown_category}{article.breakdown_episode ? ` · ${article.breakdown_episode}` : ""}</div>}
+          {kind === "news" && article.news_subheadline && <div className="font-editorial text-lg md:text-xl text-muted-foreground mb-3">{article.news_subheadline}</div>}
+          <h1 className="type-mega text-4xl md:text-6xl lg:text-7xl leading-[0.92] max-w-4xl">{headline}</h1>
+          {article.excerpt && kind !== "news" && <p className="mt-6 font-editorial text-lg text-muted-foreground max-w-3xl">{article.excerpt}</p>}
+          <div className="mt-6 text-[10px] uppercase tracking-[0.3em] text-muted-foreground flex flex-wrap items-center gap-3">
+            {article.writer_name && <span className="inline-flex items-center gap-1.5"><User className="h-3 w-3" /> {article.writer_name}</span>}
+            {kind === "interview" && article.interview_date && <><span className="text-border">·</span><span><CalendarIcon className="h-3 w-3 inline mr-1" />{formatDate(article.interview_date)}</span></>}
+            {kind === "interview" && article.interview_location && <><span className="text-border">·</span><span><MapPin className="h-3 w-3 inline mr-1" />{article.interview_location}</span></>}
+            {kind === "interview" && article.interview_photographer && <><span className="text-border">·</span><span>Photos: {article.interview_photographer}</span></>}
+            {kind === "news" && article.news_date && <><span className="text-border">·</span><span>{formatDate(article.news_date)}</span></>}
+            {kind === "news" && article.news_location && <><span className="text-border">·</span><span><MapPin className="h-3 w-3 inline mr-1" />{article.news_location}</span></>}
+            {kind === "news" && article.news_source && <><span className="text-border">·</span><span>Source: {article.news_source}</span></>}
+          </div>
+        </div>
+        {article.cover_image_url && (
+          <div className="container-rtg pb-12 md:pb-16">
+            <div className="aspect-[16/9] overflow-hidden border border-border"><img src={article.cover_image_url} alt={headline} className="w-full h-full object-cover" /></div>
+          </div>
+        )}
+      </section>
+
+      {kind === "breakdown" && article.breakdown_spoiler && (
+        <div className="container-rtg pt-6">
+          <div className="border border-gold/40 bg-gold/10 rounded-sm p-3 flex items-center gap-2 text-gold text-[11px] uppercase tracking-[0.25em] font-semibold max-w-2xl mx-auto">
+            <AlertTriangle className="h-4 w-4" /> Spoiler Warning — story details ahead
+          </div>
+        </div>
+      )}
+
+      <section className="container-rtg py-10 md:py-14">
+        <article className="max-w-2xl mx-auto space-y-7">
+          {Array.isArray(article.body_blocks) && article.body_blocks.length > 0
+            ? article.body_blocks.map((b) => <BlockView key={b.id} block={b} />)
+            : article.body && <div className="font-editorial text-lg md:text-xl leading-[1.7] whitespace-pre-line">{article.body}</div>}
+        </article>
+      </section>
+      <RelatedSection related={related} category={article.category ?? ""} eyebrow="More Like This" title="Keep Reading" />
+    </SiteLayout>
+  );
+};
+
+const VerdictCard = ({ article, v }: { article: Article; v: any }) => (
+  <div className="border border-border rounded-sm bg-surface/40 p-6 md:p-8">
+    <div className="text-[10px] uppercase tracking-[0.3em] text-primary mb-2">Final Verdict</div>
+    {article.verdict_headline && <h3 className="font-display text-2xl md:text-3xl uppercase mb-3">{article.verdict_headline}</h3>}
+    {article.verdict_paragraph && <p className="font-editorial text-base md:text-lg leading-relaxed text-foreground/90">{article.verdict_paragraph}</p>}
+    {v && <div className={`mt-5 inline-flex items-center gap-2 border px-3 py-1.5 rounded-sm text-[11px] uppercase tracking-[0.25em] font-semibold ${v.cls}`}><v.icon className="h-3.5 w-3.5" /> Verdict: {v.label}</div>}
+  </div>
+);
+
 
 /* ============================ STANDARD ARTICLE ============================ */
 
