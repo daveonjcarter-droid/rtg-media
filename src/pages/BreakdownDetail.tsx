@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Play, BookOpen, Film, Clock } from "lucide-react";
 import SiteLayout from "@/components/site/SiteLayout";
 import EmptyState from "@/components/site/EmptyState";
+import RtgMark from "@/components/site/RtgMark";
 import EpisodeCard from "@/components/site/EpisodeCard";
 import { supabase } from "@/integrations/supabase/client";
 import type { BreakdownEpisode } from "@/hooks/useRtgContent";
