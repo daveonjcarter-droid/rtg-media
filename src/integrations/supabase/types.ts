@@ -124,18 +124,21 @@ export type Database = {
           email: string
           equipment_cost: number | null
           id: string
+          instagram: string | null
           location_detail: string | null
           name: string
           notes: string | null
           phone: string
           preferred_contact: Database["public"]["Enums"]["contact_method"]
           project_date: string | null
+          project_type: string | null
           reference_link: string | null
           service: string | null
           shoot_type: Database["public"]["Enums"]["shoot_type"] | null
           status: Database["public"]["Enums"]["booking_status"]
           studio_cost: number | null
           studio_preference: string | null
+          timeline: string | null
           travel_cost: number | null
           updated_at: string
         }
@@ -149,18 +152,21 @@ export type Database = {
           email: string
           equipment_cost?: number | null
           id?: string
+          instagram?: string | null
           location_detail?: string | null
           name: string
           notes?: string | null
           phone: string
           preferred_contact?: Database["public"]["Enums"]["contact_method"]
           project_date?: string | null
+          project_type?: string | null
           reference_link?: string | null
           service?: string | null
           shoot_type?: Database["public"]["Enums"]["shoot_type"] | null
           status?: Database["public"]["Enums"]["booking_status"]
           studio_cost?: number | null
           studio_preference?: string | null
+          timeline?: string | null
           travel_cost?: number | null
           updated_at?: string
         }
@@ -174,18 +180,21 @@ export type Database = {
           email?: string
           equipment_cost?: number | null
           id?: string
+          instagram?: string | null
           location_detail?: string | null
           name?: string
           notes?: string | null
           phone?: string
           preferred_contact?: Database["public"]["Enums"]["contact_method"]
           project_date?: string | null
+          project_type?: string | null
           reference_link?: string | null
           service?: string | null
           shoot_type?: Database["public"]["Enums"]["shoot_type"] | null
           status?: Database["public"]["Enums"]["booking_status"]
           studio_cost?: number | null
           studio_preference?: string | null
+          timeline?: string | null
           travel_cost?: number | null
           updated_at?: string
         }
