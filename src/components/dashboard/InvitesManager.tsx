@@ -327,6 +327,7 @@ export default function InvitesManager() {
           {visible.map((inv) => {
             const Sb = statusBadge[inv.status];
             const Tb = typeBadge[(inv.invite_type ?? "staff") as InviteType];
+            const Eb = emailStatusBadge[(inv.email_delivery_status ?? "pending") as EmailDeliveryStatus];
             const supervisor = profiles.find((p) => p.id === inv.reports_to);
             return (
               <div key={inv.id} className="p-3 sm:p-4 flex flex-col sm:flex-row gap-3 hover:bg-surface/40">
@@ -338,6 +339,9 @@ export default function InvitesManager() {
                     <span className="font-medium text-sm break-all">{inv.full_name || inv.email}</span>
                     <span className={`inline-flex items-center gap-1 text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-sm border ${Sb.cls}`}>
                       <Sb.icon className="h-2.5 w-2.5" /> {inv.status}
+                    </span>
+                    <span className={`inline-flex items-center gap-1 text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-sm border ${Eb.cls}`}>
+                      <Eb.icon className="h-2.5 w-2.5" /> {Eb.label}
                     </span>
                   </div>
                   {inv.full_name && <div className="text-[11px] text-muted-foreground mt-0.5 break-all">{inv.email}</div>}
@@ -354,14 +358,28 @@ export default function InvitesManager() {
                     {inv.default_rate != null && (<span>Rate: <span className="text-foreground">${inv.default_rate}</span></span>)}
                     {inv.portfolio_required && <span className="text-foreground">Portfolio req</span>}
                     {inv.availability_required && <span className="text-foreground">Availability req</span>}
+                    {inv.email_sent_at && (<span>Sent: <span className="text-foreground">{new Date(inv.email_sent_at).toLocaleString()}</span></span>)}
                   </div>
+                  {inv.email_delivery_status === "failed" && inv.email_error && (
+                    <div className="mt-1.5 text-[10px] text-destructive break-words">
+                      Email error: {inv.email_error}
+                    </div>
+                  )}
                 </div>
                 <div className="flex flex-wrap items-center gap-1.5">
+                  <button onClick={() => resend(inv)} className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest px-2 py-1 border border-border rounded-sm hover:border-primary hover:text-primary min-h-[32px]" title="Resend invite email">
+                    <Send className="h-3 w-3" /> Resend
+                  </button>
+                  <button onClick={() => copyLink(inv)} className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest px-2 py-1 border border-border rounded-sm hover:border-foreground/40 min-h-[32px]" title="Copy invite link">
+                    <Link2 className="h-3 w-3" /> Copy link
+                  </button>
+                  {inv.status !== "disabled" && (
+                    <button onClick={() => revoke(inv.id)} className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest px-2 py-1 border border-border rounded-sm hover:border-destructive hover:text-destructive min-h-[32px]" title="Revoke invite">
+                      <XCircle className="h-3 w-3" /> Revoke
+                    </button>
+                  )}
                   {inv.status !== "active" && (
                     <button onClick={() => setStatus(inv.id, "active")} className="text-[10px] uppercase tracking-widest px-2 py-1 border border-border rounded-sm hover:border-foreground/40 min-h-[32px]">Activate</button>
-                  )}
-                  {inv.status !== "disabled" && (
-                    <button onClick={() => setStatus(inv.id, "disabled")} className="text-[10px] uppercase tracking-widest px-2 py-1 border border-border rounded-sm hover:border-foreground/40 min-h-[32px]">Disable</button>
                   )}
                   <button onClick={() => startEdit(inv)} className="h-8 w-8 rounded-sm border border-border hover:border-foreground/40 flex items-center justify-center" title="Edit">
                     <Pencil className="h-3 w-3" />
