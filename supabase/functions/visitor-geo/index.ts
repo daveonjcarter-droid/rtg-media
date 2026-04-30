@@ -1,6 +1,6 @@
 // Returns visitor's country/city from edge headers (Cloudflare / Supabase Edge runtime).
 // Used by the public tracking pixel — no auth required.
-import { corsHeaders } from "@supabase/supabase-js/cors";
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 Deno.serve((req) => {
   if (req.method === "OPTIONS") {
