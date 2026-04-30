@@ -563,7 +563,7 @@ export default function InvitesManager() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)} className="rounded-sm uppercase tracking-widest text-[10px] h-9">Cancel</Button>
-            <Button onClick={save} className="rounded-sm uppercase tracking-widest text-[10px] h-9 bg-primary text-primary-foreground">Save Invite</Button>
+            <Button onClick={save} className="rounded-sm uppercase tracking-widest text-[10px] h-9 bg-primary text-primary-foreground">{editing?.id ? "Save Invite" : "Send Invite"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
