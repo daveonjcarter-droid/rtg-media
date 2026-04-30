@@ -21,6 +21,8 @@ const STAFF_ROLES: AppRole[] = [
 
 type InviteType = "staff" | "crew" | "hybrid";
 
+type EmailDeliveryStatus = "pending" | "sent" | "failed";
+
 type Invite = {
   id: string;
   email: string;
@@ -36,6 +38,11 @@ type Invite = {
   notes: string | null;
   created_at: string;
   accepted_at: string | null;
+  invite_token: string | null;
+  invite_url: string | null;
+  email_delivery_status: EmailDeliveryStatus;
+  email_sent_at: string | null;
+  email_error: string | null;
 };
 
 type Profile = { id: string; display_name: string | null };
@@ -44,6 +51,12 @@ const statusBadge = {
   pending: { icon: Clock, cls: "bg-gold/15 text-gold border-gold/30" },
   active: { icon: CheckCircle2, cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" },
   disabled: { icon: Ban, cls: "bg-muted/40 text-muted-foreground border-border" },
+};
+
+const emailStatusBadge: Record<EmailDeliveryStatus, { icon: any; cls: string; label: string }> = {
+  pending: { icon: Clock, cls: "bg-muted/40 text-muted-foreground border-border", label: "Email pending" },
+  sent: { icon: CheckCircle2, cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30", label: "Email sent" },
+  failed: { icon: AlertTriangle, cls: "bg-destructive/15 text-destructive border-destructive/30", label: "Email failed" },
 };
 
 const typeBadge: Record<InviteType, { icon: any; cls: string; label: string }> = {
@@ -58,7 +71,18 @@ const emptyInvite = (type: InviteType): Invite => ({
   reports_to: null, internal_title: "", default_rate: null,
   portfolio_required: type !== "staff", availability_required: type !== "staff",
   status: "pending", notes: "", created_at: "", accepted_at: null,
+  invite_token: null, invite_url: null,
+  email_delivery_status: "pending", email_sent_at: null, email_error: null,
 });
+
+const generateInviteToken = () => {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
+};
+
+const buildInviteUrl = (token: string, email: string) =>
+  `${window.location.origin}/signup?email=${encodeURIComponent(email)}&invite=${token}`;
 
 export default function InvitesManager() {
   const { user, hasRole } = useAuth();
