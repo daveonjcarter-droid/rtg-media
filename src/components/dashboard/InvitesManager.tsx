@@ -111,12 +111,58 @@ export default function InvitesManager() {
   const startNew = (type: InviteType) => { setEditing(emptyInvite(type)); setOpen(true); };
   const startEdit = (inv: Invite) => { setEditing({ ...inv }); setOpen(true); };
 
+  const sendInviteEmail = async (inviteId: string, opts: {
+    email: string;
+    fullName: string | null;
+    inviteType: InviteType;
+    roles: AppRole[];
+    internalTitle: string | null;
+    reportsToName: string | null;
+    inviteUrl: string;
+  }) => {
+    try {
+      const { error } = await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "team-invite",
+          recipientEmail: opts.email,
+          idempotencyKey: `team-invite-${inviteId}-${Date.now()}`,
+          templateData: {
+            fullName: opts.fullName ?? undefined,
+            inviteType: opts.inviteType,
+            roles: opts.roles,
+            internalTitle: opts.internalTitle,
+            reportsToName: opts.reportsToName,
+            inviteUrl: opts.inviteUrl,
+          },
+        },
+      });
+      if (error) throw error;
+      await supabase.from("invited_users" as any).update({
+        email_delivery_status: "sent",
+        email_sent_at: new Date().toISOString(),
+        email_error: null,
+      }).eq("id", inviteId);
+      return { ok: true as const };
+    } catch (e: any) {
+      const msg = e?.message ?? String(e);
+      await supabase.from("invited_users" as any).update({
+        email_delivery_status: "failed",
+        email_error: msg,
+      }).eq("id", inviteId);
+      return { ok: false as const, error: msg };
+    }
+  };
+
   const save = async () => {
     if (!editing) return;
     if (!editing.email.trim()) { toast.error("Email is required"); return; }
     if (editing.roles.length === 0) { toast.error("Select at least one role"); return; }
+    const email = editing.email.trim().toLowerCase();
+    const isNew = !editing.id;
+    const token = editing.invite_token ?? generateInviteToken();
+    const inviteUrl = buildInviteUrl(token, email);
     const payload: any = {
-      email: editing.email.trim().toLowerCase(),
+      email,
       full_name: editing.full_name?.trim() || null,
       invite_type: editing.invite_type,
       roles: editing.roles,
@@ -128,13 +174,80 @@ export default function InvitesManager() {
       status: editing.status,
       notes: editing.notes?.trim() || null,
       invited_by: user?.id,
+      invite_token: token,
+      invite_url: inviteUrl,
     };
-    const res = editing.id
-      ? await supabase.from("invited_users" as any).update(payload).eq("id", editing.id)
-      : await supabase.from("invited_users" as any).insert(payload);
+    if (isNew) {
+      payload.email_delivery_status = "pending";
+    }
+
+    const res = isNew
+      ? await supabase.from("invited_users" as any).insert(payload).select("id").single()
+      : await supabase.from("invited_users" as any).update(payload).eq("id", editing.id).select("id").single();
     if (res.error) return toast.error(res.error.message);
-    toast.success(editing.id ? "Invite updated" : "Invite created");
-    setOpen(false); setEditing(null); load();
+
+    const inviteId = (res.data as any)?.id ?? editing.id;
+    setOpen(false); setEditing(null);
+
+    if (isNew) {
+      const supervisorName = profiles.find((p) => p.id === editing.reports_to)?.display_name ?? null;
+      const result = await sendInviteEmail(inviteId, {
+        email,
+        fullName: editing.full_name?.trim() || null,
+        inviteType: editing.invite_type,
+        roles: editing.roles,
+        internalTitle: editing.internal_title?.trim() || null,
+        reportsToName: supervisorName,
+        inviteUrl,
+      });
+      if (result.ok) toast.success("Invite sent");
+      else toast.error("Invite saved, but email failed to send.", { description: result.error });
+    } else {
+      toast.success("Invite updated");
+    }
+    load();
+  };
+
+  const resend = async (inv: Invite) => {
+    const token = inv.invite_token ?? generateInviteToken();
+    const inviteUrl = inv.invite_url ?? buildInviteUrl(token, inv.email);
+    if (!inv.invite_token || !inv.invite_url) {
+      await supabase.from("invited_users" as any).update({ invite_token: token, invite_url: inviteUrl }).eq("id", inv.id);
+    }
+    const supervisorName = profiles.find((p) => p.id === inv.reports_to)?.display_name ?? null;
+    const result = await sendInviteEmail(inv.id, {
+      email: inv.email,
+      fullName: inv.full_name,
+      inviteType: inv.invite_type,
+      roles: inv.roles,
+      internalTitle: inv.internal_title,
+      reportsToName: supervisorName,
+      inviteUrl,
+    });
+    if (result.ok) toast.success("Invite resent");
+    else toast.error("Email failed to send.", { description: result.error });
+    load();
+  };
+
+  const copyLink = async (inv: Invite) => {
+    const url = inv.invite_url ?? (inv.invite_token ? buildInviteUrl(inv.invite_token, inv.email) : null);
+    if (!url) { toast.error("No invite link yet — resend the invite first."); return; }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Invite link copied");
+    } catch {
+      toast.error("Couldn't copy — copy manually:", { description: url });
+    }
+  };
+
+  const revoke = async (id: string) => {
+    if (!confirm("Revoke this invite? The link will stop working.")) return;
+    const newToken = generateInviteToken(); // rotate so old URL is dead
+    const { error } = await supabase.from("invited_users" as any)
+      .update({ status: "disabled", invite_token: newToken, invite_url: null })
+      .eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Invite revoked"); load();
   };
 
   const remove = async (id: string) => {
