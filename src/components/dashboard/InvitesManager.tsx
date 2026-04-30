@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Trash2, Pencil, Mail, CheckCircle2, Clock, Ban, Users, Camera, Layers } from "lucide-react";
+import { Plus, Trash2, Pencil, Mail, CheckCircle2, Clock, Ban, Users, Camera, Layers, Send, Link2, XCircle, AlertTriangle } from "lucide-react";
 
 const STAFF_ROLES: AppRole[] = [
   "head_admin", "admin", "editor", "writer",
@@ -20,6 +20,8 @@ const STAFF_ROLES: AppRole[] = [
 // CREW_ROLES imported from AuthContext
 
 type InviteType = "staff" | "crew" | "hybrid";
+
+type EmailDeliveryStatus = "pending" | "sent" | "failed";
 
 type Invite = {
   id: string;
@@ -36,6 +38,11 @@ type Invite = {
   notes: string | null;
   created_at: string;
   accepted_at: string | null;
+  invite_token: string | null;
+  invite_url: string | null;
+  email_delivery_status: EmailDeliveryStatus;
+  email_sent_at: string | null;
+  email_error: string | null;
 };
 
 type Profile = { id: string; display_name: string | null };
@@ -44,6 +51,12 @@ const statusBadge = {
   pending: { icon: Clock, cls: "bg-gold/15 text-gold border-gold/30" },
   active: { icon: CheckCircle2, cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" },
   disabled: { icon: Ban, cls: "bg-muted/40 text-muted-foreground border-border" },
+};
+
+const emailStatusBadge: Record<EmailDeliveryStatus, { icon: any; cls: string; label: string }> = {
+  pending: { icon: Clock, cls: "bg-muted/40 text-muted-foreground border-border", label: "Email pending" },
+  sent: { icon: CheckCircle2, cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30", label: "Email sent" },
+  failed: { icon: AlertTriangle, cls: "bg-destructive/15 text-destructive border-destructive/30", label: "Email failed" },
 };
 
 const typeBadge: Record<InviteType, { icon: any; cls: string; label: string }> = {
@@ -58,7 +71,18 @@ const emptyInvite = (type: InviteType): Invite => ({
   reports_to: null, internal_title: "", default_rate: null,
   portfolio_required: type !== "staff", availability_required: type !== "staff",
   status: "pending", notes: "", created_at: "", accepted_at: null,
+  invite_token: null, invite_url: null,
+  email_delivery_status: "pending", email_sent_at: null, email_error: null,
 });
+
+const generateInviteToken = () => {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
+};
+
+const buildInviteUrl = (token: string, email: string) =>
+  `${window.location.origin}/signup?email=${encodeURIComponent(email)}&invite=${token}`;
 
 export default function InvitesManager() {
   const { user, hasRole } = useAuth();
@@ -87,12 +111,58 @@ export default function InvitesManager() {
   const startNew = (type: InviteType) => { setEditing(emptyInvite(type)); setOpen(true); };
   const startEdit = (inv: Invite) => { setEditing({ ...inv }); setOpen(true); };
 
+  const sendInviteEmail = async (inviteId: string, opts: {
+    email: string;
+    fullName: string | null;
+    inviteType: InviteType;
+    roles: AppRole[];
+    internalTitle: string | null;
+    reportsToName: string | null;
+    inviteUrl: string;
+  }) => {
+    try {
+      const { error } = await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "team-invite",
+          recipientEmail: opts.email,
+          idempotencyKey: `team-invite-${inviteId}-${Date.now()}`,
+          templateData: {
+            fullName: opts.fullName ?? undefined,
+            inviteType: opts.inviteType,
+            roles: opts.roles,
+            internalTitle: opts.internalTitle,
+            reportsToName: opts.reportsToName,
+            inviteUrl: opts.inviteUrl,
+          },
+        },
+      });
+      if (error) throw error;
+      await supabase.from("invited_users" as any).update({
+        email_delivery_status: "sent",
+        email_sent_at: new Date().toISOString(),
+        email_error: null,
+      }).eq("id", inviteId);
+      return { ok: true as const };
+    } catch (e: any) {
+      const msg = e?.message ?? String(e);
+      await supabase.from("invited_users" as any).update({
+        email_delivery_status: "failed",
+        email_error: msg,
+      }).eq("id", inviteId);
+      return { ok: false as const, error: msg };
+    }
+  };
+
   const save = async () => {
     if (!editing) return;
     if (!editing.email.trim()) { toast.error("Email is required"); return; }
     if (editing.roles.length === 0) { toast.error("Select at least one role"); return; }
+    const email = editing.email.trim().toLowerCase();
+    const isNew = !editing.id;
+    const token = editing.invite_token ?? generateInviteToken();
+    const inviteUrl = buildInviteUrl(token, email);
     const payload: any = {
-      email: editing.email.trim().toLowerCase(),
+      email,
       full_name: editing.full_name?.trim() || null,
       invite_type: editing.invite_type,
       roles: editing.roles,
@@ -104,13 +174,80 @@ export default function InvitesManager() {
       status: editing.status,
       notes: editing.notes?.trim() || null,
       invited_by: user?.id,
+      invite_token: token,
+      invite_url: inviteUrl,
     };
-    const res = editing.id
-      ? await supabase.from("invited_users" as any).update(payload).eq("id", editing.id)
-      : await supabase.from("invited_users" as any).insert(payload);
+    if (isNew) {
+      payload.email_delivery_status = "pending";
+    }
+
+    const res = isNew
+      ? await supabase.from("invited_users" as any).insert(payload).select("id").single()
+      : await supabase.from("invited_users" as any).update(payload).eq("id", editing.id).select("id").single();
     if (res.error) return toast.error(res.error.message);
-    toast.success(editing.id ? "Invite updated" : "Invite created");
-    setOpen(false); setEditing(null); load();
+
+    const inviteId = (res.data as any)?.id ?? editing.id;
+    setOpen(false); setEditing(null);
+
+    if (isNew) {
+      const supervisorName = profiles.find((p) => p.id === editing.reports_to)?.display_name ?? null;
+      const result = await sendInviteEmail(inviteId, {
+        email,
+        fullName: editing.full_name?.trim() || null,
+        inviteType: editing.invite_type,
+        roles: editing.roles,
+        internalTitle: editing.internal_title?.trim() || null,
+        reportsToName: supervisorName,
+        inviteUrl,
+      });
+      if (result.ok) toast.success("Invite sent");
+      else toast.error("Invite saved, but email failed to send.", { description: result.error });
+    } else {
+      toast.success("Invite updated");
+    }
+    load();
+  };
+
+  const resend = async (inv: Invite) => {
+    const token = inv.invite_token ?? generateInviteToken();
+    const inviteUrl = inv.invite_url ?? buildInviteUrl(token, inv.email);
+    if (!inv.invite_token || !inv.invite_url) {
+      await supabase.from("invited_users" as any).update({ invite_token: token, invite_url: inviteUrl }).eq("id", inv.id);
+    }
+    const supervisorName = profiles.find((p) => p.id === inv.reports_to)?.display_name ?? null;
+    const result = await sendInviteEmail(inv.id, {
+      email: inv.email,
+      fullName: inv.full_name,
+      inviteType: inv.invite_type,
+      roles: inv.roles,
+      internalTitle: inv.internal_title,
+      reportsToName: supervisorName,
+      inviteUrl,
+    });
+    if (result.ok) toast.success("Invite resent");
+    else toast.error("Email failed to send.", { description: result.error });
+    load();
+  };
+
+  const copyLink = async (inv: Invite) => {
+    const url = inv.invite_url ?? (inv.invite_token ? buildInviteUrl(inv.invite_token, inv.email) : null);
+    if (!url) { toast.error("No invite link yet — resend the invite first."); return; }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Invite link copied");
+    } catch {
+      toast.error("Couldn't copy — copy manually:", { description: url });
+    }
+  };
+
+  const revoke = async (id: string) => {
+    if (!confirm("Revoke this invite? The link will stop working.")) return;
+    const newToken = generateInviteToken(); // rotate so old URL is dead
+    const { error } = await supabase.from("invited_users" as any)
+      .update({ status: "disabled", invite_token: newToken, invite_url: null })
+      .eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Invite revoked"); load();
   };
 
   const remove = async (id: string) => {
@@ -190,6 +327,7 @@ export default function InvitesManager() {
           {visible.map((inv) => {
             const Sb = statusBadge[inv.status];
             const Tb = typeBadge[(inv.invite_type ?? "staff") as InviteType];
+            const Eb = emailStatusBadge[(inv.email_delivery_status ?? "pending") as EmailDeliveryStatus];
             const supervisor = profiles.find((p) => p.id === inv.reports_to);
             return (
               <div key={inv.id} className="p-3 sm:p-4 flex flex-col sm:flex-row gap-3 hover:bg-surface/40">
@@ -201,6 +339,9 @@ export default function InvitesManager() {
                     <span className="font-medium text-sm break-all">{inv.full_name || inv.email}</span>
                     <span className={`inline-flex items-center gap-1 text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-sm border ${Sb.cls}`}>
                       <Sb.icon className="h-2.5 w-2.5" /> {inv.status}
+                    </span>
+                    <span className={`inline-flex items-center gap-1 text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-sm border ${Eb.cls}`}>
+                      <Eb.icon className="h-2.5 w-2.5" /> {Eb.label}
                     </span>
                   </div>
                   {inv.full_name && <div className="text-[11px] text-muted-foreground mt-0.5 break-all">{inv.email}</div>}
@@ -217,14 +358,28 @@ export default function InvitesManager() {
                     {inv.default_rate != null && (<span>Rate: <span className="text-foreground">${inv.default_rate}</span></span>)}
                     {inv.portfolio_required && <span className="text-foreground">Portfolio req</span>}
                     {inv.availability_required && <span className="text-foreground">Availability req</span>}
+                    {inv.email_sent_at && (<span>Sent: <span className="text-foreground">{new Date(inv.email_sent_at).toLocaleString()}</span></span>)}
                   </div>
+                  {inv.email_delivery_status === "failed" && inv.email_error && (
+                    <div className="mt-1.5 text-[10px] text-destructive break-words">
+                      Email error: {inv.email_error}
+                    </div>
+                  )}
                 </div>
                 <div className="flex flex-wrap items-center gap-1.5">
+                  <button onClick={() => resend(inv)} className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest px-2 py-1 border border-border rounded-sm hover:border-primary hover:text-primary min-h-[32px]" title="Resend invite email">
+                    <Send className="h-3 w-3" /> Resend
+                  </button>
+                  <button onClick={() => copyLink(inv)} className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest px-2 py-1 border border-border rounded-sm hover:border-foreground/40 min-h-[32px]" title="Copy invite link">
+                    <Link2 className="h-3 w-3" /> Copy link
+                  </button>
+                  {inv.status !== "disabled" && (
+                    <button onClick={() => revoke(inv.id)} className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest px-2 py-1 border border-border rounded-sm hover:border-destructive hover:text-destructive min-h-[32px]" title="Revoke invite">
+                      <XCircle className="h-3 w-3" /> Revoke
+                    </button>
+                  )}
                   {inv.status !== "active" && (
                     <button onClick={() => setStatus(inv.id, "active")} className="text-[10px] uppercase tracking-widest px-2 py-1 border border-border rounded-sm hover:border-foreground/40 min-h-[32px]">Activate</button>
-                  )}
-                  {inv.status !== "disabled" && (
-                    <button onClick={() => setStatus(inv.id, "disabled")} className="text-[10px] uppercase tracking-widest px-2 py-1 border border-border rounded-sm hover:border-foreground/40 min-h-[32px]">Disable</button>
                   )}
                   <button onClick={() => startEdit(inv)} className="h-8 w-8 rounded-sm border border-border hover:border-foreground/40 flex items-center justify-center" title="Edit">
                     <Pencil className="h-3 w-3" />
@@ -408,7 +563,7 @@ export default function InvitesManager() {
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)} className="rounded-sm uppercase tracking-widest text-[10px] h-9">Cancel</Button>
-            <Button onClick={save} className="rounded-sm uppercase tracking-widest text-[10px] h-9 bg-primary text-primary-foreground">Save Invite</Button>
+            <Button onClick={save} className="rounded-sm uppercase tracking-widest text-[10px] h-9 bg-primary text-primary-foreground">{editing?.id ? "Save Invite" : "Send Invite"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

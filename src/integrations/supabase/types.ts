@@ -863,10 +863,15 @@ export type Database = {
           created_at: string
           default_rate: number | null
           email: string
+          email_delivery_status: string
+          email_error: string | null
+          email_sent_at: string | null
           full_name: string | null
           id: string
           internal_title: string | null
+          invite_token: string | null
           invite_type: string
+          invite_url: string | null
           invited_by: string | null
           notes: string | null
           portfolio_required: boolean
@@ -882,10 +887,15 @@ export type Database = {
           created_at?: string
           default_rate?: number | null
           email: string
+          email_delivery_status?: string
+          email_error?: string | null
+          email_sent_at?: string | null
           full_name?: string | null
           id?: string
           internal_title?: string | null
+          invite_token?: string | null
           invite_type?: string
+          invite_url?: string | null
           invited_by?: string | null
           notes?: string | null
           portfolio_required?: boolean
@@ -901,10 +911,15 @@ export type Database = {
           created_at?: string
           default_rate?: number | null
           email?: string
+          email_delivery_status?: string
+          email_error?: string | null
+          email_sent_at?: string | null
           full_name?: string | null
           id?: string
           internal_title?: string | null
+          invite_token?: string | null
           invite_type?: string
+          invite_url?: string | null
           invited_by?: string | null
           notes?: string | null
           portfolio_required?: boolean
