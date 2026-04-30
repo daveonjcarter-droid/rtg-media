@@ -81,8 +81,11 @@ const generateInviteToken = () => {
   return Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
 };
 
-const buildInviteUrl = (token: string, email: string) =>
-  `${window.location.origin}/signup?email=${encodeURIComponent(email)}&invite=${token}`;
+// Production site URL — invite emails must NEVER point at preview/staging hosts.
+const PUBLIC_SITE_URL = "https://runnerstogreatness.com";
+
+const buildInviteUrl = (token: string, _email: string) =>
+  `${PUBLIC_SITE_URL}/signup?invite_token=${token}`;
 
 export default function InvitesManager() {
   const { user, hasRole } = useAuth();
