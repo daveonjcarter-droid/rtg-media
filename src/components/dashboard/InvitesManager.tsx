@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Trash2, Pencil, Mail, CheckCircle2, Clock, Ban, Users, Camera, Layers } from "lucide-react";
+import { Plus, Trash2, Pencil, Mail, CheckCircle2, Clock, Ban, Users, Camera, Layers, Send, Link2, XCircle, AlertTriangle } from "lucide-react";
 
 const STAFF_ROLES: AppRole[] = [
   "head_admin", "admin", "editor", "writer",
