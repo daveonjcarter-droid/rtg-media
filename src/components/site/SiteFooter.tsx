@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Instagram, Youtube, Twitter as X } from "lucide-react";
-import RtgMark from "./RtgMark";
+import Logo from "./Logo";
 
 const SiteFooter = () => (
   <footer className="relative border-t border-border bg-ink mt-24 overflow-hidden">
