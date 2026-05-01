@@ -17,8 +17,8 @@ const SiteFooter = () => (
     {/* ============ BRAND MOMENT ============ */}
     <div className="relative container-rtg pt-20 md:pt-28 pb-10 md:pb-14 text-center">
       <h2
-        className="font-gothic text-cream leading-[0.9] tracking-[0.02em] text-[18vw] md:text-[12vw] lg:text-[10rem]"
-        style={{ wordSpacing: "0.05em" }}
+        className="footer-wordmark font-gothic text-cream"
+        style={{ wordSpacing: "0.04em" }}
       >
         Runners&nbsp;To&nbsp;Greatness
       </h2>
