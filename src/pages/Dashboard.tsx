@@ -170,8 +170,30 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [me, setMe] = useState<{ display_name: string | null; avatar_url: string | null; role_type: string | null } | null>(null);
 
   const primary: AppRole = primaryRole(roles);
+
+  useEffect(() => {
+    if (!user?.id) { setMe(null); return; }
+    (async () => {
+      const [{ data: p }, { data: m }] = await Promise.all([
+        supabase.from("profiles").select("display_name, avatar_url").eq("id", user.id).maybeSingle(),
+        supabase.from("profile_meta").select("display_name, profile_photo_url, role_type").eq("user_id", user.id).maybeSingle(),
+      ]);
+      setMe({
+        display_name: m?.display_name ?? p?.display_name ?? user.email ?? null,
+        avatar_url: m?.profile_photo_url ?? p?.avatar_url ?? null,
+        role_type: m?.role_type ?? null,
+      });
+    })();
+  }, [user?.id]);
+
+  const handleProfileClick = () => {
+    const hasMyProfile = navItems.find((n) => n.id === "my-profile");
+    if (hasMyProfile) setSection("my-profile");
+    else setSection("overview");
+  };
 
   const loadArticles = async () => {
     setLoading(true);
