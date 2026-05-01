@@ -32,10 +32,12 @@ const Signup = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const inviteToken = params.get("invite_token");
+  const adminCodeParam = params.get("code");
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [adminCode, setAdminCode] = useState(adminCodeParam ?? "");
   const [busy, setBusy] = useState(false);
 
   const [invite, setInvite] = useState<InvitePreview | null>(null);
@@ -101,8 +103,8 @@ const Signup = () => {
 
   const emailLocked = useMemo(() => !!invite, [invite]);
 
-  // INVITE-ONLY: block the form when there's no token at all
-  if (!inviteToken) {
+  // INVITE-ONLY: block the form when there's no token AND no admin code
+  if (!inviteToken && !adminCodeParam && !adminCode) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-6">
         <div className="w-full max-w-md text-center space-y-6">
@@ -112,9 +114,12 @@ const Signup = () => {
           <div className="eyebrow text-primary">Access Restricted</div>
           <h1 className="font-display text-3xl uppercase">Invite-only signup</h1>
           <p className="text-sm text-muted-foreground">
-            RTG Media accounts are created by invitation only. If you believe you should
-            have access, please request an invite from your team lead or an RTG admin.
+            RTG Media accounts are created by invitation only. If you have an admin invite code, paste it below.
           </p>
+          <div className="space-y-2 text-left">
+            <Label className="eyebrow">Admin Invite Code</Label>
+            <Input value={adminCode} onChange={(e) => setAdminCode(e.target.value.toUpperCase())} placeholder="XXXX-XXXX-XXXX-XXXX" className="h-11 rounded-sm uppercase tracking-widest" />
+          </div>
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
             <Link to="/" className="inline-block">
               <Button variant="outline" className="w-full sm:w-auto h-11 rounded-sm uppercase tracking-widest text-xs">
@@ -134,16 +139,18 @@ const Signup = () => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (inviteError) { toast.error(inviteError); return; }
-    if (!invite) { toast.error("Invalid invite. Please use the link from your invitation email."); return; }
+    if (inviteToken) {
+      if (inviteError) { toast.error(inviteError); return; }
+      if (!invite) { toast.error("Invalid invite. Please use the link from your invitation email."); return; }
+    }
     const parsed = schema.safeParse({ name, email, password });
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
-    if (parsed.data.email.toLowerCase() !== invite.email.toLowerCase()) {
+    if (invite && parsed.data.email.toLowerCase() !== invite.email.toLowerCase()) {
       toast.error("Email must match the invited address.");
       return;
     }
     setBusy(true);
-    const { error } = await signUp(parsed.data.email, parsed.data.password, parsed.data.name);
+    const { error } = await signUp(parsed.data.email, parsed.data.password, parsed.data.name, adminCode || undefined);
     setBusy(false);
     if (error) { toast.error(error); return; }
     toast.success("Account created");
@@ -243,11 +250,18 @@ const Signup = () => {
               <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="h-11 rounded-sm" />
               <p className="text-xs text-muted-foreground mt-1">Min 8 characters. Checked against known breached passwords.</p>
             </div>
+            {!inviteToken && (
+              <div>
+                <Label className="eyebrow mb-2 block">Admin Invite Code</Label>
+                <Input value={adminCode} onChange={(e) => setAdminCode(e.target.value.toUpperCase())} required className="h-11 rounded-sm uppercase tracking-widest" placeholder="XXXX-XXXX-XXXX-XXXX" />
+                <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-widest">Required for admin/leadership access.</p>
+              </div>
+            )}
           </div>
 
           <Button
             type="submit"
-            disabled={busy || inviteLoading || !!inviteError || !invite}
+            disabled={busy || (!!inviteToken && (inviteLoading || !!inviteError || !invite))}
             className="w-full h-11 rounded-sm uppercase tracking-widest text-xs bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {busy ? "Creating…" : "Accept & Create Account"}

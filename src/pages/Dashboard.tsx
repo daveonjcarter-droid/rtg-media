@@ -6,7 +6,7 @@ import {
   Youtube, Search, Bell, ChevronsLeft, ChevronsRight, MoreHorizontal, Eye, Pencil, Trash2,
   Replace, Link as LinkIcon, Upload, Filter, ArrowUpDown, X, Tag, FolderInput, CheckSquare,
   Wand2, Film, BarChart3, Settings as SettingsIcon, Globe, Camera, Lock, FileText, ShoppingBag,
-  Menu, ShieldCheck,
+  Menu, ShieldCheck, IdCard, KeyRound,
 } from "lucide-react";
 import { SECTION_ACCESS, ROLE_LABELS, ROLE_DESCRIPTIONS, can, primaryRole, canManageUsers, canManageBilling, isHeadAdmin, type SectionId, type Group } from "@/lib/permissions";
 import { AnalyticsView, SettingsView, RtgFilmsManager, RtgFestManager, ArticleImportView } from "@/components/dashboard/AdminSections";
@@ -21,6 +21,8 @@ import ApplicantsManager from "@/components/dashboard/ApplicantsManager";
 import WorkspaceSettingsPanel from "@/components/dashboard/WorkspaceSettingsPanel";
 import { CrewManagement, PortfolioApprovalsQueue } from "@/components/dashboard/CrewManagement";
 import { CrewProfilePanel, MyAssignedBookings } from "@/components/dashboard/CrewProfilePanel";
+import ProfileManagement from "@/components/dashboard/ProfileManagement";
+import AdminInvitesManager from "@/components/dashboard/AdminInvitesManager";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -134,6 +136,8 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "users",             label: "Users & Roles",    icon: Users,           group: "Admin" },
   { id: "invites",           label: "Invites & Roles",  icon: Mail,            group: "Admin" },
   { id: "applicants",        label: "Applicants",       icon: Inbox,           group: "Admin" },
+  { id: "profile-management", label: "Profile Management", icon: IdCard,        group: "Admin" },
+  { id: "admin-invites",     label: "Admin Invite Codes", icon: KeyRound,       group: "Admin" },
   { id: "permissions",       label: "Role Permissions", icon: ShieldCheck,     group: "Admin" },
   { id: "site-updates",      label: "Quick Site Updates", icon: Wand2,         group: "Admin" },
   { id: "settings",          label: "Settings",         icon: SettingsIcon,    group: "Admin" },
@@ -440,9 +444,11 @@ const Dashboard = () => {
              {section === "films" && <RtgFilmsManager />}
              {section === "fest" && <RtgFestManager />}
              {section === "crew" && <CrewManagement />}
-             {section === "portfolio-approvals" && <PortfolioApprovalsQueue />}
-             {section === "my-profile" && <CrewProfilePanel />}
-             {section === "my-bookings" && <MyAssignedBookings />}
+            {section === "portfolio-approvals" && <PortfolioApprovalsQueue />}
+            {section === "profile-management" && <ProfileManagement />}
+            {section === "admin-invites" && <AdminInvitesManager />}
+            {section === "my-profile" && <CrewProfilePanel />}
+            {section === "my-bookings" && <MyAssignedBookings />}
             </>
           )}
         </div>

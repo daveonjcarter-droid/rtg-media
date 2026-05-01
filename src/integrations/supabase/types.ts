@@ -50,6 +50,48 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_invites: {
+        Row: {
+          app_roles: Database["public"]["Enums"]["app_role"][]
+          created_at: string
+          created_by: string | null
+          email: string
+          expires_at: string | null
+          id: string
+          invite_code: string
+          role_type: string
+          status: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          app_roles?: Database["public"]["Enums"]["app_role"][]
+          created_at?: string
+          created_by?: string | null
+          email: string
+          expires_at?: string | null
+          id?: string
+          invite_code: string
+          role_type: string
+          status?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          app_roles?: Database["public"]["Enums"]["app_role"][]
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          expires_at?: string | null
+          id?: string
+          invite_code?: string
+          role_type?: string
+          status?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
       advertise_inquiries: {
         Row: {
           archived: boolean
@@ -1226,6 +1268,57 @@ export type Database = {
           },
         ]
       }
+      profile_meta: {
+        Row: {
+          bio: string | null
+          created_at: string
+          display_name: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          internal_notes: string | null
+          profile_photo_url: string | null
+          profile_type: string
+          role_type: string | null
+          social_links: Json
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          internal_notes?: string | null
+          profile_photo_url?: string | null
+          profile_type?: string
+          role_type?: string | null
+          social_links?: Json
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          internal_notes?: string | null
+          profile_photo_url?: string | null
+          profile_type?: string
+          role_type?: string | null
+          social_links?: Json
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1845,6 +1938,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      link_staff_profile_to_user: {
+        Args: { _profile_id: string; _user_id: string }
+        Returns: undefined
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
@@ -1861,6 +1958,10 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      redeem_admin_invite: {
+        Args: { _code: string; _email: string; _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"][]
       }
     }
     Enums: {
@@ -1885,6 +1986,12 @@ export type Database = {
         | "makeup_artist"
         | "production_assistant"
         | "studio_staff"
+        | "owner"
+        | "co_ceo"
+        | "journalist"
+        | "designer"
+        | "intern"
+        | "client"
       application_experience:
         | "none"
         | "beginner"
@@ -2078,6 +2185,12 @@ export const Constants = {
         "makeup_artist",
         "production_assistant",
         "studio_staff",
+        "owner",
+        "co_ceo",
+        "journalist",
+        "designer",
+        "intern",
+        "client",
       ],
       application_experience: [
         "none",

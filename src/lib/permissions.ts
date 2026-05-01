@@ -36,15 +36,23 @@ export type SectionId =
   | "my-availability"
   | "my-bookings"
   | "my-portfolio"
-  | "portfolio-approvals";
+  | "portfolio-approvals"
+  | "profile-management"
+  | "admin-invites";
 
 export type Group = "Content" | "Pipeline" | "Studio" | "Ops" | "Ecosystem" | "Admin" | "Crew" | "My Work";
 
 export const ROLE_LABELS: Record<AppRole, string> = {
   head_admin: "Head Admin",
   admin: "Admin",
+  owner: "Owner",
+  co_ceo: "Co-CEO",
   editor: "Editor",
   writer: "Writer",
+  journalist: "Journalist",
+  designer: "Designer",
+  intern: "Intern",
+  client: "Client",
   social_manager: "Social Manager",
   booking_manager: "Booking Manager",
   media_manager: "Media Manager",
@@ -65,6 +73,12 @@ export const ROLE_LABELS: Record<AppRole, string> = {
 export const ROLE_DESCRIPTIONS: Record<AppRole, string> = {
   head_admin: "Full ownership. All tools, billing, brand settings.",
   admin: "High-level manager. Cannot remove ownership or change billing.",
+  owner: "Founder-tier. Full control over the company and team.",
+  co_ceo: "Co-CEO. Equal leadership privileges.",
+  journalist: "Reporter. Writes news, reviews, and editorial coverage.",
+  designer: "Visual designer. Owns brand assets and editorial layout.",
+  intern: "Trainee. Limited write access supervised by senior team.",
+  client: "External client account. Public-facing only.",
   editor: "Editorial lead. Approve, schedule, and publish stories.",
   writer: "Contributor. Create drafts and submit for review.",
   social_manager: "Distribute and schedule social posts.",
@@ -124,6 +138,8 @@ export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
   "my-availability":   ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff", HEAD, "admin", "booking_manager"],
   "my-bookings":       ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
   "my-portfolio":      ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
+  "profile-management": [HEAD, "admin", "owner", "co_ceo"],
+  "admin-invites":      [HEAD, "admin", "owner", "co_ceo"],
 };
 
 export const OWNERSHIP_ONLY: SectionId[] = [];
@@ -132,22 +148,24 @@ export const can = (roles: AppRole[], section: SectionId): boolean => {
   return SECTION_ACCESS[section].some((r) => roles.includes(r));
 };
 
-export const isHeadAdmin = (roles: AppRole[]) => roles.includes("head_admin");
+export const isHeadAdmin = (roles: AppRole[]) =>
+  roles.includes("head_admin") || roles.includes("owner") || roles.includes("co_ceo");
 export const isAdminLike = (roles: AppRole[]) =>
-  roles.includes("head_admin") || roles.includes("admin");
+  roles.includes("head_admin") || roles.includes("admin") ||
+  roles.includes("owner") || roles.includes("co_ceo");
 
 export const canEditArticle = (roles: AppRole[]) =>
-  ["head_admin", "admin", "editor", "writer"].some((r) => roles.includes(r as AppRole));
+  ["head_admin", "admin", "owner", "co_ceo", "editor", "writer", "journalist"].some((r) => roles.includes(r as AppRole));
 
 export const canPublish = (roles: AppRole[]) =>
-  ["head_admin", "admin", "editor"].some((r) => roles.includes(r as AppRole));
+  ["head_admin", "admin", "owner", "co_ceo", "editor"].some((r) => roles.includes(r as AppRole));
 
-export const canManageUsers = (roles: AppRole[]) =>
-  roles.includes("head_admin") || roles.includes("admin");
+export const canManageUsers = (roles: AppRole[]) => isAdminLike(roles);
 
-export const canManageBilling = (roles: AppRole[]) => roles.includes("head_admin");
+export const canManageBilling = (roles: AppRole[]) =>
+  roles.includes("head_admin") || roles.includes("owner");
 
 export const primaryRole = (roles: AppRole[]): AppRole => {
-  const order: AppRole[] = ["head_admin", "admin", "social_articles_lead", "editor", "writer", "booking_manager", "social_manager", "media_manager"];
-  return order.find((r) => roles.includes(r)) ?? "writer";
+  const order: AppRole[] = ["owner", "co_ceo", "head_admin", "admin", "social_articles_lead", "editor", "journalist", "writer", "booking_manager", "social_manager", "media_manager", "designer", "producer", "crew", "intern", "client"];
+  return order.find((r) => roles.includes(r)) ?? "client";
 };
