@@ -61,12 +61,9 @@ const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(({
         />
       ))}
 
-      {/* Diagonal ribbon — kept inside frame so parents with overflow-hidden don't clip it */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-2 top-6 -rotate-[14deg] origin-left max-w-[80%]"
-      >
-        <span className="sticker text-[9px] sm:text-[10px] whitespace-nowrap">{ribbon}</span>
+      {/* Bow-style editorial ribbon — fully contained, never clipped */}
+      <div aria-hidden className="bow-ribbon">
+        <span>{ribbon}</span>
       </div>
 
       <div className="relative px-6 py-16 md:px-12 md:py-24 flex flex-col items-center text-center">
