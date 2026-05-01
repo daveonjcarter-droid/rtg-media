@@ -254,7 +254,7 @@ const Signup = () => {
 
           <Button
             type="submit"
-            disabled={busy || inviteLoading || !!inviteError || !invite}
+            disabled={busy || (!!inviteToken && (inviteLoading || !!inviteError || !invite))}
             className="w-full h-11 rounded-sm uppercase tracking-widest text-xs bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {busy ? "Creating…" : "Accept & Create Account"}
