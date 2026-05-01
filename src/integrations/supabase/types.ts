@@ -86,6 +86,132 @@ export type Database = {
         }
         Relationships: []
       }
+      application_rate_limits: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          ip_address: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          ip_address: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          ip_address?: string
+        }
+        Relationships: []
+      }
+      applications: {
+        Row: {
+          availability: string
+          captcha_verified: boolean
+          city: string
+          completeness_score: number
+          created_at: string
+          email: string
+          email_verified: boolean
+          experience: string
+          experience_level:
+            | Database["public"]["Enums"]["application_experience"]
+            | null
+          full_name: string
+          id: string
+          instagram_url: string | null
+          internal_notes: string | null
+          invite_id: string | null
+          invited_at: string | null
+          ip_address: string | null
+          is_low_priority: boolean
+          linkedin_url: string | null
+          phone: string
+          portfolio_url: string
+          priority: Database["public"]["Enums"]["application_priority"]
+          resume_filename: string | null
+          resume_path: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          role_applying_for: string
+          status: Database["public"]["Enums"]["application_status"]
+          updated_at: string
+          user_agent: string | null
+          why_join: string
+        }
+        Insert: {
+          availability: string
+          captcha_verified?: boolean
+          city: string
+          completeness_score?: number
+          created_at?: string
+          email: string
+          email_verified?: boolean
+          experience: string
+          experience_level?:
+            | Database["public"]["Enums"]["application_experience"]
+            | null
+          full_name: string
+          id?: string
+          instagram_url?: string | null
+          internal_notes?: string | null
+          invite_id?: string | null
+          invited_at?: string | null
+          ip_address?: string | null
+          is_low_priority?: boolean
+          linkedin_url?: string | null
+          phone: string
+          portfolio_url: string
+          priority?: Database["public"]["Enums"]["application_priority"]
+          resume_filename?: string | null
+          resume_path?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          role_applying_for: string
+          status?: Database["public"]["Enums"]["application_status"]
+          updated_at?: string
+          user_agent?: string | null
+          why_join: string
+        }
+        Update: {
+          availability?: string
+          captcha_verified?: boolean
+          city?: string
+          completeness_score?: number
+          created_at?: string
+          email?: string
+          email_verified?: boolean
+          experience?: string
+          experience_level?:
+            | Database["public"]["Enums"]["application_experience"]
+            | null
+          full_name?: string
+          id?: string
+          instagram_url?: string | null
+          internal_notes?: string | null
+          invite_id?: string | null
+          invited_at?: string | null
+          ip_address?: string | null
+          is_low_priority?: boolean
+          linkedin_url?: string | null
+          phone?: string
+          portfolio_url?: string
+          priority?: Database["public"]["Enums"]["application_priority"]
+          resume_filename?: string | null
+          resume_path?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          role_applying_for?: string
+          status?: Database["public"]["Enums"]["application_status"]
+          updated_at?: string
+          user_agent?: string | null
+          why_join?: string
+        }
+        Relationships: []
+      }
       article_engagement: {
         Row: {
           article_id: string
@@ -1759,6 +1885,19 @@ export type Database = {
         | "makeup_artist"
         | "production_assistant"
         | "studio_staff"
+      application_experience:
+        | "none"
+        | "beginner"
+        | "intermediate"
+        | "professional"
+      application_priority: "low" | "normal" | "high"
+      application_status:
+        | "new"
+        | "strong"
+        | "needs_review"
+        | "rejected"
+        | "approved"
+        | "invited"
       article_status:
         | "draft"
         | "submitted"
@@ -1939,6 +2078,21 @@ export const Constants = {
         "makeup_artist",
         "production_assistant",
         "studio_staff",
+      ],
+      application_experience: [
+        "none",
+        "beginner",
+        "intermediate",
+        "professional",
+      ],
+      application_priority: ["low", "normal", "high"],
+      application_status: [
+        "new",
+        "strong",
+        "needs_review",
+        "rejected",
+        "approved",
+        "invited",
       ],
       article_status: [
         "draft",
