@@ -254,6 +254,9 @@ export const CrewProfilePanel = () => {
       </section>
 
       <Button onClick={save} disabled={saving} className="w-full md:w-auto">{saving ? "Saving…" : "Save Profile"}</Button>
+
+      <PortfolioManager staffId={profile.id} userId={user!.id} />
+
     </div>
   );
 };
