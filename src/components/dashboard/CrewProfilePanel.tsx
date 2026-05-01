@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { MediaUploader } from "./MediaUploader";
+import { PortfolioManager } from "./PortfolioManager";
 
 type Profile = {
   id: string;
