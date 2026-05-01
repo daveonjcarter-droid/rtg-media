@@ -47,9 +47,12 @@ const Breakdown = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-ink/60 via-ink/70 to-ink" />
         <div className="container-rtg relative pt-24 md:pt-32 pb-20 md:pb-28">
           <div className="eyebrow text-primary mb-4">A Cultural Engine · Episode Series</div>
-          <h1 className="type-mega text-7xl md:text-[14rem] leading-[0.82] text-cream flex flex-col items-start">
-            <span className="font-gothic tracking-[0.02em]" style={{ fontSize: "0.9em", lineHeight: 0.85 }}>RTG</span>
-            <span className="text-hollow-primary">Breakdown</span>
+          <h1 className="type-mega text-cream flex flex-col items-start max-w-full break-words">
+            <span className="font-gothic tracking-[0.02em] leading-[0.85] text-[clamp(3.5rem,14vw,11rem)]">RTG</span>
+            <span className="text-hollow-primary clamp-hero">Breakdown</span>
+            <span className="block mt-2 text-[clamp(1rem,3vw,2rem)] text-cream/85 tracking-tight normal-case">
+              Presents: <span className="text-primary">MADMEN</span>
+            </span>
           </h1>
           <p className="mt-8 max-w-xl text-cream/85 text-lg">
             Movies. TV. Comics. Anime. Music. The biggest stories in pop culture — broken down frame by frame.
