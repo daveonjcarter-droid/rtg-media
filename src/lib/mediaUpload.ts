@@ -36,6 +36,7 @@ export const uploadProfileMedia = async (
 ): Promise<{ url: string; path: string; kind: MediaKind }> => {
   const v = validateFile(file);
   if (!v.ok) throw new Error(v.error);
+  const kind = v.kind;
 
   const path = `${userId}/${folder}/${Date.now()}-${sanitizeName(file.name)}`;
   const { error } = await supabase.storage.from(PROFILE_MEDIA_BUCKET).upload(path, file, {
