@@ -170,8 +170,30 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [me, setMe] = useState<{ display_name: string | null; avatar_url: string | null; role_type: string | null } | null>(null);
 
   const primary: AppRole = primaryRole(roles);
+
+  useEffect(() => {
+    if (!user?.id) { setMe(null); return; }
+    (async () => {
+      const [{ data: p }, { data: m }] = await Promise.all([
+        supabase.from("profiles").select("display_name, avatar_url").eq("id", user.id).maybeSingle(),
+        supabase.from("profile_meta").select("display_name, profile_photo_url, role_type").eq("user_id", user.id).maybeSingle(),
+      ]);
+      setMe({
+        display_name: m?.display_name ?? p?.display_name ?? user.email ?? null,
+        avatar_url: m?.profile_photo_url ?? p?.avatar_url ?? null,
+        role_type: m?.role_type ?? null,
+      });
+    })();
+  }, [user?.id]);
+
+  const handleProfileClick = () => {
+    const hasMyProfile = navItems.find((n) => n.id === "my-profile");
+    if (hasMyProfile) setSection("my-profile");
+    else setSection("overview");
+  };
 
   const loadArticles = async () => {
     setLoading(true);
@@ -406,9 +428,27 @@ const Dashboard = () => {
                 </DropdownMenu>
               </>
             )}
-            <div className="hidden sm:flex h-8 w-8 rounded-full bg-gradient-to-br from-primary to-ink items-center justify-center text-[10px] font-semibold border border-border">
-              {user?.email?.slice(0, 2).toUpperCase()}
-            </div>
+            <button
+              onClick={handleProfileClick}
+              aria-label="Open my profile"
+              className="inline-flex items-center gap-2 sm:gap-2.5 h-8 rounded-sm border border-border hover:border-primary transition-colors pl-1 pr-1.5 sm:pr-2.5 text-foreground"
+            >
+              {me?.avatar_url ? (
+                <img src={me.avatar_url} alt="" className="h-6 w-6 rounded-full object-cover" />
+              ) : (
+                <span className="h-6 w-6 rounded-full bg-gradient-to-br from-primary to-ink flex items-center justify-center text-[9px] font-semibold border border-border">
+                  {(me?.display_name || user?.email || "?").slice(0, 2).toUpperCase()}
+                </span>
+              )}
+              <span className="hidden sm:flex flex-col items-start leading-tight max-w-[140px]">
+                <span className="text-[11px] font-semibold truncate max-w-[140px]">
+                  {me?.display_name || user?.email}
+                </span>
+                <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground truncate max-w-[140px]">
+                  {me?.role_type || ROLE_LABELS[primary] || "User"}
+                </span>
+              </span>
+            </button>
           </div>
         </header>
 
