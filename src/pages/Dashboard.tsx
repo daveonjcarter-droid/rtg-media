@@ -427,6 +427,7 @@ const Dashboard = () => {
               {section === "leads" && <LeadsView />}
             {section === "users" && <UsersView />}
             {section === "invites" && <InvitesManager />}
+            {section === "applicants" && <ApplicantsManager />}
             {section === "site-updates" && <QuickSiteUpdates />}
             {section === "content-managers" && <ContentManagers />}
             {section === "import" && <ArticleImportView onOpenImport={() => setImportOpen(true)} />}
