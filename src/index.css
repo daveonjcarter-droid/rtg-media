@@ -623,4 +623,32 @@
   /* Logo tone swap: parent declares .light-section to flip to dark logo */
   .light-section .dark-only { display: none !important; }
   .light-section .light-only { display: block !important; }
+
+  /* Footer wordmark — single-line, viewport-scaled, never clipped */
+  .footer-wordmark {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    text-align: center;
+    font-weight: 400;
+    font-size: clamp(2.8rem, 8.5vw, 10rem);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+  }
+  @media (max-width: 900px) {
+    .footer-wordmark { font-size: clamp(2.4rem, 9vw, 6rem); }
+  }
+  @media (max-width: 600px) {
+    .footer-wordmark {
+      font-size: clamp(2rem, 10vw, 4.5rem);
+      letter-spacing: -0.015em;
+    }
+  }
+  @media (max-width: 400px) {
+    .footer-wordmark { font-size: clamp(1.8rem, 11vw, 3.8rem); }
+  }
 }
