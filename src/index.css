@@ -651,4 +651,57 @@
   @media (max-width: 400px) {
     .footer-wordmark { font-size: clamp(1.8rem, 11vw, 3.8rem); }
   }
+
+  /* Bow-style editorial ribbon — used on EmptyState cards */
+  .bow-ribbon {
+    position: absolute;
+    top: clamp(20px, 2.5vw, 32px);
+    left: clamp(28px, 3.5vw, 56px);
+    z-index: 10;
+    transform: rotate(-12deg);
+    transform-origin: left center;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border: 2px solid hsl(var(--cream));
+    box-shadow: 6px 6px 0 hsl(0 0% 0% / 0.45);
+    padding: clamp(8px, 1vw, 12px) clamp(22px, 3vw, 40px);
+    width: max-content;
+    max-width: min(72vw, 360px);
+    pointer-events: none;
+  }
+  .bow-ribbon > span {
+    display: block;
+    font-size: clamp(0.6rem, 1vw, 0.85rem);
+    line-height: 1;
+    letter-spacing: 0.18em;
+    font-weight: 800;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .bow-ribbon::before,
+  .bow-ribbon::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border-top: 14px solid transparent;
+    border-bottom: 14px solid transparent;
+  }
+  .bow-ribbon::before { left: -16px; border-right: 16px solid hsl(var(--primary)); }
+  .bow-ribbon::after  { right: -16px; border-left: 16px solid hsl(var(--primary)); }
+  @media (max-width: 768px) {
+    .bow-ribbon {
+      top: 20px;
+      left: 28px;
+      transform: rotate(-8deg) scale(0.9);
+      max-width: 70vw;
+      padding: 7px 20px;
+      box-shadow: 4px 4px 0 hsl(0 0% 0% / 0.45);
+    }
+    .bow-ribbon > span { font-size: 0.6rem; letter-spacing: 0.14em; }
+    .bow-ribbon::before,
+    .bow-ribbon::after { border-top-width: 11px; border-bottom-width: 11px; }
+    .bow-ribbon::before { left: -12px; border-right-width: 12px; }
+    .bow-ribbon::after  { right: -12px; border-left-width: 12px; }
+  }
 }
