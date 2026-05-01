@@ -26,6 +26,7 @@ import ForgotPassword from "./pages/ForgotPassword.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import FloatingLogo from "@/components/site/FloatingLogo";
 import PageTransition from "@/components/site/PageTransition";
+import ScrollToTop from "@/components/site/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <ScrollToTop />
           <FloatingLogo />
           <PageTransition>
             <Routes>
