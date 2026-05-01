@@ -36,15 +36,23 @@ export type SectionId =
   | "my-availability"
   | "my-bookings"
   | "my-portfolio"
-  | "portfolio-approvals";
+  | "portfolio-approvals"
+  | "profile-management"
+  | "admin-invites";
 
 export type Group = "Content" | "Pipeline" | "Studio" | "Ops" | "Ecosystem" | "Admin" | "Crew" | "My Work";
 
 export const ROLE_LABELS: Record<AppRole, string> = {
   head_admin: "Head Admin",
   admin: "Admin",
+  owner: "Owner",
+  co_ceo: "Co-CEO",
   editor: "Editor",
   writer: "Writer",
+  journalist: "Journalist",
+  designer: "Designer",
+  intern: "Intern",
+  client: "Client",
   social_manager: "Social Manager",
   booking_manager: "Booking Manager",
   media_manager: "Media Manager",
@@ -65,6 +73,12 @@ export const ROLE_LABELS: Record<AppRole, string> = {
 export const ROLE_DESCRIPTIONS: Record<AppRole, string> = {
   head_admin: "Full ownership. All tools, billing, brand settings.",
   admin: "High-level manager. Cannot remove ownership or change billing.",
+  owner: "Founder-tier. Full control over the company and team.",
+  co_ceo: "Co-CEO. Equal leadership privileges.",
+  journalist: "Reporter. Writes news, reviews, and editorial coverage.",
+  designer: "Visual designer. Owns brand assets and editorial layout.",
+  intern: "Trainee. Limited write access supervised by senior team.",
+  client: "External client account. Public-facing only.",
   editor: "Editorial lead. Approve, schedule, and publish stories.",
   writer: "Contributor. Create drafts and submit for review.",
   social_manager: "Distribute and schedule social posts.",
