@@ -435,7 +435,9 @@ const Index = () => {
           <div className="container-rtg relative h-full flex items-center">
             <div className="max-w-xl">
               <div className="text-primary text-[10px] uppercase tracking-[0.4em] mb-4">Behind The Lens</div>
-              <div className="type-mega text-5xl md:text-7xl text-cream">One team. One vision. Cinematic by default.</div>
+              <div className="type-mega clamp-section text-cream max-w-full break-words">
+                One team.<br/>One vision.<br/>Cinematic by default.
+              </div>
             </div>
           </div>
         </div>
