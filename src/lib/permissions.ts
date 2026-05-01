@@ -138,6 +138,8 @@ export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
   "my-availability":   ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff", HEAD, "admin", "booking_manager"],
   "my-bookings":       ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
   "my-portfolio":      ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
+  "profile-management": [HEAD, "admin", "owner", "co_ceo"],
+  "admin-invites":      [HEAD, "admin", "owner", "co_ceo"],
 };
 
 export const OWNERSHIP_ONLY: SectionId[] = [];
