@@ -61,8 +61,8 @@ const EmptyState = forwardRef<HTMLDivElement, EmptyStateProps>(({
         />
       ))}
 
-      {/* Bow-style editorial ribbon — fully contained, never clipped */}
-      <div aria-hidden className="bow-ribbon">
+      {/* Editorial bow label — horizontal, fully contained */}
+      <div aria-hidden className="editorial-bow">
         <span>{ribbon}</span>
       </div>
 
