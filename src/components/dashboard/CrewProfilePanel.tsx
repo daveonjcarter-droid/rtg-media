@@ -165,7 +165,19 @@ export const CrewProfilePanel = () => {
           <div><Label>Full Name</Label><Input value={profile.display_name} onChange={(e) => update({ display_name: e.target.value })} /></div>
           <div><Label>Role / Specialty</Label><Input value={profile.role_title ?? ""} onChange={(e) => update({ role_title: e.target.value })} /></div>
           <div className="md:col-span-2"><Label>Bio</Label><Textarea rows={4} value={profile.bio ?? ""} onChange={(e) => update({ bio: e.target.value })} /></div>
-          <div><Label>Profile Photo URL</Label><Input value={profile.photo_url ?? ""} onChange={(e) => update({ photo_url: e.target.value })} /></div>
+          <div className="md:col-span-2">
+            <Label>Profile Photo</Label>
+            <MediaUploader
+              userId={user!.id}
+              folder="avatars"
+              accept="image/*"
+              currentUrl={profile.photo_url}
+              onChange={(url) => update({ photo_url: url })}
+              onClear={() => update({ photo_url: null })}
+              label="JPG, PNG or WebP up to 10MB"
+              preview="image"
+            />
+          </div>
           <div><Label>Location</Label><Input value={profile.location ?? ""} onChange={(e) => update({ location: e.target.value })} /></div>
         </div>
       </section>
