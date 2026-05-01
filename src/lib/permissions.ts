@@ -169,5 +169,3 @@ export const primaryRole = (roles: AppRole[]): AppRole => {
   const order: AppRole[] = ["owner", "co_ceo", "head_admin", "admin", "social_articles_lead", "editor", "journalist", "writer", "booking_manager", "social_manager", "media_manager", "designer", "producer", "crew", "intern", "client"];
   return order.find((r) => roles.includes(r)) ?? "client";
 };
-  return order.find((r) => roles.includes(r)) ?? "writer";
-};
