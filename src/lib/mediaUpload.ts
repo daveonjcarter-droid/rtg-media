@@ -35,7 +35,7 @@ export const uploadProfileMedia = async (
   folder: "avatars" | "portfolio" | "resumes" | "covers" = "portfolio",
 ): Promise<{ url: string; path: string; kind: MediaKind }> => {
   const v = validateFile(file);
-  if (!v.ok) throw new Error(v.error);
+  if (v.ok === false) throw new Error(v.error);
   const kind = v.kind;
 
   const path = `${userId}/${folder}/${Date.now()}-${sanitizeName(file.name)}`;
