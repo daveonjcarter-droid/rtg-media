@@ -229,28 +229,60 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ============ RTG BREAKDOWN — episode-driven ============ */}
+      {/* ============ RTG BREAKDOWN PRESENTS: MADMEN ============ */}
       <section className="relative overflow-hidden bg-ink py-20 md:py-28 grain-heavy section-bridge-ink-bottom">
         <img src={breakdownImg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-15 ken-burns" />
         <div className="absolute inset-0 bg-gradient-to-b from-ink via-ink/85 to-ink" />
 
         <div className="container-rtg relative">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
-            <div>
-              <div className="eyebrow text-primary mb-3 flex items-center gap-2">
+          {/* Title block */}
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 mb-10 md:mb-14">
+            <div className="lg:col-span-8 min-w-0">
+              <div className="eyebrow text-primary mb-4 flex items-center gap-2">
                 <Play className="h-3 w-3 fill-current" /> Episode Series
               </div>
-              <h2 className="type-mega text-6xl md:text-8xl lg:text-9xl text-cream">
-                <RtgMark wordClassName="text-hollow">Breakdown</RtgMark>
+              <h2 className="type-mega text-cream max-w-full break-words leading-[0.88]">
+                <span className="block text-[clamp(1.75rem,5.5vw,3.75rem)] text-cream/85 tracking-tight mb-2">
+                  RTG Breakdown Presents:
+                </span>
+                <span className="block clamp-display text-hollow-primary">
+                  MADMEN
+                </span>
               </h2>
-              <p className="mt-5 max-w-lg text-cream/75">
-                Frame-by-frame on the films, shows, and stories the culture is talking about.
-                Watch it. Read it. Get the breakdown.
+              <p className="mt-6 max-w-xl text-cream/75 text-base md:text-lg leading-relaxed">
+                Frame-by-frame breakdowns of the films, shows, music videos, trailers,
+                and culture moments shaping the conversation. We study the choices behind
+                the moment — story, visuals, editing, sound, performance, marketing, and impact.
               </p>
             </div>
-            <Button asChild size="lg" className="self-start md:self-end bg-cream text-ink hover:bg-cream/90 rounded-none uppercase tracking-[0.25em] text-xs h-12 px-7">
-              <Link to="/breakdown">All Episodes <ArrowRight className="ml-2 h-4 w-4" /></Link>
-            </Button>
+
+            <div className="lg:col-span-4 lg:self-end flex flex-col sm:flex-row lg:flex-col gap-3 lg:items-end">
+              <Button asChild size="lg" className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 rounded-none uppercase tracking-[0.25em] text-xs h-12 px-7 whitespace-nowrap">
+                <Link to="/breakdown">Watch The Breakdowns <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="w-full sm:w-auto rounded-none uppercase tracking-[0.25em] text-xs h-12 px-7 border-cream/40 bg-transparent text-cream hover:bg-cream hover:text-ink whitespace-nowrap">
+                <Link to="/apply">Submit A Moment <ArrowUpRight className="ml-2 h-4 w-4" /></Link>
+              </Button>
+            </div>
+          </div>
+
+          {/* Category chips */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 md:gap-3 mb-10 md:mb-14">
+            {[
+              "Film Breakdowns",
+              "TV Episodes",
+              "Music Videos",
+              "Trailer Analysis",
+              "Creator Strategy",
+              "Culture Moments",
+            ].map((c) => (
+              <span
+                key={c}
+                className="border border-cream/20 text-cream/85 text-[10px] md:text-[11px] uppercase tracking-[0.2em] px-3 py-3 text-center hover:border-primary/60 hover:text-primary transition-colors"
+              >
+                {c}
+              </span>
+            ))}
           </div>
 
           {episodes.length > 0 ? (
@@ -263,14 +295,16 @@ const Index = () => {
             </div>
           ) : (
             <Reveal>
-              <EmptyState
-                eyebrow="The Vault"
-                title="First episodes drop with Issue 001."
-                description="Deep dives on film, TV, anime, and culture coming soon."
-                icon={Film}
-                tone="dark"
-                ribbon="Premiere · 001"
-              />
+              <div className="border border-cream/15 bg-cream/[0.03] p-6 sm:p-8 md:p-12 max-w-full">
+                <div className="text-[10px] uppercase tracking-[0.4em] text-primary mb-3">Coming Soon</div>
+                <h3 className="type-mega text-cream max-w-full break-words text-[clamp(1.75rem,5vw,3.5rem)] leading-[0.95]">
+                  Episode 001 — Why This Scene Worked
+                </h3>
+                <p className="mt-5 max-w-2xl text-cream/70 leading-relaxed text-base md:text-lg">
+                  A cinematic breakdown of performance, pacing, camera movement, sound,
+                  and emotional payoff. The first MADMEN drop lands with Issue 001.
+                </p>
+              </div>
             </Reveal>
           )}
         </div>
