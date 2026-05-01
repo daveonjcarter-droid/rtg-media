@@ -29,6 +29,7 @@ export type SectionId =
   | "community"
   | "permissions"
   | "invites"
+  | "applicants"
   | "settings"
   | "crew"
   | "my-profile"
@@ -109,6 +110,7 @@ export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
   "content-managers": [HEAD, "admin", "editor"],
   users:              [HEAD, "admin"],
   invites:            [HEAD, "admin"],
+  applicants:         [HEAD, "admin"],
   "site-updates":     [HEAD, "admin", "media_manager"],
   analytics:          [HEAD, "admin", "editor", "social_manager", "booking_manager", "social_articles_lead"],
   audience:           [HEAD, "admin", "editor", "social_manager", "social_articles_lead"],

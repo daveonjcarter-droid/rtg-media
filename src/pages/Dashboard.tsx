@@ -17,6 +17,7 @@ import ContentManagers from "@/components/dashboard/ContentManagers";
 import ImportArticleDialog from "@/components/dashboard/ImportArticleDialog";
 import UniversalEditor from "@/components/dashboard/UniversalEditor";
 import InvitesManager from "@/components/dashboard/InvitesManager";
+import ApplicantsManager from "@/components/dashboard/ApplicantsManager";
 import WorkspaceSettingsPanel from "@/components/dashboard/WorkspaceSettingsPanel";
 import { CrewManagement, PortfolioApprovalsQueue } from "@/components/dashboard/CrewManagement";
 import { CrewProfilePanel, MyAssignedBookings } from "@/components/dashboard/CrewProfilePanel";
@@ -132,6 +133,7 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "my-bookings",       label: "My Bookings",      icon: Briefcase,       group: "My Work" },
   { id: "users",             label: "Users & Roles",    icon: Users,           group: "Admin" },
   { id: "invites",           label: "Invites & Roles",  icon: Mail,            group: "Admin" },
+  { id: "applicants",        label: "Applicants",       icon: Inbox,           group: "Admin" },
   { id: "permissions",       label: "Role Permissions", icon: ShieldCheck,     group: "Admin" },
   { id: "site-updates",      label: "Quick Site Updates", icon: Wand2,         group: "Admin" },
   { id: "settings",          label: "Settings",         icon: SettingsIcon,    group: "Admin" },
@@ -425,6 +427,7 @@ const Dashboard = () => {
               {section === "leads" && <LeadsView />}
             {section === "users" && <UsersView />}
             {section === "invites" && <InvitesManager />}
+            {section === "applicants" && <ApplicantsManager />}
             {section === "site-updates" && <QuickSiteUpdates />}
             {section === "content-managers" && <ContentManagers />}
             {section === "import" && <ArticleImportView onOpenImport={() => setImportOpen(true)} />}

@@ -21,6 +21,7 @@ import Fest from "./pages/Fest.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
+import Apply from "./pages/Apply.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import FloatingLogo from "@/components/site/FloatingLogo";
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="/team/:slug" element={<TeamProfile />} />
               <Route path="/advertise" element={<Advertise />} />
               <Route path="/fest" element={<Fest />} />
+              <Route path="/apply" element={<Apply />} />
 
               {/* Auth */}
               <Route path="/login" element={<Login />} />

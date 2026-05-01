@@ -14,3 +14,12 @@ verify_jwt = false
 
 [functions.handle-email-suppression]
 verify_jwt = false
+
+[functions.submit-application]
+verify_jwt = false
+
+[functions.get-public-config]
+verify_jwt = false
+
+[functions.approve-application]
+verify_jwt = true
