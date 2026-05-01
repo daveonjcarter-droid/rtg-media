@@ -76,6 +76,7 @@ const SiteFooter = () => (
             { to: "/team", label: "Team" },
             { to: "/advertise", label: "Advertise" },
             { to: "/book", label: "Contact" },
+            { to: "/apply", label: "Apply to Join" },
           ]}
         />
 
