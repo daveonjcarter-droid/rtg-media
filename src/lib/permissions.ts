@@ -148,22 +148,26 @@ export const can = (roles: AppRole[], section: SectionId): boolean => {
   return SECTION_ACCESS[section].some((r) => roles.includes(r));
 };
 
-export const isHeadAdmin = (roles: AppRole[]) => roles.includes("head_admin");
+export const isHeadAdmin = (roles: AppRole[]) =>
+  roles.includes("head_admin") || roles.includes("owner") || roles.includes("co_ceo");
 export const isAdminLike = (roles: AppRole[]) =>
-  roles.includes("head_admin") || roles.includes("admin");
+  roles.includes("head_admin") || roles.includes("admin") ||
+  roles.includes("owner") || roles.includes("co_ceo");
 
 export const canEditArticle = (roles: AppRole[]) =>
-  ["head_admin", "admin", "editor", "writer"].some((r) => roles.includes(r as AppRole));
+  ["head_admin", "admin", "owner", "co_ceo", "editor", "writer", "journalist"].some((r) => roles.includes(r as AppRole));
 
 export const canPublish = (roles: AppRole[]) =>
-  ["head_admin", "admin", "editor"].some((r) => roles.includes(r as AppRole));
+  ["head_admin", "admin", "owner", "co_ceo", "editor"].some((r) => roles.includes(r as AppRole));
 
-export const canManageUsers = (roles: AppRole[]) =>
-  roles.includes("head_admin") || roles.includes("admin");
+export const canManageUsers = (roles: AppRole[]) => isAdminLike(roles);
 
-export const canManageBilling = (roles: AppRole[]) => roles.includes("head_admin");
+export const canManageBilling = (roles: AppRole[]) =>
+  roles.includes("head_admin") || roles.includes("owner");
 
 export const primaryRole = (roles: AppRole[]): AppRole => {
-  const order: AppRole[] = ["head_admin", "admin", "social_articles_lead", "editor", "writer", "booking_manager", "social_manager", "media_manager"];
+  const order: AppRole[] = ["owner", "co_ceo", "head_admin", "admin", "social_articles_lead", "editor", "journalist", "writer", "booking_manager", "social_manager", "media_manager", "designer", "producer", "crew", "intern", "client"];
+  return order.find((r) => roles.includes(r)) ?? "client";
+};
   return order.find((r) => roles.includes(r)) ?? "writer";
 };
