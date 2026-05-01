@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Instagram, Youtube, Twitter as X } from "lucide-react";
-import Logo from "./Logo";
 
 const SiteFooter = () => (
   <footer className="relative border-t border-border bg-ink mt-24 overflow-hidden">
@@ -24,10 +23,15 @@ const SiteFooter = () => (
         Runners&nbsp;To&nbsp;Greatness
       </h2>
 
-      <div className="mt-6 md:mt-8 flex items-center justify-center gap-4 text-cream/85">
-        <span className="h-px w-10 md:w-16 bg-cream/30" />
-        <Logo tone="light" to={null} className="h-10 md:h-12" ariaLabel="RTG Media" />
-        <span className="h-px w-10 md:w-16 bg-cream/30" />
+      <div className="mt-6 md:mt-8 flex items-center justify-center gap-5 md:gap-10">
+        <span className="h-px w-12 sm:w-20 md:w-28 bg-cream/35" />
+        <span
+          className="font-gothic text-cream leading-none tracking-[0.02em] text-3xl md:text-4xl"
+          aria-label="RTG"
+        >
+          RTG
+        </span>
+        <span className="h-px w-12 sm:w-20 md:w-28 bg-cream/35" />
       </div>
 
       <p className="mt-6 max-w-xl mx-auto text-sm md:text-base text-cream/65 leading-relaxed uppercase tracking-[0.05em]">
