@@ -63,7 +63,7 @@ const Signup = () => {
         return;
       }
       const inv: any = data;
-      if (inv.status === "disabled") {
+      if (inv.status === "disabled" || inv.status === "revoked") {
         setInviteError("This invite has been revoked.");
         setInviteLoading(false);
         return;
@@ -101,12 +101,44 @@ const Signup = () => {
 
   const emailLocked = useMemo(() => !!invite, [invite]);
 
+  // INVITE-ONLY: block the form when there's no token at all
+  if (!inviteToken) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-6">
+        <div className="w-full max-w-md text-center space-y-6">
+          <Link to="/" className="inline-flex">
+            <img src={logoLight} alt="RTG Media" className="h-12 mx-auto" />
+          </Link>
+          <div className="eyebrow text-primary">Access Restricted</div>
+          <h1 className="font-display text-3xl uppercase">Invite-only signup</h1>
+          <p className="text-sm text-muted-foreground">
+            RTG Media accounts are created by invitation only. If you believe you should
+            have access, please request an invite from your team lead or an RTG admin.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+            <Link to="/" className="inline-block">
+              <Button variant="outline" className="w-full sm:w-auto h-11 rounded-sm uppercase tracking-widest text-xs">
+                Back to homepage
+              </Button>
+            </Link>
+            <Link to="/login" className="inline-block">
+              <Button className="w-full sm:w-auto h-11 rounded-sm uppercase tracking-widest text-xs bg-primary text-primary-foreground hover:bg-primary/90">
+                Sign in
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (inviteToken && inviteError) { toast.error(inviteError); return; }
+    if (inviteError) { toast.error(inviteError); return; }
+    if (!invite) { toast.error("Invalid invite. Please use the link from your invitation email."); return; }
     const parsed = schema.safeParse({ name, email, password });
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
-    if (invite && parsed.data.email.toLowerCase() !== invite.email.toLowerCase()) {
+    if (parsed.data.email.toLowerCase() !== invite.email.toLowerCase()) {
       toast.error("Email must match the invited address.");
       return;
     }
@@ -129,9 +161,7 @@ const Signup = () => {
           <div className="eyebrow text-primary mb-3">Join the studio</div>
           <h1 className="font-display text-5xl uppercase leading-none">Build the next<br/>chapter with us.</h1>
           <p className="text-muted-foreground mt-6 max-w-md">
-            {invite
-              ? "You've been invited. Your access will be applied automatically after signup."
-              : "New accounts default to Writer. An Admin will assign you elevated roles when ready."}
+            You've been invited. Your access will be applied automatically after signup.
           </p>
         </div>
         <div className="relative text-xs text-muted-foreground uppercase tracking-widest">© RTG Media — Chicago</div>
@@ -144,16 +174,14 @@ const Signup = () => {
           </div>
           <div>
             <div className="eyebrow text-primary">Create account</div>
-            <h2 className="font-display text-3xl uppercase mt-1">
-              {invite ? "Accept Invitation" : "Request Access"}
-            </h2>
+            <h2 className="font-display text-3xl uppercase mt-1">Accept Invitation</h2>
           </div>
 
-          {inviteToken && inviteLoading && (
+          {inviteLoading && (
             <div className="text-xs text-muted-foreground uppercase tracking-widest">Validating invite…</div>
           )}
 
-          {inviteToken && inviteError && (
+          {inviteError && (
             <div className="border border-destructive/40 bg-destructive/10 rounded-sm p-3 text-xs text-destructive">
               {inviteError}
             </div>
@@ -215,20 +243,14 @@ const Signup = () => {
               <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="h-11 rounded-sm" />
               <p className="text-xs text-muted-foreground mt-1">Min 8 characters. Checked against known breached passwords.</p>
             </div>
-            {!invite && (
-              <div>
-                <Label className="eyebrow mb-2 block">Role</Label>
-                <div className="h-11 px-3 flex items-center text-sm border border-border rounded-sm bg-surface/40 text-muted-foreground">Writer (default)</div>
-              </div>
-            )}
           </div>
 
           <Button
             type="submit"
-            disabled={busy || (!!inviteToken && (inviteLoading || !!inviteError))}
+            disabled={busy || inviteLoading || !!inviteError || !invite}
             className="w-full h-11 rounded-sm uppercase tracking-widest text-xs bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            {busy ? "Creating…" : invite ? "Accept & Create Account" : "Create Account"}
+            {busy ? "Creating…" : "Accept & Create Account"}
           </Button>
 
           <p className="text-xs text-muted-foreground text-center">
