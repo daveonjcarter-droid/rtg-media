@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Instagram, Youtube, Twitter as X } from "lucide-react";
-import RtgMark from "./RtgMark";
+import Logo from "./Logo";
 
 const SiteFooter = () => (
   <footer className="relative border-t border-border bg-ink mt-24 overflow-hidden">
@@ -26,13 +26,7 @@ const SiteFooter = () => (
 
       <div className="mt-6 md:mt-8 flex items-center justify-center gap-4 text-cream/85">
         <span className="h-px w-10 md:w-16 bg-cream/30" />
-        <RtgMark
-          className="text-3xl md:text-4xl"
-          wordClassName="tracking-[0.35em] text-cream"
-          markClassName="text-cream"
-        >
-          Media
-        </RtgMark>
+        <Logo tone="light" to={null} className="h-10 md:h-12" ariaLabel="RTG Media" />
         <span className="h-px w-10 md:w-16 bg-cream/30" />
       </div>
 

@@ -140,7 +140,9 @@
   src: url("/src/assets/fonts/IcelandWinterstorm.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  /* `block` keeps gothic text invisible (no serif flash) until the font loads.
+     Combined with the <link rel="preload"> in index.html the wait is ~instant. */
+  font-display: block;
 }
 
 @layer utilities {
