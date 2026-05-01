@@ -80,7 +80,7 @@ const Login = () => {
           </Button>
 
           <p className="text-xs text-muted-foreground text-center">
-            Need an account? <Link to="/signup" className="text-primary hover:underline">Request access</Link>
+            RTG Media is invite-only. Contact your team lead for access.
           </p>
           <p className="text-xs text-muted-foreground text-center">
             <Link to="/" className="hover:text-foreground">← Back to site</Link>
