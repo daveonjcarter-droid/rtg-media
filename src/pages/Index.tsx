@@ -96,11 +96,11 @@ const Index = () => {
             </div>
           </div>
 
-          <h1 className="type-mega text-[22vw] md:text-[16vw] lg:text-[13vw] text-cream">
+          <h1 className="type-mega clamp-hero text-cream max-w-full break-words">
             {heroLines.map((line, i) => {
               const isHollow = i === heroLines.length - 1 && heroLines.length > 1;
               return (
-                <span key={i} className="block">
+                <span key={i} className="block max-w-full">
                   <span
                     className={isHollow ? "text-hollow-primary mask-reveal delay-500" : "hero-rise"}
                     style={!isHollow ? { animationDelay: `${i * 140 + 200}ms` } : undefined}
@@ -206,7 +206,7 @@ const Index = () => {
             <div className="eyebrow text-primary mb-6">Statement · 001</div>
           </Reveal>
           <Reveal delay={120} y={48}>
-            <h2 className="type-mega text-cream text-[14vw] md:text-[10vw] leading-[0.86]">
+            <h2 className="type-mega clamp-display text-cream max-w-full break-words">
               If you're not on RTG,
               <br />
               <span className="glitch text-primary" data-text="you're missing what's next.">
@@ -424,7 +424,7 @@ const Index = () => {
 
           <div className="md:col-span-7 md:-translate-y-4 md:pl-6">
             <div className="font-gothic text-3xl md:text-4xl text-primary mb-4">{content.drops.headline}</div>
-            <h2 className="type-mega text-[18vw] md:text-[12vw] lg:text-[10rem] leading-[0.85]">
+            <h2 className="type-mega clamp-display max-w-full break-words">
               Coming
               <br />
               <span className="text-hollow">Soon.</span>
