@@ -1885,6 +1885,12 @@ export type Database = {
         | "makeup_artist"
         | "production_assistant"
         | "studio_staff"
+        | "owner"
+        | "co_ceo"
+        | "journalist"
+        | "designer"
+        | "intern"
+        | "client"
       application_experience:
         | "none"
         | "beginner"
@@ -2078,6 +2084,12 @@ export const Constants = {
         "makeup_artist",
         "production_assistant",
         "studio_staff",
+        "owner",
+        "co_ceo",
+        "journalist",
+        "designer",
+        "intern",
+        "client",
       ],
       application_experience: [
         "none",
