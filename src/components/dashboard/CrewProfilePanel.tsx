@@ -50,22 +50,56 @@ export const CrewProfilePanel = () => {
         .select("*")
         .eq("user_id", user.id)
         .maybeSingle();
-      if (error && error.code !== "PGRST116") toast.error(error.message);
-      setProfile((data as any) ?? null);
+      if (error && error.code !== "PGRST116") {
+        toast.error(error.message);
+        setLoading(false);
+        return;
+      }
+
+      if (data) {
+        setProfile(data as any);
+        setLoading(false);
+        return;
+      }
+
+      // Auto-create a profile so the user is never blocked.
+      const fallbackName =
+        (user.user_metadata as any)?.display_name ||
+        user.email?.split("@")[0] ||
+        "New Member";
+      const baseSlug = fallbackName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "") || "member";
+      const slug = `${baseSlug}-${user.id.slice(0, 6)}`;
+
+      const { data: created, error: createErr } = await supabase
+        .from("staff_profiles")
+        .insert({
+          user_id: user.id,
+          display_name: fallbackName,
+          slug,
+          email: user.email ?? null,
+          is_public: false,
+          is_bookable: false,
+          status: "active",
+        })
+        .select("*")
+        .maybeSingle();
+
+      if (createErr) {
+        toast.error(createErr.message);
+        setLoading(false);
+        return;
+      }
+
+      setProfile((created as any) ?? null);
       setLoading(false);
     })();
   }, [user]);
 
-  if (loading) return <p className="text-sm text-muted-foreground">Loading profile…</p>;
-
-  if (!profile) {
-    return (
-      <div className="border border-border/60 rounded-lg p-8 text-center space-y-2">
-        <h3 className="text-lg font-display">No crew profile linked yet</h3>
-        <p className="text-sm text-muted-foreground">An admin needs to invite you and link your account. Contact your team lead.</p>
-      </div>
-    );
-  }
+  if (loading) return <p className="text-sm text-muted-foreground">Setting up your profile…</p>;
+  if (!profile) return <p className="text-sm text-muted-foreground">Could not load profile.</p>;
 
   const update = (patch: Partial<Profile>) => setProfile((p) => p ? { ...p, ...patch } : p);
 
