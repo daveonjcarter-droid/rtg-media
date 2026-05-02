@@ -117,6 +117,12 @@ const ArticleDetail = () => {
         data = res.data;
       }
       setArticle(data as Article | null);
+      if (data) {
+        const a = data as Article;
+        const { trackEvent, bumpArticleView } = await import("@/lib/tracking");
+        trackEvent("article_view", { articleId: a.id, slug: a.slug, title: a.title });
+        bumpArticleView(a.id);
+      }
 
       if (data) {
         const isReview = (data as Article).article_type === "film_review";

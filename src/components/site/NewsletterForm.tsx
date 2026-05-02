@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { trackEvent } from "@/lib/tracking";
 
 const schema = z.object({
   name: z.string().trim().max(80).optional(),
@@ -23,6 +24,7 @@ const NewsletterForm = () => {
     const { error } = await supabase.from("newsletter_subscribers").insert({ email: parsed.data.email, name: parsed.data.name ?? null } as any);
     if (!error) {
       await supabase.from("leads").insert({ name: parsed.data.name ?? null, email: parsed.data.email, source: "newsletter" } as any);
+      trackEvent("newsletter_signup", { email: parsed.data.email });
     }
     setBusy(false);
     if (error && !/duplicate/i.test(error.message)) { toast.error(error.message); return; }
