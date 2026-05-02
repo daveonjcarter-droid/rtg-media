@@ -29,6 +29,7 @@ import AvailabilityAdminSection from "@/components/dashboard/sections/Availabili
 import CommandCenterOverview from "@/components/dashboard/sections/CommandCenterOverview";
 import GlobalSearch from "@/components/dashboard/GlobalSearch";
 import NotificationsBell from "@/components/dashboard/NotificationsBell";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
