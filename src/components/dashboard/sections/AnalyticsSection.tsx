@@ -15,6 +15,16 @@ const RANGE_LABELS: Record<Range, string> = { 7: "7D", 30: "30D", 90: "90D", 365
 
 const PIE_COLORS = ["#ef3340", "#f4f1ea", "#e0b84c", "#29a8ff", "#18c58f", "#a78bfa", "#fb923c"];
 
+const SAMPLE_TRAFFIC = [
+  { date: "Mon", pageViews: 120, uniqueVisitors: 80, articleReads: 45, bookingClicks: 8, newsletterSignups: 3 },
+  { date: "Tue", pageViews: 145, uniqueVisitors: 92, articleReads: 55, bookingClicks: 12, newsletterSignups: 4 },
+  { date: "Wed", pageViews: 132, uniqueVisitors: 88, articleReads: 61, bookingClicks: 10, newsletterSignups: 5 },
+  { date: "Thu", pageViews: 180, uniqueVisitors: 110, articleReads: 75, bookingClicks: 18, newsletterSignups: 7 },
+  { date: "Fri", pageViews: 210, uniqueVisitors: 130, articleReads: 92, bookingClicks: 24, newsletterSignups: 10 },
+  { date: "Sat", pageViews: 260, uniqueVisitors: 160, articleReads: 120, bookingClicks: 31, newsletterSignups: 14 },
+  { date: "Sun", pageViews: 240, uniqueVisitors: 150, articleReads: 112, bookingClicks: 28, newsletterSignups: 12 },
+];
+
 type PV = {
   created_at: string;
   visitor_id: string | null;
