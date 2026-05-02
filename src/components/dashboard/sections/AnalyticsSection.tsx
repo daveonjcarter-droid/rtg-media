@@ -302,33 +302,53 @@ const AnalyticsSection = () => {
         }
       />
 
-      {/* MAIN MULTI-LINE CHART */}
-      <div className="border border-border rounded-sm bg-[#080808] p-4">
-        <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-3">Traffic over time</div>
-        {!hasAnyData ? (
-          <EmptyState icon={Eye} title="Analytics will appear here once visitors start interacting with the site."
-            body="Page views, article reads, booking clicks, and newsletter signups are tracked automatically." />
-        ) : (
-          <div style={{ height: 360 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trafficData} margin={{ top: 10, right: 16, left: -10, bottom: 0 }}>
-                <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
-                <XAxis dataKey="date" stroke="rgba(244,241,234,0.55)" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="rgba(244,241,234,0.55)" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
-                <Tooltip
-                  contentStyle={{ background: "#080808", border: "1px solid rgba(244,241,234,0.18)", color: "#f4f1ea", fontSize: 11, borderRadius: 2 }}
-                  labelStyle={{ color: "#f4f1ea" }}
-                />
-                <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} />
-                <Line type="monotone" dataKey="pageViews" stroke="#ef3340" strokeWidth={3} dot={false} name="Page Views" />
-                <Line type="monotone" dataKey="uniqueVisitors" stroke="#f4f1ea" strokeWidth={2} dot={false} name="Unique Visitors" />
-                <Line type="monotone" dataKey="articleReads" stroke="#e0b84c" strokeWidth={2} dot={false} name="Article Reads" />
-                <Line type="monotone" dataKey="bookingClicks" stroke="#29a8ff" strokeWidth={2} dot={false} name="Booking Clicks" />
-                <Line type="monotone" dataKey="newsletterSignups" stroke="#18c58f" strokeWidth={2} dot={false} name="Newsletter Signups" />
-              </LineChart>
-            </ResponsiveContainer>
+      {/* MAIN MULTI-LINE CHART — SITE TRAFFIC TRENDS */}
+      <div className="w-full border border-border/40 bg-[#080808] p-6 md:p-10 mt-2">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6 mb-7">
+          <div>
+            <div className="text-[11px] uppercase tracking-[0.25em] text-primary mb-2">Traffic</div>
+            <h2 className="text-cream text-2xl md:text-4xl uppercase tracking-tight font-semibold">Site Traffic Trends</h2>
+            {!hasAnyData && (
+              <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-2">
+                Sample preview · live data appears as visitors interact
+              </div>
+            )}
           </div>
-        )}
+          <div className="flex flex-wrap gap-2">
+            {([7, 30, 90, 365] as Range[]).map((r) => (
+              <button
+                key={r}
+                onClick={() => setRange(r)}
+                className={`bg-transparent border px-3.5 py-2 text-[11px] uppercase tracking-widest transition-colors ${
+                  range === r
+                    ? "border-primary text-primary"
+                    : "border-cream/20 text-cream hover:border-primary hover:text-primary"
+                }`}
+              >
+                {RANGE_LABELS[r]}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div style={{ height: 420 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={hasAnyData ? trafficData : SAMPLE_TRAFFIC} margin={{ top: 10, right: 16, left: -10, bottom: 0 }}>
+              <CartesianGrid stroke="rgba(244,241,234,0.08)" vertical={false} />
+              <XAxis dataKey="date" stroke="rgba(244,241,234,0.55)" fontSize={11} tickLine={false} axisLine={false} />
+              <YAxis stroke="rgba(244,241,234,0.55)" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
+              <Tooltip
+                contentStyle={{ background: "#080808", border: "1px solid rgba(244,241,234,0.18)", color: "#f4f1ea", fontSize: 11, borderRadius: 2 }}
+                labelStyle={{ color: "#f4f1ea" }}
+              />
+              <Legend wrapperStyle={{ fontSize: 11, paddingTop: 12 }} />
+              <Line type="monotone" dataKey="pageViews" stroke="#ef3340" strokeWidth={2.5} dot={false} name="Page Views" />
+              <Line type="monotone" dataKey="uniqueVisitors" stroke="#7ec1ff" strokeWidth={2} dot={false} name="Unique Visitors" />
+              <Line type="monotone" dataKey="articleReads" stroke="#0e2a47" strokeWidth={2} dot={false} name="Article Reads" />
+              <Line type="monotone" dataKey="bookingClicks" stroke="#e87722" strokeWidth={2} dot={false} name="Booking Clicks" />
+              <Line type="monotone" dataKey="newsletterSignups" stroke="#18c58f" strokeWidth={2} dot={false} name="Newsletter Signups" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       {/* METRIC CARDS */}
