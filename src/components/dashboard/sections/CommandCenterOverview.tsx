@@ -216,18 +216,26 @@ export const CommandCenterOverview = ({ onCreate, onImport, onJump, canCreate }:
       <div>
         <SectionHeader title="System Health" sub="Live snapshot" />
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <HealthTile icon={Users} label="Total Users" value={health.totalUsers} accent="text-cream" onClick={() => onJump("users")} />
-          <HealthTile icon={Activity} label="Active Staff" value={health.activeStaff} accent="text-emerald-400" onClick={() => onJump("staff")} />
-          <HealthTile icon={Briefcase} label="Bookings · 7d" value={health.weekBookings} accent="text-sky-400" onClick={() => onJump("bookings")} />
-          <HealthTile
-            icon={AlertCircle}
-            label="Pending Approvals"
-            value={health.pendingApprovals}
-            accent={health.pendingApprovals > 0 ? "text-primary" : "text-muted-foreground"}
-            urgent={health.pendingApprovals > 0}
-            onClick={() => onJump(health.pendingApprovals > 0 ? "applicants" : "submitted")}
-          />
-          <HealthTile icon={Eye} label="Traffic Today" value={health.todayTraffic} accent="text-gold" onClick={() => onJump("analytics")} />
+          {loading ? (
+            <>
+              {Array.from({ length: 5 }).map((_, i) => <SkeletonTile key={i} />)}
+            </>
+          ) : (
+            <>
+              <HealthTile icon={Users} label="Total Users" value={health.totalUsers} accent="text-cream" onClick={() => onJump("users")} />
+              <HealthTile icon={Activity} label="Active Staff" value={health.activeStaff} accent="text-emerald-400" onClick={() => onJump("staff")} />
+              <HealthTile icon={Briefcase} label="Bookings · 7d" value={health.weekBookings} accent="text-sky-400" onClick={() => onJump("bookings")} />
+              <HealthTile
+                icon={AlertCircle}
+                label="Pending Approvals"
+                value={health.pendingApprovals}
+                accent={health.pendingApprovals > 0 ? "text-primary" : "text-muted-foreground"}
+                urgent={health.pendingApprovals > 0}
+                onClick={() => onJump(health.pendingApprovals > 0 ? "applicants" : "submitted")}
+              />
+              <HealthTile icon={Eye} label="Traffic Today" value={health.todayTraffic} accent="text-gold" onClick={() => onJump("analytics")} />
+            </>
+          )}
         </div>
       </div>
 
