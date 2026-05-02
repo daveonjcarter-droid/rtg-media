@@ -41,7 +41,7 @@ export type SectionId =
   | "admin-invites"
   | "availability";
 
-export type Group = "Content" | "Pipeline" | "Studio" | "Ops" | "Ecosystem" | "Admin" | "Crew" | "My Work";
+export type Group = "Overview" | "Content" | "Pipeline" | "Studio" | "Ops" | "Ecosystem" | "Admin" | "Crew" | "My Work";
 
 export const ROLE_LABELS: Record<AppRole, string> = {
   head_admin: "Head Admin",

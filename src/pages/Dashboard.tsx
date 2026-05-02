@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   LayoutDashboard, FileEdit, Inbox, RotateCcw, CheckCircle2, Calendar, Image as ImageIcon,
   Users, Plus, Copy, Instagram, Twitter, LogOut, Send, ArrowRight, Briefcase, Mail, Archive,
-  Youtube, Search, Bell, ChevronsLeft, ChevronsRight, MoreHorizontal, Eye, Pencil, Trash2,
+  Youtube, Search, ChevronsLeft, ChevronsRight, MoreHorizontal, Eye, Pencil, Trash2,
   Replace, Link as LinkIcon, Upload, Filter, ArrowUpDown, X, Tag, FolderInput, CheckSquare,
   Wand2, Film, BarChart3, Settings as SettingsIcon, Globe, Camera, Lock, FileText, ShoppingBag,
   Menu, ShieldCheck, IdCard, KeyRound, Clock,
@@ -26,6 +26,9 @@ import AdminInvitesManager from "@/components/dashboard/AdminInvitesManager";
 import CalendarSection from "@/components/dashboard/sections/CalendarSection";
 import MyAvailabilitySection from "@/components/dashboard/sections/MyAvailabilitySection";
 import AvailabilityAdminSection from "@/components/dashboard/sections/AvailabilityAdminSection";
+import CommandCenterOverview from "@/components/dashboard/sections/CommandCenterOverview";
+import GlobalSearch from "@/components/dashboard/GlobalSearch";
+import NotificationsBell from "@/components/dashboard/NotificationsBell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -112,27 +115,27 @@ type Article = {
 // SectionId imported from @/lib/permissions
 
 const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
-  { id: "overview",          label: "Overview",         icon: LayoutDashboard, group: "Content" },
-  { id: "drafts",            label: "Drafts",           icon: FileEdit,        group: "Pipeline" },
-  { id: "submitted",         label: "Submitted",        icon: Inbox,           group: "Pipeline" },
-  { id: "revisions",         label: "Revisions",        icon: RotateCcw,       group: "Pipeline" },
-  { id: "scheduled",         label: "Scheduled",        icon: Calendar,        group: "Pipeline" },
-  { id: "published",         label: "Published",        icon: CheckCircle2,    group: "Pipeline" },
-  { id: "archived",          label: "Archived",         icon: Inbox,           group: "Pipeline" },
-  { id: "calendar",          label: "RTG Calendar",     icon: Calendar,        group: "Content" },
-  { id: "media",             label: "Media Library",    icon: ImageIcon,       group: "Studio" },
-  { id: "import",            label: "Article Import",   icon: Upload,          group: "Studio" },
-  { id: "social",            label: "Social Studio",    icon: Instagram,       group: "Studio" },
-  { id: "content-managers",  label: "Pillars",          icon: Film,            group: "Ecosystem" },
-  { id: "films",             label: "RTG Films",        icon: Film,            group: "Ecosystem" },
-  { id: "fest",              label: "RTG Fest",         icon: ShoppingBag,     group: "Ecosystem" },
-  { id: "portfolio",         label: "Portfolio",        icon: Camera,          group: "Ecosystem" },
+  { id: "overview",          label: "Dashboard",        icon: LayoutDashboard, group: "Overview" },
+  { id: "drafts",            label: "Drafts",           icon: FileEdit,        group: "Content" },
+  { id: "submitted",         label: "Submitted",        icon: Inbox,           group: "Content" },
+  { id: "revisions",         label: "Revisions",        icon: RotateCcw,       group: "Content" },
+  { id: "scheduled",         label: "Scheduled",        icon: Calendar,        group: "Content" },
+  { id: "published",         label: "Published",        icon: CheckCircle2,    group: "Content" },
+  { id: "archived",          label: "Archive",          icon: Archive,         group: "Content" },
   { id: "bookings",          label: "Bookings",         icon: Briefcase,       group: "Ops" },
   { id: "leads",             label: "Leads",            icon: Mail,            group: "Ops" },
   { id: "production",        label: "Production Services", icon: Camera,       group: "Ops" },
   { id: "staff",             label: "Staff & Crew",     icon: Users,           group: "Ops" },
   { id: "availability",      label: "Staff Availability", icon: Clock,         group: "Ops" },
-  { id: "analytics",         label: "Analytics",        icon: BarChart3,       group: "Ops" },
+  { id: "calendar",          label: "Calendar",         icon: Calendar,        group: "Ops" },
+  { id: "media",             label: "Media Library",    icon: ImageIcon,       group: "Studio" },
+  { id: "import",            label: "Article Import",   icon: Upload,          group: "Studio" },
+  { id: "social",            label: "Social Studio",    icon: Instagram,       group: "Studio" },
+  { id: "analytics",         label: "Analytics",        icon: BarChart3,       group: "Studio" },
+  { id: "content-managers",  label: "Pillars",          icon: Film,            group: "Ecosystem" },
+  { id: "films",             label: "RTG Films",        icon: Film,            group: "Ecosystem" },
+  { id: "fest",              label: "RTG Fest",         icon: ShoppingBag,     group: "Ecosystem" },
+  { id: "portfolio",         label: "Portfolio",        icon: Camera,          group: "Ecosystem" },
   { id: "crew",              label: "Crew Management",  icon: Users,           group: "Crew" },
   { id: "portfolio-approvals", label: "Portfolio Approvals", icon: CheckCircle2, group: "Crew" },
   { id: "my-profile",        label: "My Profile",       icon: Camera,          group: "My Work" },
@@ -147,6 +150,9 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "site-updates",      label: "Quick Site Updates", icon: Wand2,         group: "Admin" },
   { id: "settings",          label: "Settings",         icon: SettingsIcon,    group: "Admin" },
 ];
+
+// Group display order
+const GROUP_ORDER: Group[] = ["Overview", "Content", "Ops", "Studio", "Ecosystem", "Crew", "My Work", "Admin", "Pipeline"];
 
 const STATUS_COLOR: Record<Status, string> = {
   draft: "bg-muted text-muted-foreground",
@@ -181,6 +187,19 @@ const Dashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [me, setMe] = useState<{ display_name: string | null; avatar_url: string | null; role_type: string | null } | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  // ⌘K / Ctrl+K to open global search
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   const primary: AppRole = primaryRole(roles);
 
@@ -261,7 +280,11 @@ const Dashboard = () => {
   const grouped = useMemo(() => {
     const g: Record<string, typeof navItems> = {};
     navItems.forEach((n) => { (g[n.group] ||= []).push(n); });
-    return g;
+    // Return entries in canonical order
+    const ordered: Record<string, typeof navItems> = {};
+    GROUP_ORDER.forEach((k) => { if (g[k]) ordered[k] = g[k]; });
+    Object.keys(g).forEach((k) => { if (!ordered[k]) ordered[k] = g[k]; });
+    return ordered;
   }, [navItems]);
 
   const canCreate = hasRole("writer") || hasRole("editor") || hasRole("admin");
@@ -403,17 +426,24 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="hidden md:flex items-center h-8 rounded-sm border border-border bg-surface/50 px-2 w-56 focus-within:border-foreground/40 transition-colors">
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="hidden md:flex items-center h-8 rounded-sm border border-border bg-surface/50 px-2 w-56 hover:border-foreground/40 transition-colors text-left"
+            >
               <Search className="h-3.5 w-3.5 text-muted-foreground" />
-              <input
-                placeholder="Search…"
-                className="bg-transparent outline-none px-2 h-full text-xs flex-1 placeholder:text-muted-foreground"
-              />
+              <span className="px-2 h-full text-xs flex-1 flex items-center text-muted-foreground">
+                Search users, articles, bookings…
+              </span>
               <kbd className="text-[9px] px-1.5 py-0.5 rounded bg-background border border-border text-muted-foreground">⌘K</kbd>
-            </div>
-            <button className="hidden sm:flex h-8 w-8 rounded-sm border border-border hover:border-foreground/40 transition-colors items-center justify-center text-muted-foreground hover:text-foreground">
-              <Bell className="h-3.5 w-3.5" />
             </button>
+            <button
+              onClick={() => setSearchOpen(true)}
+              aria-label="Search"
+              className="md:hidden h-8 w-8 rounded-sm border border-border hover:border-foreground/40 transition-colors flex items-center justify-center text-muted-foreground hover:text-foreground"
+            >
+              <Search className="h-3.5 w-3.5" />
+            </button>
+            <NotificationsBell />
             {canCreate && (
               <>
                 <Button
@@ -479,7 +509,14 @@ const Dashboard = () => {
             <div className="text-muted-foreground text-sm">Loading…</div>
           ) : (
             <>
-              {section === "overview" && <Overview articles={articles} onCreate={() => openEditor(null)} canCreate={canCreate} />}
+              {section === "overview" && (
+                <CommandCenterOverview
+                  onCreate={(t) => openEditor(null, (t as ArticleType) ?? "standard")}
+                  onImport={() => setImportOpen(true)}
+                  onJump={(s) => setSection(s as SectionId)}
+                  canCreate={canCreate}
+                />
+              )}
               {section === "drafts" && <ArticleList articles={filtered(["draft"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
               {section === "submitted" && <ArticleList articles={filtered(["submitted"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
               {section === "revisions" && <ArticleList articles={filtered(["revisions"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
@@ -540,6 +577,8 @@ const Dashboard = () => {
           if (data) openEditor(data as Article);
         }}
       />
+
+      <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
     </div>
   );
 };
