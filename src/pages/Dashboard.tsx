@@ -426,17 +426,24 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="hidden md:flex items-center h-8 rounded-sm border border-border bg-surface/50 px-2 w-56 focus-within:border-foreground/40 transition-colors">
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="hidden md:flex items-center h-8 rounded-sm border border-border bg-surface/50 px-2 w-56 hover:border-foreground/40 transition-colors text-left"
+            >
               <Search className="h-3.5 w-3.5 text-muted-foreground" />
-              <input
-                placeholder="Search…"
-                className="bg-transparent outline-none px-2 h-full text-xs flex-1 placeholder:text-muted-foreground"
-              />
+              <span className="px-2 h-full text-xs flex-1 flex items-center text-muted-foreground">
+                Search users, articles, bookings…
+              </span>
               <kbd className="text-[9px] px-1.5 py-0.5 rounded bg-background border border-border text-muted-foreground">⌘K</kbd>
-            </div>
-            <button className="hidden sm:flex h-8 w-8 rounded-sm border border-border hover:border-foreground/40 transition-colors items-center justify-center text-muted-foreground hover:text-foreground">
-              <Bell className="h-3.5 w-3.5" />
             </button>
+            <button
+              onClick={() => setSearchOpen(true)}
+              aria-label="Search"
+              className="md:hidden h-8 w-8 rounded-sm border border-border hover:border-foreground/40 transition-colors flex items-center justify-center text-muted-foreground hover:text-foreground"
+            >
+              <Search className="h-3.5 w-3.5" />
+            </button>
+            <NotificationsBell />
             {canCreate && (
               <>
                 <Button
