@@ -202,6 +202,8 @@ const Book = () => {
         detail: staffPick ? `Requested ${staffPick.display_name}` : (parsed.data.no_preference ? "No preference — RTG to assign" : "Crew assignment needed"),
         meta: { booking_id: data?.id, service_id: parsed.data.service_id },
       });
+      const { trackEvent } = await import("@/lib/tracking");
+      trackEvent("booking_submit", { booking_id: data?.id, service_id: parsed.data.service_id });
     }
     setBusy(false);
 

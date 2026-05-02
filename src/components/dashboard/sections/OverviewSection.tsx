@@ -2,10 +2,11 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   FileText, Send, Inbox, Calendar as CalIcon, Briefcase, Mail, Eye,
-  TrendingUp, Activity, Users, FileEdit, Clock, Trophy, Sparkles,
+  TrendingUp, Activity, Users, FileEdit, Clock, Trophy, Sparkles, ArrowRight,
 } from "lucide-react";
 import {
-  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
+  ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid,
+  LineChart, Line, Legend,
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHead, StatCard, EmptyState, SectionShell } from "../shared/Primitives";
@@ -22,7 +23,7 @@ type ActivityRow = {
   link_url: string | null;
 };
 
-type Series = { day: string; visits: number; visitors: number }[];
+type Series = { day: string; visits: number; visitors: number; reads: number }[];
 
 type Props = {
   articleCount: number;
@@ -62,6 +63,7 @@ const OverviewSection = ({
   const [scheduledSocial, setScheduledSocial] = useState(0);
   const [avgSessionSec, setAvgSessionSec] = useState(0);
   const [bounceRate, setBounceRate] = useState(0);
+  const [snapshot, setSnapshot] = useState({ todayViews: 0, weekReads: 0, bookingClicks: 0, newLeads: 0 });
 
   useEffect(() => {
     let cancelled = false;
@@ -74,28 +76,34 @@ const OverviewSection = ({
         { data: act },
         { data: pv },
         { data: pvPrev },
+        { data: ev },
         { data: bookings },
         { data: leads },
         { data: socials },
         { data: pubArticles },
+        { count: leadsRecent },
       ] = await Promise.all([
         supabase.from("activity_log").select("*").order("created_at", { ascending: false }).limit(8),
         supabase.from("page_views").select("created_at,visitor_id,session_id,path").gte("created_at", since),
         supabase.from("page_views").select("session_id").gte("created_at", sincePrev).lt("created_at", sinceMid),
+        supabase.from("analytics_events" as never).select("created_at,event_type,article_id,page_path").gte("created_at", since),
         supabase.from("bookings").select("id", { count: "exact", head: true }),
         supabase.from("leads").select("id", { count: "exact", head: true }),
         supabase.from("social_posts").select("id", { count: "exact", head: true }).eq("status", "scheduled"),
         supabase.from("articles").select("id,title,category,author_id,profiles:profiles!articles_author_id_fkey(display_name)")
           .eq("status", "published"),
+        supabase.from("leads").select("id", { count: "exact", head: true }).gte("created_at", daysAgo(7).toISOString()),
       ]);
 
       if (cancelled) return;
 
-      // Build daily series from page_views
-      const daily = new Map<string, { visits: number; visitors: Set<string> }>();
+      const evRows = ((ev as unknown) as { created_at: string; event_type: string; article_id: string | null; page_path: string | null }[]) ?? [];
+
+      // Build daily series from page_views + events
+      const daily = new Map<string, { visits: number; visitors: Set<string>; reads: number }>();
       for (let i = 29; i >= 0; i--) {
         const d = daysAgo(i);
-        daily.set(d.toISOString().slice(0, 10), { visits: 0, visitors: new Set() });
+        daily.set(d.toISOString().slice(0, 10), { visits: 0, visitors: new Set(), reads: 0 });
       }
       const sessions = new Map<string, { count: number; firstPath: string }>();
       (pv ?? []).forEach((row) => {
@@ -112,8 +120,14 @@ const OverviewSection = ({
           else sessions.set(sid, { count: 1, firstPath: row.path as string });
         }
       });
+      evRows.forEach((r) => {
+        if (r.event_type !== "article_view" && r.event_type !== "article_read") return;
+        const key = r.created_at.slice(0, 10);
+        const b = daily.get(key);
+        if (b) b.reads += 1;
+      });
       const built: Series = Array.from(daily.entries()).map(([k, v]) => ({
-        day: fmtDay(new Date(k)), visits: v.visits, visitors: v.visitors.size,
+        day: fmtDay(new Date(k)), visits: v.visits, visitors: v.visitors.size, reads: v.reads,
       }));
       setSeries(built);
       const totalVisits = built.reduce((s, r) => s + r.visits, 0);
@@ -156,6 +170,14 @@ const OverviewSection = ({
       if (topCat) setTopCategory({ name: topCat[0], count: topCat[1] });
       if (topW) setTopWriter({ name: topW[0], count: topW[1] });
 
+      // Snapshot: today / week
+      const todayKey = new Date().toISOString().slice(0, 10);
+      const weekStart = daysAgo(7).toISOString();
+      const todayViews = (pv ?? []).filter((r) => (r.created_at as string).slice(0, 10) === todayKey).length;
+      const weekReads = evRows.filter((r) => r.created_at >= weekStart && (r.event_type === "article_view" || r.event_type === "article_read")).length;
+      const bookingClicks = evRows.filter((r) => r.event_type === "booking_click" || r.event_type === "booking_submit").length;
+      setSnapshot({ todayViews, weekReads, bookingClicks, newLeads: leadsRecent ?? 0 });
+
       setActivity((act ?? []) as ActivityRow[]);
       setBookingCount((bookings as unknown as { count: number } | null)?.count ?? 0);
       setLeadCount((leads as unknown as { count: number } | null)?.count ?? 0);
@@ -182,42 +204,51 @@ const OverviewSection = ({
         <StatCard label="Leads Captured" value={leadCount} accent="bg-emerald-500" onClick={() => onJump?.("leads")} />
       </div>
 
-      {/* WEBSITE METRICS */}
+      {/* TRAFFIC SNAPSHOT */}
       <div>
-        <PageHead title="Website Metrics" sub="Last 30 days · live data" />
+        <PageHead
+          title="Traffic Snapshot"
+          sub="Last 30 days · live data"
+          actions={
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onJump?.("analytics")}
+              className="rounded-sm uppercase tracking-widest text-[10px] h-8 px-3"
+            >
+              View Full Analytics <ArrowRight className="h-3 w-3 ml-1" />
+            </Button>
+          }
+        />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+          <StatCard label="Today's Views" value={snapshot.todayViews} accent="bg-primary" />
+          <StatCard label="Article Reads · 7d" value={snapshot.weekReads} accent="bg-gold" />
+          <StatCard label="Booking Clicks" value={snapshot.bookingClicks} sub="Last 30 days" accent="bg-sky-500" />
+          <StatCard label="New Leads · 7d" value={snapshot.newLeads} accent="bg-emerald-500" />
+        </div>
+        <div className="grid md:grid-cols-4 gap-3 mb-4">
           <StatCard label="Total Site Visits" value={siteVisits.total} delta={visitsDelta} accent="bg-primary" />
           <StatCard label="Unique Visitors" value={siteVisits.unique} accent="bg-cream" />
           <StatCard label="Avg Time on Site" value={`${Math.floor(avgSessionSec / 60)}m ${avgSessionSec % 60}s`} sub="approx" />
           <StatCard label="Bounce Rate" value={`${bounceRate}%`} accent={bounceRate > 70 ? "bg-primary" : "bg-emerald-500"} />
         </div>
-        <div className="border border-border rounded-sm bg-surface/30 p-4">
-          <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Visits over time</div>
-          {siteVisits.total === 0 ? (
-            <EmptyState icon={Eye} title="No traffic yet" body="Data will populate as visitors arrive on the site." />
+        <div className="border border-border rounded-sm bg-[#080808] p-4">
+          <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Page views · Visitors · Article reads</div>
+          {siteVisits.total === 0 && snapshot.weekReads === 0 ? (
+            <EmptyState icon={Eye} title="Analytics will appear here once visitors start interacting with the site." />
           ) : (
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={series} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="visitGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
-                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="2 4" vertical={false} />
-                  <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} />
-                  <Tooltip
-                    contentStyle={{
-                      background: "hsl(var(--background))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: 2,
-                      fontSize: 11,
-                    }}
-                  />
-                  <Area type="monotone" dataKey="visits" stroke="hsl(var(--primary))" fill="url(#visitGrad)" strokeWidth={2} />
-                </AreaChart>
+                <LineChart data={series} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                  <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
+                  <XAxis dataKey="day" stroke="rgba(244,241,234,0.55)" fontSize={10} tickLine={false} axisLine={false} />
+                  <YAxis stroke="rgba(244,241,234,0.55)" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <Tooltip contentStyle={{ background: "#080808", border: "1px solid rgba(244,241,234,0.18)", color: "#f4f1ea", fontSize: 11, borderRadius: 2 }} />
+                  <Legend wrapperStyle={{ fontSize: 10, paddingTop: 4 }} />
+                  <Line type="monotone" dataKey="visits" stroke="#ef3340" strokeWidth={2.5} dot={false} name="Page Views" />
+                  <Line type="monotone" dataKey="visitors" stroke="#f4f1ea" strokeWidth={2} dot={false} name="Unique Visitors" />
+                  <Line type="monotone" dataKey="reads" stroke="#e0b84c" strokeWidth={2} dot={false} name="Article Reads" />
+                </LineChart>
               </ResponsiveContainer>
             </div>
           )}

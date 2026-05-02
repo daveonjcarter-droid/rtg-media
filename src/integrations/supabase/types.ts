@@ -137,6 +137,51 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          article_id: string | null
+          created_at: string
+          device_type: string | null
+          event_type: string
+          id: string
+          metadata: Json
+          page_path: string | null
+          referrer: string | null
+          session_id: string | null
+          source: string | null
+          user_id: string | null
+          visitor_id: string | null
+        }
+        Insert: {
+          article_id?: string | null
+          created_at?: string
+          device_type?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json
+          page_path?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          source?: string | null
+          user_id?: string | null
+          visitor_id?: string | null
+        }
+        Update: {
+          article_id?: string | null
+          created_at?: string
+          device_type?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json
+          page_path?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          source?: string | null
+          user_id?: string | null
+          visitor_id?: string | null
+        }
+        Relationships: []
+      }
       application_rate_limits: {
         Row: {
           created_at: string
