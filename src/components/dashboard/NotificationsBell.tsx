@@ -215,10 +215,54 @@ export const NotificationsBell = () => {
       return <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />;
     }
     if (r.kind === "booking_received") {
+      const expanded = assignFor === r.id;
       return (
-        <div className="flex items-center gap-1.5 mt-2">
-          <ActionBtn onClick={(e) => { e.stopPropagation(); approveBooking(r); }} icon={Check} label="Approve" tone="green" />
-          <ActionBtn onClick={(e) => { e.stopPropagation(); navigateTo(r); }} icon={Eye} label="View" tone="gray" />
+        <div className="mt-2 space-y-1.5">
+          <div className="flex items-center gap-1.5">
+            <ActionBtn onClick={(e) => { e.stopPropagation(); approveBooking(r); }} icon={Check} label="Approve" tone="green" />
+            <ActionBtn onClick={(e) => { e.stopPropagation(); openMiniAssign(r); }} icon={UserPlus} label={expanded ? "Hide" : "Assign"} tone="blue" />
+            <ActionBtn onClick={(e) => { e.stopPropagation(); navigateTo(r); }} icon={Eye} label="View" tone="gray" />
+          </div>
+          {expanded && (
+            <div className="border border-border/60 rounded-sm bg-surface/40 p-2 space-y-1">
+              <div className="text-[9px] uppercase tracking-widest text-muted-foreground px-1">
+                Top crew {assignLoading ? "· loading…" : "for this date"}
+              </div>
+              {assignLoading ? (
+                <Loader2 className="h-3 w-3 animate-spin text-muted-foreground mx-auto my-2" />
+              ) : assignCandidates.length === 0 ? (
+                <div className="text-[10px] text-muted-foreground px-1 py-1">No crew available.</div>
+              ) : (
+                assignCandidates.map((c) => {
+                  const dot =
+                    !c.accepting ? "bg-muted-foreground" :
+                    c.status === "available" ? "bg-emerald-400" :
+                    c.status === "off" ? "bg-primary/70" :
+                    "bg-muted-foreground";
+                  const tag =
+                    !c.accepting ? "Not accepting" :
+                    c.status === "available" ? "Available" :
+                    c.status === "off" ? "Off this day" : "Unknown";
+                  return (
+                    <button
+                      key={c.id}
+                      onClick={(e) => { e.stopPropagation(); assignCrew(r, c.id, c.name); }}
+                      className="w-full flex items-center gap-2 px-2 py-1.5 rounded-sm hover:bg-surface/80 transition-colors text-left"
+                    >
+                      <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${dot}`} />
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-[11px] text-cream truncate">{c.name}</span>
+                        <span className="block text-[9px] uppercase tracking-widest text-muted-foreground">
+                          {c.role || "Crew"} · {tag}
+                        </span>
+                      </span>
+                      <Check className="h-3 w-3 text-muted-foreground shrink-0" />
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          )}
         </div>
       );
     }
