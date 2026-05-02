@@ -98,19 +98,32 @@ export const CrewSlotsDialog = ({ bookingId, bookingName, crewRequestType, servi
 
   useEffect(() => { load(); }, [bookingId]);
 
+  const serviceSpec = getServiceSpec(serviceType);
+
+  // Smart defaults: union of service-specific roles + package roles, deduped, service first.
+  const suggestedSlotLabels = useMemo(() => {
+    const fromService = serviceSpec?.defaultCrewSlots ?? [];
+    const fromPkg = CREW_PACKAGES[crewRequestType as CrewPackageId]?.defaultSlots ?? [];
+    const seen = new Set<string>();
+    return [...fromService, ...fromPkg].filter((l) => {
+      const k = l.toLowerCase();
+      if (seen.has(k)) return false;
+      seen.add(k); return true;
+    });
+  }, [serviceSpec, crewRequestType]);
+
   const populateFromPackage = async () => {
-    const pkg = CREW_PACKAGES[crewRequestType as CrewPackageId];
-    if (!pkg) return toast.error("No crew package on this booking");
+    if (suggestedSlotLabels.length === 0) return toast.error("No suggestions available");
     if (slots.length > 0) {
-      if (!confirm("Replace existing slots with the package defaults?")) return;
+      if (!confirm("Replace existing slots with the suggested defaults?")) return;
       await supabase.from("crew_assignments").delete().eq("booking_id", bookingId);
     }
-    const rows = pkg.defaultSlots.map((label, i) => ({
+    const rows = suggestedSlotLabels.map((label, i) => ({
       booking_id: bookingId, role_label: label, sort_order: i, status: "pending",
     }));
     const { error } = await supabase.from("crew_assignments").insert(rows as any);
     if (error) return toast.error(error.message);
-    toast.success(`Created ${rows.length} crew slots from ${pkg.label}`);
+    toast.success(`Created ${rows.length} crew slots`);
     load();
   };
 
