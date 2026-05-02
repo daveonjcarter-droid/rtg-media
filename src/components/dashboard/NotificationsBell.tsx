@@ -97,10 +97,10 @@ export const NotificationsBell = () => {
     const id = entityIdFor(r);
     if (!id) return navigateTo(r);
     setBusy(r.id);
-    const { error } = await supabase.from("bookings").update({ status: "approved" }).eq("id", id);
+    const { error } = await supabase.from("bookings").update({ status: "booked" }).eq("id", id);
     setBusy(null);
     if (error) return toast.error(error.message);
-    toast.success("Booking approved");
+    toast.success("Booking confirmed");
     await logActivity({ kind: "booking_received", title: `Approved: ${r.title}`, detail: "Marked approved from notifications", meta: { id } });
     load();
   };
