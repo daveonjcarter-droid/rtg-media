@@ -23,6 +23,7 @@ import { logActivity } from "@/lib/activity";
 import AvailabilityCalendar from "@/components/dashboard/AvailabilityCalendar";
 import { CrewSlotsDialog } from "@/components/dashboard/CrewSlotsDialog";
 import { CREW_PACKAGES, type CrewPackageId } from "@/lib/crewPackages";
+import { ServiceDetailsSummary, ServiceTypeBadge } from "@/components/booking/ServiceDetailsSummary";
 
 const slugify = (s: string) =>
   s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -873,6 +874,8 @@ type BookingRow = {
   crew_request_type: string | null;
   crew_price_modifier: number | null;
   internal_assignment_locked: boolean;
+  service_type: string | null;
+  service_details: Record<string, unknown> | null;
 };
 
 const BOOKING_STATUSES = ["new", "contacted", "pending_deposit", "booked", "completed", "declined"] as const;
