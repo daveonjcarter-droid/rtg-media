@@ -56,6 +56,9 @@ export type Database = {
           created_at: string
           created_by: string | null
           email: string
+          email_error: string | null
+          email_sent: boolean
+          email_sent_at: string | null
           expires_at: string | null
           id: string
           invite_code: string
@@ -69,6 +72,9 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           email: string
+          email_error?: string | null
+          email_sent?: boolean
+          email_sent_at?: string | null
           expires_at?: string | null
           id?: string
           invite_code: string
@@ -82,6 +88,9 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           email?: string
+          email_error?: string | null
+          email_sent?: boolean
+          email_sent_at?: string | null
           expires_at?: string | null
           id?: string
           invite_code?: string
