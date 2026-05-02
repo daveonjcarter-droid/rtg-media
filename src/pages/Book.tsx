@@ -117,6 +117,10 @@ const Book = () => {
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm((f) => ({ ...f, [k]: v }));
 
   useEffect(() => {
+    // Funnel: page entered the booking flow
+    import("@/lib/tracking").then(({ trackEvent }) =>
+      trackEvent("booking_click", { source: "book_page", preset_service: presetServiceId || null, preset_staff: presetStaffSlug || null }),
+    );
     (async () => {
       const [{ data: svc }, { data: st }] = await Promise.all([
         supabase.from("services" as any).select("*").eq("is_available", true).order("sort_order"),
