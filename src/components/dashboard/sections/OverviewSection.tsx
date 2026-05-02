@@ -232,26 +232,42 @@ const OverviewSection = ({
           <StatCard label="Avg Time on Site" value={`${Math.floor(avgSessionSec / 60)}m ${avgSessionSec % 60}s`} sub="approx" />
           <StatCard label="Bounce Rate" value={`${bounceRate}%`} accent={bounceRate > 70 ? "bg-primary" : "bg-emerald-500"} />
         </div>
-        <div className="border border-border rounded-sm bg-[#080808] p-4">
-          <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Page views · Visitors · Article reads</div>
-          {siteVisits.total === 0 && snapshot.weekReads === 0 ? (
-            <EmptyState icon={Eye} title="Analytics will appear here once visitors start interacting with the site." />
-          ) : (
-            <div className="h-56">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={series} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                  <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
-                  <XAxis dataKey="day" stroke="rgba(244,241,234,0.55)" fontSize={10} tickLine={false} axisLine={false} />
-                  <YAxis stroke="rgba(244,241,234,0.55)" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
-                  <Tooltip contentStyle={{ background: "#080808", border: "1px solid rgba(244,241,234,0.18)", color: "#f4f1ea", fontSize: 11, borderRadius: 2 }} />
-                  <Legend wrapperStyle={{ fontSize: 10, paddingTop: 4 }} />
-                  <Line type="monotone" dataKey="visits" stroke="#ef3340" strokeWidth={2.5} dot={false} name="Page Views" />
-                  <Line type="monotone" dataKey="visitors" stroke="#f4f1ea" strokeWidth={2} dot={false} name="Unique Visitors" />
-                  <Line type="monotone" dataKey="reads" stroke="#e0b84c" strokeWidth={2} dot={false} name="Article Reads" />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          )}
+        <div className="border border-border/40 bg-[#080808] p-5">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Site Traffic Trends</div>
+            {siteVisits.total === 0 && snapshot.weekReads === 0 && (
+              <div className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground">Sample preview</div>
+            )}
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={(siteVisits.total === 0 && snapshot.weekReads === 0)
+                  ? [
+                      { day: "Mon", visits: 120, visitors: 80, reads: 45, bookingClicks: 8, newsletterSignups: 3 },
+                      { day: "Tue", visits: 145, visitors: 92, reads: 55, bookingClicks: 12, newsletterSignups: 4 },
+                      { day: "Wed", visits: 132, visitors: 88, reads: 61, bookingClicks: 10, newsletterSignups: 5 },
+                      { day: "Thu", visits: 180, visitors: 110, reads: 75, bookingClicks: 18, newsletterSignups: 7 },
+                      { day: "Fri", visits: 210, visitors: 130, reads: 92, bookingClicks: 24, newsletterSignups: 10 },
+                      { day: "Sat", visits: 260, visitors: 160, reads: 120, bookingClicks: 31, newsletterSignups: 14 },
+                      { day: "Sun", visits: 240, visitors: 150, reads: 112, bookingClicks: 28, newsletterSignups: 12 },
+                    ]
+                  : series}
+                margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
+              >
+                <CartesianGrid stroke="rgba(244,241,234,0.08)" vertical={false} />
+                <XAxis dataKey="day" stroke="rgba(244,241,234,0.55)" fontSize={10} tickLine={false} axisLine={false} />
+                <YAxis stroke="rgba(244,241,234,0.55)" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
+                <Tooltip contentStyle={{ background: "#080808", border: "1px solid rgba(244,241,234,0.18)", color: "#f4f1ea", fontSize: 11, borderRadius: 2 }} />
+                <Legend wrapperStyle={{ fontSize: 10, paddingTop: 4 }} />
+                <Line type="monotone" dataKey="visits" stroke="#ef3340" strokeWidth={2.5} dot={false} name="Page Views" />
+                <Line type="monotone" dataKey="visitors" stroke="#7ec1ff" strokeWidth={2} dot={false} name="Unique Visitors" />
+                <Line type="monotone" dataKey="reads" stroke="#0e2a47" strokeWidth={2} dot={false} name="Article Reads" />
+                <Line type="monotone" dataKey="bookingClicks" stroke="#e87722" strokeWidth={2} dot={false} name="Booking Clicks" />
+                <Line type="monotone" dataKey="newsletterSignups" stroke="#18c58f" strokeWidth={2} dot={false} name="Newsletter Signups" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
