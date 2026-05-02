@@ -577,6 +577,8 @@ const Dashboard = () => {
           if (data) openEditor(data as Article);
         }}
       />
+
+      <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
     </div>
   );
 };
