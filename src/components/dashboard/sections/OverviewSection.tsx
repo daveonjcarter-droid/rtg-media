@@ -170,6 +170,14 @@ const OverviewSection = ({
       if (topCat) setTopCategory({ name: topCat[0], count: topCat[1] });
       if (topW) setTopWriter({ name: topW[0], count: topW[1] });
 
+      // Snapshot: today / week
+      const todayKey = new Date().toISOString().slice(0, 10);
+      const weekStart = daysAgo(7).toISOString();
+      const todayViews = (pv ?? []).filter((r) => (r.created_at as string).slice(0, 10) === todayKey).length;
+      const weekReads = evRows.filter((r) => r.created_at >= weekStart && (r.event_type === "article_view" || r.event_type === "article_read")).length;
+      const bookingClicks = evRows.filter((r) => r.event_type === "booking_click" || r.event_type === "booking_submit").length;
+      setSnapshot({ todayViews, weekReads, bookingClicks, newLeads: leadsRecent ?? 0 });
+
       setActivity((act ?? []) as ActivityRow[]);
       setBookingCount((bookings as unknown as { count: number } | null)?.count ?? 0);
       setLeadCount((leads as unknown as { count: number } | null)?.count ?? 0);
