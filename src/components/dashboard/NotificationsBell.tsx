@@ -2,11 +2,12 @@
 // and supports inline actions: approve/view bookings, view/publish articles,
 // mark contacted/archive leads. Each action writes back to the relevant table
 // AND logs a follow-up activity row.
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Bell, Activity, Briefcase, Mail, FileText, Send, Calendar as CalIcon,
   Image as ImageIcon, Check, Eye, Archive as ArchiveIcon, MessageCircle, Loader2,
+  UserPlus, ChevronDown,
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
