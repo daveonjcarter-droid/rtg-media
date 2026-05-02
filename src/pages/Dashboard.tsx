@@ -236,6 +236,9 @@ const Dashboard = () => {
 
   useEffect(() => { loadArticles(); }, []);
 
+  // Realtime — keep the article list fresh as the team works
+  useRealtimeTable("articles", loadArticles);
+
   useEffect(() => {
     if (urlSection && navItems.find((n) => n.id === urlSection)) {
       setSection(urlSection as SectionId);
