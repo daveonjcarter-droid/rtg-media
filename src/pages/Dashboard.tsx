@@ -23,6 +23,7 @@ import { CrewManagement, PortfolioApprovalsQueue } from "@/components/dashboard/
 import { CrewProfilePanel, MyAssignedBookings } from "@/components/dashboard/CrewProfilePanel";
 import ProfileManagement from "@/components/dashboard/ProfileManagement";
 import AdminInvitesManager from "@/components/dashboard/AdminInvitesManager";
+import CalendarSection from "@/components/dashboard/sections/CalendarSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -116,7 +117,7 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "scheduled",         label: "Scheduled",        icon: Calendar,        group: "Pipeline" },
   { id: "published",         label: "Published",        icon: CheckCircle2,    group: "Pipeline" },
   { id: "archived",          label: "Archived",         icon: Inbox,           group: "Pipeline" },
-  { id: "calendar",          label: "Editorial Calendar", icon: Calendar,      group: "Content" },
+  { id: "calendar",          label: "RTG Calendar",     icon: Calendar,        group: "Content" },
   { id: "media",             label: "Media Library",    icon: ImageIcon,       group: "Studio" },
   { id: "import",            label: "Article Import",   icon: Upload,          group: "Studio" },
   { id: "social",            label: "Social Studio",    icon: Instagram,       group: "Studio" },
@@ -468,7 +469,7 @@ const Dashboard = () => {
               {section === "scheduled" && <ArticleList articles={filtered(["scheduled"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
               {section === "published" && <ArticleList articles={filtered(["approved", "published"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
               {section === "archived" && <ArticleList articles={filtered(["archived"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
-              {section === "calendar" && <CalendarView articles={filtered(["approved", "scheduled", "published"])} />}
+              {section === "calendar" && <CalendarSection />}
               {section === "media" && <MediaLibrary />}
               {section === "social" && <SocialKit articles={filtered(["published"])} />}
               {section === "bookings" && <BookingsDashboard />}
