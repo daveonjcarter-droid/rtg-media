@@ -149,6 +149,66 @@ export const NotificationsBell = () => {
     load();
   };
 
+  // Mini-assign: load top 3 available crew for a booking's date
+  const openMiniAssign = async (r: Row) => {
+    const bookingId = entityIdFor(r);
+    if (!bookingId) return;
+    if (assignFor === r.id) { setAssignFor(null); return; }
+    setAssignFor(r.id);
+    setAssignLoading(true);
+    setAssignCandidates([]);
+    const [{ data: bk }, { data: staff }] = await Promise.all([
+      supabase.from("bookings").select("project_date").eq("id", bookingId).maybeSingle(),
+      supabase.from("staff_profiles").select("id,display_name,role_title,is_crew,accepting_bookings").eq("is_crew", true).order("display_name"),
+    ]);
+    const ids = ((staff as any) ?? []).map((s: any) => s.id);
+    let weekday: number | null = null;
+    const date = (bk as any)?.project_date as string | null;
+    if (date) weekday = new Date(`${date}T12:00:00`).getDay();
+    let avail: { staff_id: string; weekday: number }[] = [];
+    if (ids.length && weekday !== null) {
+      const { data: av } = await supabase
+        .from("staff_availability" as any)
+        .select("staff_id,weekday")
+        .in("staff_id", ids)
+        .eq("weekday", weekday);
+      avail = ((av as any) ?? []) as typeof avail;
+    }
+    const candidates = ((staff as any) ?? []).map((s: any) => {
+      const status: "available" | "off" | "unknown" =
+        weekday === null ? "unknown" : avail.some((a) => a.staff_id === s.id) ? "available" : "off";
+      return { id: s.id, name: s.display_name, role: s.role_title, status, accepting: !!s.accepting_bookings };
+    });
+    // Sort: available + accepting first, then unknown, then off; non-accepting last
+    candidates.sort((a: any, b: any) => {
+      const score = (c: any) => (c.accepting ? 0 : 10) + (c.status === "available" ? 0 : c.status === "unknown" ? 1 : 2);
+      return score(a) - score(b);
+    });
+    setAssignCandidates(candidates.slice(0, 3));
+    setAssignLoading(false);
+  };
+
+  const assignCrew = async (r: Row, staffId: string, staffName: string) => {
+    const bookingId = entityIdFor(r);
+    if (!bookingId) return;
+    setBusy(r.id);
+    const { error } = await supabase
+      .from("bookings")
+      .update({ assigned_staff_id: staffId, assignment_status: "assigned" })
+      .eq("id", bookingId);
+    setBusy(null);
+    if (error) return toast.error(error.message);
+    toast.success(`Assigned ${staffName}`);
+    await logActivity({
+      kind: "booking_received",
+      title: `Quick-assigned ${staffName} → ${r.title}`,
+      detail: "Assigned from notifications",
+      meta: { booking_id: bookingId, staff_id: staffId, source: "notifications" },
+    });
+    setAssignFor(null);
+    load();
+  };
+
   const renderActions = (r: Row) => {
     const isBusy = busy === r.id;
     if (isBusy) {
