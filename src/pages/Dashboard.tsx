@@ -555,6 +555,7 @@ const Dashboard = () => {
             {section === "analytics" && <AnalyticsView />}
             {section === "settings" && <WorkspaceSettingsPanel />}
              {section === "permissions" && <PermissionsManager isHeadAdmin={isHeadAdmin(roles)} />}
+             {section === "audit" && <AuditLogSection canView={isHeadAdmin(roles)} />}
              {section === "production" && <ServicesManager />}
              {section === "portfolio" && <PortfolioWorksManager />}
              {section === "staff" && <StaffManager />}
