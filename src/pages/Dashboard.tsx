@@ -26,6 +26,9 @@ import AdminInvitesManager from "@/components/dashboard/AdminInvitesManager";
 import CalendarSection from "@/components/dashboard/sections/CalendarSection";
 import MyAvailabilitySection from "@/components/dashboard/sections/MyAvailabilitySection";
 import AvailabilityAdminSection from "@/components/dashboard/sections/AvailabilityAdminSection";
+import CommandCenterOverview from "@/components/dashboard/sections/CommandCenterOverview";
+import GlobalSearch from "@/components/dashboard/GlobalSearch";
+import NotificationsBell from "@/components/dashboard/NotificationsBell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -112,27 +115,27 @@ type Article = {
 // SectionId imported from @/lib/permissions
 
 const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
-  { id: "overview",          label: "Overview",         icon: LayoutDashboard, group: "Content" },
-  { id: "drafts",            label: "Drafts",           icon: FileEdit,        group: "Pipeline" },
-  { id: "submitted",         label: "Submitted",        icon: Inbox,           group: "Pipeline" },
-  { id: "revisions",         label: "Revisions",        icon: RotateCcw,       group: "Pipeline" },
-  { id: "scheduled",         label: "Scheduled",        icon: Calendar,        group: "Pipeline" },
-  { id: "published",         label: "Published",        icon: CheckCircle2,    group: "Pipeline" },
-  { id: "archived",          label: "Archived",         icon: Inbox,           group: "Pipeline" },
-  { id: "calendar",          label: "RTG Calendar",     icon: Calendar,        group: "Content" },
-  { id: "media",             label: "Media Library",    icon: ImageIcon,       group: "Studio" },
-  { id: "import",            label: "Article Import",   icon: Upload,          group: "Studio" },
-  { id: "social",            label: "Social Studio",    icon: Instagram,       group: "Studio" },
-  { id: "content-managers",  label: "Pillars",          icon: Film,            group: "Ecosystem" },
-  { id: "films",             label: "RTG Films",        icon: Film,            group: "Ecosystem" },
-  { id: "fest",              label: "RTG Fest",         icon: ShoppingBag,     group: "Ecosystem" },
-  { id: "portfolio",         label: "Portfolio",        icon: Camera,          group: "Ecosystem" },
+  { id: "overview",          label: "Dashboard",        icon: LayoutDashboard, group: "Overview" },
+  { id: "drafts",            label: "Drafts",           icon: FileEdit,        group: "Content" },
+  { id: "submitted",         label: "Submitted",        icon: Inbox,           group: "Content" },
+  { id: "revisions",         label: "Revisions",        icon: RotateCcw,       group: "Content" },
+  { id: "scheduled",         label: "Scheduled",        icon: Calendar,        group: "Content" },
+  { id: "published",         label: "Published",        icon: CheckCircle2,    group: "Content" },
+  { id: "archived",          label: "Archive",          icon: Archive,         group: "Content" },
   { id: "bookings",          label: "Bookings",         icon: Briefcase,       group: "Ops" },
   { id: "leads",             label: "Leads",            icon: Mail,            group: "Ops" },
   { id: "production",        label: "Production Services", icon: Camera,       group: "Ops" },
   { id: "staff",             label: "Staff & Crew",     icon: Users,           group: "Ops" },
   { id: "availability",      label: "Staff Availability", icon: Clock,         group: "Ops" },
-  { id: "analytics",         label: "Analytics",        icon: BarChart3,       group: "Ops" },
+  { id: "calendar",          label: "Calendar",         icon: Calendar,        group: "Ops" },
+  { id: "media",             label: "Media Library",    icon: ImageIcon,       group: "Studio" },
+  { id: "import",            label: "Article Import",   icon: Upload,          group: "Studio" },
+  { id: "social",            label: "Social Studio",    icon: Instagram,       group: "Studio" },
+  { id: "analytics",         label: "Analytics",        icon: BarChart3,       group: "Studio" },
+  { id: "content-managers",  label: "Pillars",          icon: Film,            group: "Ecosystem" },
+  { id: "films",             label: "RTG Films",        icon: Film,            group: "Ecosystem" },
+  { id: "fest",              label: "RTG Fest",         icon: ShoppingBag,     group: "Ecosystem" },
+  { id: "portfolio",         label: "Portfolio",        icon: Camera,          group: "Ecosystem" },
   { id: "crew",              label: "Crew Management",  icon: Users,           group: "Crew" },
   { id: "portfolio-approvals", label: "Portfolio Approvals", icon: CheckCircle2, group: "Crew" },
   { id: "my-profile",        label: "My Profile",       icon: Camera,          group: "My Work" },
@@ -147,6 +150,9 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "site-updates",      label: "Quick Site Updates", icon: Wand2,         group: "Admin" },
   { id: "settings",          label: "Settings",         icon: SettingsIcon,    group: "Admin" },
 ];
+
+// Group display order
+const GROUP_ORDER: Group[] = ["Overview", "Content", "Ops", "Studio", "Ecosystem", "Crew", "My Work", "Admin", "Pipeline"];
 
 const STATUS_COLOR: Record<Status, string> = {
   draft: "bg-muted text-muted-foreground",
