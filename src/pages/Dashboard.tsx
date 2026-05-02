@@ -27,6 +27,7 @@ import CalendarSection from "@/components/dashboard/sections/CalendarSection";
 import MyAvailabilitySection from "@/components/dashboard/sections/MyAvailabilitySection";
 import AvailabilityAdminSection from "@/components/dashboard/sections/AvailabilityAdminSection";
 import CommandCenterOverview from "@/components/dashboard/sections/CommandCenterOverview";
+import AuditLogSection from "@/components/dashboard/sections/AuditLogSection";
 import GlobalSearch from "@/components/dashboard/GlobalSearch";
 import NotificationsBell from "@/components/dashboard/NotificationsBell";
 import { useRealtimeTable } from "@/hooks/useRealtimeTable";
