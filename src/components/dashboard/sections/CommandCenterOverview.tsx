@@ -286,22 +286,28 @@ export const CommandCenterOverview = ({ onCreate, onImport, onJump, canCreate }:
           <SectionHeader title="Today & This Week" sub="Bookings · Shoots · Deadlines · Meetings" />
           <div className="border border-border/60 bg-[#080808] rounded-sm divide-y divide-border/40">
             {loading ? (
-              <div className="px-4 py-10 text-center text-xs text-muted-foreground">Loading…</div>
+              <SkeletonRow lines={4} />
             ) : today.length === 0 ? (
-              <div className="px-4 py-10 text-center text-xs text-muted-foreground">
-                <Calendar className="h-5 w-5 mx-auto mb-2 opacity-40" />
-                Nothing scheduled in the next 7 days.
+              <div className="px-4 py-12 text-center">
+                <Calendar className="h-6 w-6 mx-auto mb-3 text-muted-foreground/50" />
+                <div className="font-display uppercase text-cream text-sm mb-1">Nothing scheduled</div>
+                <div className="text-xs text-muted-foreground mb-4 max-w-sm mx-auto">
+                  Bookings, shoots, deadlines, and meetings for the next 7 days will appear here.
+                </div>
+                <Button size="sm" variant="outline" onClick={() => onJump("calendar")} className="rounded-sm uppercase tracking-widest text-[10px] h-8 px-3">
+                  <Plus className="h-3 w-3 mr-1.5" /> Add Event
+                </Button>
               </div>
             ) : (
               today.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => onJump(item.section)}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-surface/40 text-left transition-colors group"
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-surface/40 active:bg-surface/60 text-left transition-colors group"
                 >
                   <TodayIcon kind={item.kind} />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm text-cream truncate">{item.title}</div>
+                    <div className="text-sm text-cream truncate group-hover:text-primary transition-colors">{item.title}</div>
                     <div className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wider">
                       {item.kind} · {item.sub}
                     </div>
@@ -311,7 +317,7 @@ export const CommandCenterOverview = ({ onCreate, onImport, onJump, canCreate }:
                       {item.time}
                     </div>
                   )}
-                  <ChevronRight className="h-3 w-3 text-muted-foreground/40 group-hover:text-primary transition-colors shrink-0" />
+                  <ChevronRight className="h-3 w-3 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
                 </button>
               ))
             )}
