@@ -6,7 +6,7 @@ import {
   Youtube, Search, Bell, ChevronsLeft, ChevronsRight, MoreHorizontal, Eye, Pencil, Trash2,
   Replace, Link as LinkIcon, Upload, Filter, ArrowUpDown, X, Tag, FolderInput, CheckSquare,
   Wand2, Film, BarChart3, Settings as SettingsIcon, Globe, Camera, Lock, FileText, ShoppingBag,
-  Menu, ShieldCheck, IdCard, KeyRound,
+  Menu, ShieldCheck, IdCard, KeyRound, Clock,
 } from "lucide-react";
 import { SECTION_ACCESS, ROLE_LABELS, ROLE_DESCRIPTIONS, can, primaryRole, canManageUsers, canManageBilling, isHeadAdmin, type SectionId, type Group } from "@/lib/permissions";
 import { AnalyticsView, SettingsView, RtgFilmsManager, RtgFestManager, ArticleImportView } from "@/components/dashboard/AdminSections";
@@ -24,6 +24,8 @@ import { CrewProfilePanel, MyAssignedBookings } from "@/components/dashboard/Cre
 import ProfileManagement from "@/components/dashboard/ProfileManagement";
 import AdminInvitesManager from "@/components/dashboard/AdminInvitesManager";
 import CalendarSection from "@/components/dashboard/sections/CalendarSection";
+import MyAvailabilitySection from "@/components/dashboard/sections/MyAvailabilitySection";
+import AvailabilityAdminSection from "@/components/dashboard/sections/AvailabilityAdminSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -129,10 +131,12 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "leads",             label: "Leads",            icon: Mail,            group: "Ops" },
   { id: "production",        label: "Production Services", icon: Camera,       group: "Ops" },
   { id: "staff",             label: "Staff & Crew",     icon: Users,           group: "Ops" },
+  { id: "availability",      label: "Staff Availability", icon: Clock,         group: "Ops" },
   { id: "analytics",         label: "Analytics",        icon: BarChart3,       group: "Ops" },
   { id: "crew",              label: "Crew Management",  icon: Users,           group: "Crew" },
   { id: "portfolio-approvals", label: "Portfolio Approvals", icon: CheckCircle2, group: "Crew" },
   { id: "my-profile",        label: "My Profile",       icon: Camera,          group: "My Work" },
+  { id: "my-availability",   label: "My Availability",  icon: Clock,           group: "My Work" },
   { id: "my-bookings",       label: "My Bookings",      icon: Briefcase,       group: "My Work" },
   { id: "users",             label: "Users & Roles",    icon: Users,           group: "Admin" },
   { id: "invites",           label: "Invites & Roles",  icon: Mail,            group: "Admin" },
@@ -506,7 +510,9 @@ const Dashboard = () => {
             {section === "profile-management" && <ProfileManagement />}
             {section === "admin-invites" && <AdminInvitesManager />}
             {section === "my-profile" && <CrewProfilePanel />}
+            {section === "my-availability" && <MyAvailabilitySection />}
             {section === "my-bookings" && <MyAssignedBookings />}
+            {section === "availability" && <AvailabilityAdminSection />}
             </>
           )}
         </div>

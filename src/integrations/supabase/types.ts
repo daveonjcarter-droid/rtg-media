@@ -1758,24 +1758,33 @@ export type Database = {
           created_at: string
           end_time: string
           id: string
+          is_recurring: boolean
+          notes: string | null
           staff_id: string
           start_time: string
+          updated_at: string
           weekday: number
         }
         Insert: {
           created_at?: string
           end_time: string
           id?: string
+          is_recurring?: boolean
+          notes?: string | null
           staff_id: string
           start_time: string
+          updated_at?: string
           weekday: number
         }
         Update: {
           created_at?: string
           end_time?: string
           id?: string
+          is_recurring?: boolean
+          notes?: string | null
           staff_id?: string
           start_time?: string
+          updated_at?: string
           weekday?: number
         }
         Relationships: [
@@ -1822,6 +1831,9 @@ export type Database = {
       }
       staff_profiles: {
         Row: {
+          accepting_bookings: boolean
+          availability_notes: string | null
+          availability_updated_at: string | null
           bio: string | null
           booking_notes: string | null
           cover_image_url: string | null
@@ -1860,6 +1872,9 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          accepting_bookings?: boolean
+          availability_notes?: string | null
+          availability_updated_at?: string | null
           bio?: string | null
           booking_notes?: string | null
           cover_image_url?: string | null
@@ -1898,6 +1913,9 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          accepting_bookings?: boolean
+          availability_notes?: string | null
+          availability_updated_at?: string | null
           bio?: string | null
           booking_notes?: string | null
           cover_image_url?: string | null
