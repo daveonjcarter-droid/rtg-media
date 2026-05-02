@@ -45,6 +45,9 @@ export const NotificationsBell = () => {
   const [unread, setUnread] = useState(0);
   const [busy, setBusy] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [assignFor, setAssignFor] = useState<string | null>(null); // notification row id
+  const [assignCandidates, setAssignCandidates] = useState<{ id: string; name: string; role: string | null; status: "available" | "off" | "unknown"; accepting: boolean }[]>([]);
+  const [assignLoading, setAssignLoading] = useState(false);
   const navigate = useNavigate();
 
   const load = async () => {
