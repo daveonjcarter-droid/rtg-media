@@ -29,6 +29,7 @@ import AvailabilityAdminSection from "@/components/dashboard/sections/Availabili
 import CommandCenterOverview from "@/components/dashboard/sections/CommandCenterOverview";
 import GlobalSearch from "@/components/dashboard/GlobalSearch";
 import NotificationsBell from "@/components/dashboard/NotificationsBell";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -235,6 +236,9 @@ const Dashboard = () => {
 
   useEffect(() => { loadArticles(); }, []);
 
+  // Realtime — keep the article list fresh as the team works
+  useRealtimeTable("articles", loadArticles);
+
   useEffect(() => {
     if (urlSection && navItems.find((n) => n.id === urlSection)) {
       setSection(urlSection as SectionId);
@@ -263,6 +267,18 @@ const Dashboard = () => {
     const { error } = await supabase.from("articles").update(patch).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success(`Moved to ${STATUS_LABEL[status]}`);
+    // Auto-log meaningful status transitions
+    const article = articles.find((a) => a.id === id);
+    if (article) {
+      const kind =
+        status === "published" ? "article_published" :
+        status === "scheduled" ? "article_scheduled" :
+        status === "draft" ? "article_drafted" : null;
+      if (kind) {
+        const { logActivity } = await import("@/lib/activity");
+        logActivity({ kind, title: article.title, detail: `Status → ${STATUS_LABEL[status]}`, meta: { id } });
+      }
+    }
     loadArticles();
   };
 

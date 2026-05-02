@@ -1,11 +1,19 @@
-// Notifications bell — pulls last 12 entries from activity_log.
-// Click an item to navigate to a relevant dashboard section.
+// Notifications bell — pulls last 12 entries from activity_log with realtime updates
+// and supports inline actions: approve/view bookings, view/publish articles,
+// mark contacted/archive leads. Each action writes back to the relevant table
+// AND logs a follow-up activity row.
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Activity, Briefcase, Mail, FileText, Send, Calendar as CalIcon, Image as ImageIcon } from "lucide-react";
+import {
+  Bell, Activity, Briefcase, Mail, FileText, Send, Calendar as CalIcon,
+  Image as ImageIcon, Check, Eye, Archive as ArchiveIcon, MessageCircle, Loader2,
+} from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
 import { fmtRelative } from "@/lib/dateUtils";
+import { logActivity } from "@/lib/activity";
+import { toast } from "sonner";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 
 type Row = {
   id: string;
@@ -14,58 +22,46 @@ type Row = {
   detail: string | null;
   actor_name: string | null;
   link_url: string | null;
+  meta: Record<string, unknown> | null;
   created_at: string;
 };
 
-const KIND_ICON: Record<string, any> = {
-  article_published: Send,
-  article_drafted: FileText,
-  article_scheduled: CalIcon,
-  social_scheduled: CalIcon,
-  social_posted: Send,
-  booking_received: Briefcase,
-  lead_captured: Mail,
-  inquiry_received: Mail,
-  media_uploaded: ImageIcon,
+const KIND_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
+  article_published: Send, article_drafted: FileText, article_scheduled: CalIcon,
+  social_scheduled: CalIcon, social_posted: Send, booking_received: Briefcase,
+  lead_captured: Mail, inquiry_received: Mail, media_uploaded: ImageIcon,
 };
 
 const KIND_TO_SECTION: Record<string, string> = {
-  article_published: "published",
-  article_drafted: "drafts",
-  article_scheduled: "scheduled",
-  social_scheduled: "social",
-  social_posted: "social",
-  booking_received: "bookings",
-  lead_captured: "leads",
-  inquiry_received: "leads",
-  media_uploaded: "media",
+  article_published: "published", article_drafted: "drafts", article_scheduled: "scheduled",
+  social_scheduled: "social", social_posted: "social", booking_received: "bookings",
+  lead_captured: "leads", inquiry_received: "leads", media_uploaded: "media",
 };
 
 export const NotificationsBell = () => {
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState<Row[]>([]);
   const [unread, setUnread] = useState(0);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   const load = async () => {
     const { data } = await supabase
       .from("activity_log")
-      .select("id, kind, title, detail, actor_name, link_url, created_at")
+      .select("id, kind, title, detail, actor_name, link_url, meta, created_at")
       .order("created_at", { ascending: false })
       .limit(12);
     setRows((data as Row[]) ?? []);
-    // Compute unread vs lastSeen in localStorage
     const lastSeen = localStorage.getItem("rtg.notif.lastSeen");
     const lastSeenTs = lastSeen ? new Date(lastSeen).getTime() : 0;
     const u = (data ?? []).filter((r: any) => new Date(r.created_at).getTime() > lastSeenTs).length;
     setUnread(u);
+    setLoading(false);
   };
 
-  useEffect(() => {
-    load();
-    const t = setInterval(load, 60000);
-    return () => clearInterval(t);
-  }, []);
+  useEffect(() => { load(); }, []);
+  useRealtimeTable("activity_log", load, { event: "INSERT" });
 
   const handleOpen = (v: boolean) => {
     setOpen(v);
@@ -75,7 +71,7 @@ export const NotificationsBell = () => {
     }
   };
 
-  const select = (r: Row) => {
+  const navigateTo = (r: Row) => {
     setOpen(false);
     if (r.link_url) {
       window.open(r.link_url, "_blank");
@@ -83,6 +79,106 @@ export const NotificationsBell = () => {
     }
     const sec = KIND_TO_SECTION[r.kind] ?? "overview";
     navigate(`/dashboard/${sec}`);
+  };
+
+  // Extract the related entity id from meta.id or link_url heuristics.
+  const entityIdFor = (r: Row): string | null => {
+    if (r.meta && typeof r.meta === "object") {
+      const m = r.meta as Record<string, unknown>;
+      if (typeof m.id === "string") return m.id;
+      if (typeof m.booking_id === "string") return m.booking_id;
+      if (typeof m.article_id === "string") return m.article_id;
+      if (typeof m.lead_id === "string") return m.lead_id;
+    }
+    return null;
+  };
+
+  const approveBooking = async (r: Row) => {
+    const id = entityIdFor(r);
+    if (!id) return navigateTo(r);
+    setBusy(r.id);
+    const { error } = await supabase.from("bookings").update({ status: "booked" }).eq("id", id);
+    setBusy(null);
+    if (error) return toast.error(error.message);
+    toast.success("Booking confirmed");
+    await logActivity({ kind: "booking_received", title: `Approved: ${r.title}`, detail: "Marked approved from notifications", meta: { id } });
+    load();
+  };
+
+  const publishArticle = async (r: Row) => {
+    const id = entityIdFor(r);
+    if (!id) return navigateTo(r);
+    setBusy(r.id);
+    const { error } = await supabase
+      .from("articles")
+      .update({ status: "published", published_at: new Date().toISOString() })
+      .eq("id", id);
+    setBusy(null);
+    if (error) return toast.error(error.message);
+    toast.success("Article published");
+    await logActivity({ kind: "article_published", title: `Published: ${r.title}`, detail: "Published from notifications", meta: { id } });
+    load();
+  };
+
+  const markLeadContacted = async (r: Row) => {
+    const id = entityIdFor(r);
+    if (!id) return navigateTo(r);
+    setBusy(r.id);
+    const { error } = await supabase
+      .from("leads")
+      .update({ notes: `${(r.meta as any)?.notes ?? ""}\n[Contacted ${new Date().toLocaleDateString()}]`.trim() })
+      .eq("id", id);
+    setBusy(null);
+    if (error) return toast.error(error.message);
+    toast.success("Marked as contacted");
+    load();
+  };
+
+  const archiveLead = async (r: Row) => {
+    const id = entityIdFor(r);
+    if (!id) return navigateTo(r);
+    setBusy(r.id);
+    const { error } = await supabase.from("leads").update({ archived: true }).eq("id", id);
+    setBusy(null);
+    if (error) return toast.error(error.message);
+    toast.success("Lead archived");
+    load();
+  };
+
+  const renderActions = (r: Row) => {
+    const isBusy = busy === r.id;
+    if (isBusy) {
+      return <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />;
+    }
+    if (r.kind === "booking_received") {
+      return (
+        <div className="flex items-center gap-1.5 mt-2">
+          <ActionBtn onClick={(e) => { e.stopPropagation(); approveBooking(r); }} icon={Check} label="Approve" tone="green" />
+          <ActionBtn onClick={(e) => { e.stopPropagation(); navigateTo(r); }} icon={Eye} label="View" tone="gray" />
+        </div>
+      );
+    }
+    if (r.kind === "article_drafted" || r.kind === "article_scheduled") {
+      return (
+        <div className="flex items-center gap-1.5 mt-2">
+          <ActionBtn onClick={(e) => { e.stopPropagation(); publishArticle(r); }} icon={Send} label="Publish" tone="green" />
+          <ActionBtn onClick={(e) => { e.stopPropagation(); navigateTo(r); }} icon={Eye} label="View" tone="gray" />
+        </div>
+      );
+    }
+    if (r.kind === "lead_captured" || r.kind === "inquiry_received") {
+      return (
+        <div className="flex items-center gap-1.5 mt-2">
+          <ActionBtn onClick={(e) => { e.stopPropagation(); markLeadContacted(r); }} icon={MessageCircle} label="Contacted" tone="blue" />
+          <ActionBtn onClick={(e) => { e.stopPropagation(); archiveLead(r); }} icon={ArchiveIcon} label="Archive" tone="gray" />
+        </div>
+      );
+    }
+    return (
+      <div className="flex items-center gap-1.5 mt-2">
+        <ActionBtn onClick={(e) => { e.stopPropagation(); navigateTo(r); }} icon={Eye} label="View" tone="gray" />
+      </div>
+    );
   };
 
   return (
@@ -94,31 +190,36 @@ export const NotificationsBell = () => {
         >
           <Bell className="h-3.5 w-3.5" />
           {unread > 0 && (
-            <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-primary text-primary-foreground text-[9px] font-semibold flex items-center justify-center border border-background">
+            <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-primary text-primary-foreground text-[9px] font-semibold flex items-center justify-center border border-background animate-in zoom-in">
               {unread > 9 ? "9+" : unread}
             </span>
           )}
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-[360px] p-0 bg-[#080808] border-border">
+      <PopoverContent align="end" className="w-[380px] p-0 bg-[#080808] border-border">
         <div className="px-4 h-11 border-b border-border flex items-center justify-between">
           <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Notifications</div>
-          <div className="text-[9px] uppercase tracking-widest text-muted-foreground">{rows.length} recent</div>
+          <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Live · {rows.length}</div>
         </div>
-        <div className="max-h-[420px] overflow-y-auto">
-          {rows.length === 0 ? (
+        <div className="max-h-[460px] overflow-y-auto">
+          {loading ? (
+            <div className="px-4 py-10 text-center text-xs text-muted-foreground">
+              <Loader2 className="h-4 w-4 mx-auto mb-2 animate-spin opacity-60" />
+              Loading…
+            </div>
+          ) : rows.length === 0 ? (
             <div className="px-4 py-10 text-center text-xs text-muted-foreground">
               <Activity className="h-5 w-5 mx-auto mb-2 opacity-40" />
-              No activity yet.
+              <div className="font-display uppercase text-cream text-sm mb-1">All caught up</div>
+              <div>Notifications will appear here as your team works.</div>
             </div>
           ) : (
             rows.map((r) => {
               const Icon = KIND_ICON[r.kind] ?? Activity;
               return (
-                <button
+                <div
                   key={r.id}
-                  onClick={() => select(r)}
-                  className="w-full text-left flex gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 hover:bg-surface/40 transition-colors"
+                  className="flex gap-3 px-4 py-2.5 border-b border-border/40 last:border-0 hover:bg-surface/30 transition-colors"
                 >
                   <div className="h-7 w-7 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/20">
                     <Icon className="h-3 w-3" />
@@ -132,14 +233,38 @@ export const NotificationsBell = () => {
                       {fmtRelative(r.created_at)}
                       {r.actor_name && <span className="opacity-60"> · {r.actor_name}</span>}
                     </div>
+                    {renderActions(r)}
                   </div>
-                </button>
+                </div>
               );
             })
           )}
         </div>
       </PopoverContent>
     </Popover>
+  );
+};
+
+const ActionBtn = ({
+  onClick, icon: Icon, label, tone,
+}: {
+  onClick: (e: React.MouseEvent) => void;
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  tone: "green" | "blue" | "gray" | "red";
+}) => {
+  const cls =
+    tone === "green" ? "border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10" :
+    tone === "blue" ? "border-sky-500/30 text-sky-400 hover:bg-sky-500/10" :
+    tone === "red" ? "border-primary/30 text-primary hover:bg-primary/10" :
+    "border-border text-muted-foreground hover:text-cream hover:border-foreground/40";
+  return (
+    <button
+      onClick={onClick}
+      className={`inline-flex items-center gap-1 h-6 px-2 rounded-sm border text-[10px] uppercase tracking-widest transition-colors ${cls}`}
+    >
+      <Icon className="h-2.5 w-2.5" /> {label}
+    </button>
   );
 };
 

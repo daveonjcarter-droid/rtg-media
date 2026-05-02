@@ -14,6 +14,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { daysAgo, fmtDay, fmtRelative } from "@/lib/dateUtils";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
+import { SkeletonRow, SkeletonTile, SkeletonChart } from "@/components/dashboard/shared/SkeletonRow";
 
 type ActivityRow = {
   id: string; kind: string; title: string; detail: string | null;
@@ -59,123 +61,117 @@ export const CommandCenterOverview = ({ onCreate, onImport, onJump, canCreate }:
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      const since30 = daysAgo(30).toISOString();
-      const sinceWeek = daysAgo(7).toISOString();
-      const todayKey = new Date().toISOString().slice(0, 10);
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 7);
-      const inAWeek = tomorrow.toISOString().slice(0, 10);
+  const loadAll = async (opts: { showSpinner?: boolean } = {}) => {
+    if (opts.showSpinner !== false) setLoading(true);
+    const since30 = daysAgo(30).toISOString();
+    const sinceWeek = daysAgo(7).toISOString();
+    const todayKey = new Date().toISOString().slice(0, 10);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 7);
+    const inAWeek = tomorrow.toISOString().slice(0, 10);
 
-      const [
-        { count: totalUsers },
-        { count: activeStaff },
-        { count: weekBookings },
-        { count: pendingApps },
-        { count: submittedArticles },
-        { data: pv30 },
-        { data: ev30 },
-        { data: act },
-        { data: bookingsToday },
-        { data: events },
-        { data: dueArticles },
-      ] = await Promise.all([
-        supabase.from("profile_meta").select("user_id", { count: "exact", head: true }),
-        supabase.from("staff_profiles").select("id", { count: "exact", head: true }).eq("status", "active"),
-        supabase.from("bookings").select("id", { count: "exact", head: true }).gte("created_at", sinceWeek),
-        supabase.from("applications").select("id", { count: "exact", head: true }).eq("status", "new"),
-        supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "submitted"),
-        supabase.from("page_views").select("created_at,visitor_id,path").gte("created_at", since30),
-        supabase.from("analytics_events" as never).select("created_at,event_type").gte("created_at", since30),
-        supabase.from("activity_log").select("id, kind, title, detail, actor_name, created_at, link_url").order("created_at", { ascending: false }).limit(8),
-        supabase.from("bookings").select("id, name, project_type, project_date, project_time, status").gte("project_date", todayKey).lte("project_date", inAWeek).order("project_date").limit(10),
-        supabase.from("calendar_events").select("id, title, type, start_time, location").gte("start_time", new Date().toISOString()).lte("start_time", tomorrow.toISOString()).order("start_time").limit(10),
-        supabase.from("articles").select("id, title, scheduled_for, status").not("scheduled_for", "is", null).gte("scheduled_for", new Date().toISOString()).lte("scheduled_for", tomorrow.toISOString()).order("scheduled_for").limit(10),
-      ]);
+    const [
+      { count: totalUsers },
+      { count: activeStaff },
+      { count: weekBookings },
+      { count: pendingApps },
+      { count: submittedArticles },
+      { data: pv30 },
+      { data: ev30 },
+      { data: act },
+      { data: bookingsToday },
+      { data: events },
+      { data: dueArticles },
+    ] = await Promise.all([
+      supabase.from("profile_meta").select("user_id", { count: "exact", head: true }),
+      supabase.from("staff_profiles").select("id", { count: "exact", head: true }).eq("status", "active"),
+      supabase.from("bookings").select("id", { count: "exact", head: true }).gte("created_at", sinceWeek),
+      supabase.from("applications").select("id", { count: "exact", head: true }).eq("status", "new"),
+      supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "submitted"),
+      supabase.from("page_views").select("created_at,visitor_id,path").gte("created_at", since30),
+      supabase.from("analytics_events" as never).select("created_at,event_type").gte("created_at", since30),
+      supabase.from("activity_log").select("id, kind, title, detail, actor_name, created_at, link_url").order("created_at", { ascending: false }).limit(8),
+      supabase.from("bookings").select("id, name, project_type, project_date, project_time, status").gte("project_date", todayKey).lte("project_date", inAWeek).order("project_date").limit(10),
+      supabase.from("calendar_events").select("id, title, type, start_time, location").gte("start_time", new Date().toISOString()).lte("start_time", tomorrow.toISOString()).order("start_time").limit(10),
+      supabase.from("articles").select("id, title, scheduled_for, status").not("scheduled_for", "is", null).gte("scheduled_for", new Date().toISOString()).lte("scheduled_for", tomorrow.toISOString()).order("scheduled_for").limit(10),
+    ]);
 
-      if (cancelled) return;
+    // ---- Build daily series for last 14 days (mini chart)
+    const evRows = ((ev30 as unknown) as { created_at: string; event_type: string }[]) ?? [];
+    const daily = new Map<string, { visits: number; visitors: Set<string>; reads: number; bookingClicks: number }>();
+    for (let i = 13; i >= 0; i--) {
+      const d = daysAgo(i);
+      daily.set(d.toISOString().slice(0, 10), { visits: 0, visitors: new Set(), reads: 0, bookingClicks: 0 });
+    }
+    (pv30 ?? []).forEach((row: any) => {
+      const key = (row.created_at as string).slice(0, 10);
+      const b = daily.get(key);
+      if (b) { b.visits += 1; if (row.visitor_id) b.visitors.add(row.visitor_id); }
+    });
+    evRows.forEach((r) => {
+      const key = r.created_at.slice(0, 10);
+      const b = daily.get(key);
+      if (!b) return;
+      if (r.event_type === "article_view" || r.event_type === "article_read") b.reads += 1;
+      if (r.event_type === "booking_click" || r.event_type === "booking_submit") b.bookingClicks += 1;
+    });
+    const built: Series = Array.from(daily.entries()).map(([k, v]) => ({
+      day: fmtDay(new Date(k)), visits: v.visits, visitors: v.visitors.size, reads: v.reads, bookingClicks: v.bookingClicks,
+    }));
+    setSeries(built);
+    const totalVisits = built.reduce((s, r) => s + r.visits, 0);
+    const totalReads = built.reduce((s, r) => s + r.reads, 0);
+    setHasTrafficData(totalVisits > 0 || totalReads > 0);
 
-      // ---- Build daily series for last 14 days (mini chart)
-      const evRows = ((ev30 as unknown) as { created_at: string; event_type: string }[]) ?? [];
-      const daily = new Map<string, { visits: number; visitors: Set<string>; reads: number; bookingClicks: number }>();
-      for (let i = 13; i >= 0; i--) {
-        const d = daysAgo(i);
-        daily.set(d.toISOString().slice(0, 10), { visits: 0, visitors: new Set(), reads: 0, bookingClicks: 0 });
-      }
-      (pv30 ?? []).forEach((row: any) => {
-        const key = (row.created_at as string).slice(0, 10);
-        const b = daily.get(key);
-        if (b) {
-          b.visits += 1;
-          if (row.visitor_id) b.visitors.add(row.visitor_id);
-        }
+    const todayViews = (pv30 ?? []).filter((r: any) => (r.created_at as string).slice(0, 10) === todayKey).length;
+    setHealth({
+      totalUsers: totalUsers ?? 0,
+      activeStaff: activeStaff ?? 0,
+      weekBookings: weekBookings ?? 0,
+      pendingApprovals: (pendingApps ?? 0) + (submittedArticles ?? 0),
+      todayTraffic: todayViews,
+    });
+
+    const todayItems: TodayItem[] = [];
+    (bookingsToday ?? []).forEach((b: any) => {
+      todayItems.push({
+        id: `b-${b.id}`, kind: "booking",
+        title: b.name + (b.project_type ? ` — ${b.project_type}` : ""),
+        sub: `Status: ${b.status}`,
+        time: b.project_time ? `${b.project_date} ${b.project_time.slice(0, 5)}` : b.project_date,
+        section: "bookings",
       });
-      evRows.forEach((r) => {
-        const key = r.created_at.slice(0, 10);
-        const b = daily.get(key);
-        if (!b) return;
-        if (r.event_type === "article_view" || r.event_type === "article_read") b.reads += 1;
-        if (r.event_type === "booking_click" || r.event_type === "booking_submit") b.bookingClicks += 1;
+    });
+    (events ?? []).forEach((e: any) => {
+      todayItems.push({
+        id: `e-${e.id}`, kind: e.type === "shoot" ? "shoot" : "event",
+        title: e.title, sub: e.location || e.type,
+        time: new Date(e.start_time).toLocaleString([], { dateStyle: "short", timeStyle: "short" }),
+        section: "calendar",
       });
-      const built: Series = Array.from(daily.entries()).map(([k, v]) => ({
-        day: fmtDay(new Date(k)), visits: v.visits, visitors: v.visitors.size, reads: v.reads, bookingClicks: v.bookingClicks,
-      }));
-      setSeries(built);
-      const totalVisits = built.reduce((s, r) => s + r.visits, 0);
-      const totalReads = built.reduce((s, r) => s + r.reads, 0);
-      setHasTrafficData(totalVisits > 0 || totalReads > 0);
+    });
+    (dueArticles ?? []).forEach((a: any) => {
+      todayItems.push({
+        id: `d-${a.id}`, kind: "deadline",
+        title: a.title, sub: `Scheduled · ${a.status}`,
+        time: new Date(a.scheduled_for).toLocaleString([], { dateStyle: "short", timeStyle: "short" }),
+        section: "scheduled",
+      });
+    });
+    todayItems.sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+    setToday(todayItems.slice(0, 8));
 
-      // Today's traffic
-      const todayViews = (pv30 ?? []).filter((r: any) => (r.created_at as string).slice(0, 10) === todayKey).length;
+    setActivity((act as ActivityRow[]) ?? []);
+    setLoading(false);
+  };
 
-      setHealth({
-        totalUsers: totalUsers ?? 0,
-        activeStaff: activeStaff ?? 0,
-        weekBookings: weekBookings ?? 0,
-        pendingApprovals: (pendingApps ?? 0) + (submittedArticles ?? 0),
-        todayTraffic: todayViews,
-      });
+  useEffect(() => { loadAll(); }, []);
 
-      // Today panel — combine bookings, events, deadlines
-      const todayItems: TodayItem[] = [];
-      (bookingsToday ?? []).forEach((b: any) => {
-        todayItems.push({
-          id: `b-${b.id}`, kind: "booking",
-          title: b.name + (b.project_type ? ` — ${b.project_type}` : ""),
-          sub: `Status: ${b.status}`,
-          time: b.project_time ? `${b.project_date} ${b.project_time.slice(0, 5)}` : b.project_date,
-          section: "bookings",
-        });
-      });
-      (events ?? []).forEach((e: any) => {
-        todayItems.push({
-          id: `e-${e.id}`, kind: e.type === "shoot" ? "shoot" : "event",
-          title: e.title,
-          sub: e.location || e.type,
-          time: new Date(e.start_time).toLocaleString([], { dateStyle: "short", timeStyle: "short" }),
-          section: "calendar",
-        });
-      });
-      (dueArticles ?? []).forEach((a: any) => {
-        todayItems.push({
-          id: `d-${a.id}`, kind: "deadline",
-          title: a.title,
-          sub: `Scheduled · ${a.status}`,
-          time: new Date(a.scheduled_for).toLocaleString([], { dateStyle: "short", timeStyle: "short" }),
-          section: "scheduled",
-        });
-      });
-      todayItems.sort((a, b) => (a.time || "").localeCompare(b.time || ""));
-      setToday(todayItems.slice(0, 8));
-
-      setActivity((act as ActivityRow[]) ?? []);
-      setLoading(false);
-    })();
-    return () => { cancelled = true; };
-  }, []);
+  // Realtime — refresh on any meaningful table change. Debounced inside the hook.
+  useRealtimeTable("activity_log", () => loadAll({ showSpinner: false }), { event: "INSERT" });
+  useRealtimeTable("bookings", () => loadAll({ showSpinner: false }));
+  useRealtimeTable("articles", () => loadAll({ showSpinner: false }));
+  useRealtimeTable("calendar_events", () => loadAll({ showSpinner: false }));
 
   const sampleData: Series = useMemo(() => ([
     { day: "Mon", visits: 120, visitors: 80, reads: 45, bookingClicks: 8 },
@@ -220,18 +216,26 @@ export const CommandCenterOverview = ({ onCreate, onImport, onJump, canCreate }:
       <div>
         <SectionHeader title="System Health" sub="Live snapshot" />
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <HealthTile icon={Users} label="Total Users" value={health.totalUsers} accent="text-cream" onClick={() => onJump("users")} />
-          <HealthTile icon={Activity} label="Active Staff" value={health.activeStaff} accent="text-emerald-400" onClick={() => onJump("staff")} />
-          <HealthTile icon={Briefcase} label="Bookings · 7d" value={health.weekBookings} accent="text-sky-400" onClick={() => onJump("bookings")} />
-          <HealthTile
-            icon={AlertCircle}
-            label="Pending Approvals"
-            value={health.pendingApprovals}
-            accent={health.pendingApprovals > 0 ? "text-primary" : "text-muted-foreground"}
-            urgent={health.pendingApprovals > 0}
-            onClick={() => onJump(health.pendingApprovals > 0 ? "applicants" : "submitted")}
-          />
-          <HealthTile icon={Eye} label="Traffic Today" value={health.todayTraffic} accent="text-gold" onClick={() => onJump("analytics")} />
+          {loading ? (
+            <>
+              {Array.from({ length: 5 }).map((_, i) => <SkeletonTile key={i} />)}
+            </>
+          ) : (
+            <>
+              <HealthTile icon={Users} label="Total Users" value={health.totalUsers} accent="text-cream" onClick={() => onJump("users")} />
+              <HealthTile icon={Activity} label="Active Staff" value={health.activeStaff} accent="text-emerald-400" onClick={() => onJump("staff")} />
+              <HealthTile icon={Briefcase} label="Bookings · 7d" value={health.weekBookings} accent="text-sky-400" onClick={() => onJump("bookings")} />
+              <HealthTile
+                icon={AlertCircle}
+                label="Pending Approvals"
+                value={health.pendingApprovals}
+                accent={health.pendingApprovals > 0 ? "text-primary" : "text-muted-foreground"}
+                urgent={health.pendingApprovals > 0}
+                onClick={() => onJump(health.pendingApprovals > 0 ? "applicants" : "submitted")}
+              />
+              <HealthTile icon={Eye} label="Traffic Today" value={health.todayTraffic} accent="text-gold" onClick={() => onJump("analytics")} />
+            </>
+          )}
         </div>
       </div>
 
@@ -282,22 +286,28 @@ export const CommandCenterOverview = ({ onCreate, onImport, onJump, canCreate }:
           <SectionHeader title="Today & This Week" sub="Bookings · Shoots · Deadlines · Meetings" />
           <div className="border border-border/60 bg-[#080808] rounded-sm divide-y divide-border/40">
             {loading ? (
-              <div className="px-4 py-10 text-center text-xs text-muted-foreground">Loading…</div>
+              <SkeletonRow lines={4} />
             ) : today.length === 0 ? (
-              <div className="px-4 py-10 text-center text-xs text-muted-foreground">
-                <Calendar className="h-5 w-5 mx-auto mb-2 opacity-40" />
-                Nothing scheduled in the next 7 days.
+              <div className="px-4 py-12 text-center">
+                <Calendar className="h-6 w-6 mx-auto mb-3 text-muted-foreground/50" />
+                <div className="font-display uppercase text-cream text-sm mb-1">Nothing scheduled</div>
+                <div className="text-xs text-muted-foreground mb-4 max-w-sm mx-auto">
+                  Bookings, shoots, deadlines, and meetings for the next 7 days will appear here.
+                </div>
+                <Button size="sm" variant="outline" onClick={() => onJump("calendar")} className="rounded-sm uppercase tracking-widest text-[10px] h-8 px-3">
+                  <Plus className="h-3 w-3 mr-1.5" /> Add Event
+                </Button>
               </div>
             ) : (
               today.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => onJump(item.section)}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-surface/40 text-left transition-colors group"
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-surface/40 active:bg-surface/60 text-left transition-colors group"
                 >
                   <TodayIcon kind={item.kind} />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm text-cream truncate">{item.title}</div>
+                    <div className="text-sm text-cream truncate group-hover:text-primary transition-colors">{item.title}</div>
                     <div className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wider">
                       {item.kind} · {item.sub}
                     </div>
@@ -307,7 +317,7 @@ export const CommandCenterOverview = ({ onCreate, onImport, onJump, canCreate }:
                       {item.time}
                     </div>
                   )}
-                  <ChevronRight className="h-3 w-3 text-muted-foreground/40 group-hover:text-primary transition-colors shrink-0" />
+                  <ChevronRight className="h-3 w-3 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
                 </button>
               ))
             )}
@@ -340,10 +350,15 @@ export const CommandCenterOverview = ({ onCreate, onImport, onJump, canCreate }:
           }
         />
         <div className="border border-border/60 bg-[#080808] rounded-sm divide-y divide-border/40">
-          {activity.length === 0 ? (
-            <div className="px-4 py-10 text-center text-xs text-muted-foreground">
-              <Activity className="h-5 w-5 mx-auto mb-2 opacity-40" />
-              No activity yet. Things will show up here as your team works.
+          {loading ? (
+            <SkeletonRow lines={5} />
+          ) : activity.length === 0 ? (
+            <div className="px-4 py-12 text-center">
+              <Activity className="h-6 w-6 mx-auto mb-3 text-muted-foreground/50" />
+              <div className="font-display uppercase text-cream text-sm mb-1">No activity yet</div>
+              <div className="text-xs text-muted-foreground max-w-sm mx-auto">
+                Article publishes, bookings, leads, and uploads will stream in here in real time.
+              </div>
             </div>
           ) : (
             activity.map((a) => {
