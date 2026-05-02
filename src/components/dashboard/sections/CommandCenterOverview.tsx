@@ -14,6 +14,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { daysAgo, fmtDay, fmtRelative } from "@/lib/dateUtils";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
+import { SkeletonRow, SkeletonTile, SkeletonChart } from "@/components/dashboard/shared/SkeletonRow";
 
 type ActivityRow = {
   id: string; kind: string; title: string; detail: string | null;
