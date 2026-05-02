@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { MediaUploader } from "./MediaUploader";
 import { PortfolioManager } from "./PortfolioManager";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import MyAvailabilitySection from "./sections/MyAvailabilitySection";
 
 type Profile = {
   id: string;
@@ -156,8 +158,16 @@ export const CrewProfilePanel = () => {
     <div className="space-y-6 max-w-3xl">
       <div>
         <h2 className="text-2xl font-display tracking-tight">My Crew Profile</h2>
-        <p className="text-sm text-muted-foreground">Edit your public profile, rates, equipment, and booking preferences.</p>
+        <p className="text-sm text-muted-foreground">Edit your public profile, rates, equipment, availability, and booking preferences.</p>
       </div>
+
+      <Tabs defaultValue="profile" className="w-full">
+        <TabsList className="rounded-sm">
+          <TabsTrigger value="profile" className="uppercase tracking-widest text-[10px]">Profile</TabsTrigger>
+          <TabsTrigger value="availability" className="uppercase tracking-widest text-[10px]">Availability</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="profile" className="space-y-6 mt-4">
 
       <section className="border border-border/60 rounded-lg p-4 space-y-3">
         <h3 className="font-display text-lg">Basics</h3>
