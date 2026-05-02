@@ -109,7 +109,7 @@ export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
   scheduled:          [HEAD, "admin", "editor", "writer", "social_manager", "social_articles_lead"],
   published:          [HEAD, "admin", "editor", "writer", "social_manager", "social_articles_lead"],
   archived:           [HEAD, "admin", "editor", "social_articles_lead"],
-  calendar:           [HEAD, "admin", "editor", "social_manager", "social_articles_lead"],
+  calendar:           [HEAD, "admin", "owner", "co_ceo", "editor", "writer", "journalist", "social_manager", "social_articles_lead", "booking_manager", "media_manager", "designer", "intern", "crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
   media:              [HEAD, "admin", "editor", "writer", "media_manager", "social_manager", "social_articles_lead"],
   import:             [HEAD, "admin", "editor", "writer", "social_articles_lead"],
   social:             [HEAD, "admin", "editor", "social_manager", "social_articles_lead"],

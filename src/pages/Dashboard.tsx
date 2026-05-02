@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   LayoutDashboard, FileEdit, Inbox, RotateCcw, CheckCircle2, Calendar, Image as ImageIcon,
   Users, Plus, Copy, Instagram, Twitter, LogOut, Send, ArrowRight, Briefcase, Mail, Archive,
@@ -23,6 +23,7 @@ import { CrewManagement, PortfolioApprovalsQueue } from "@/components/dashboard/
 import { CrewProfilePanel, MyAssignedBookings } from "@/components/dashboard/CrewProfilePanel";
 import ProfileManagement from "@/components/dashboard/ProfileManagement";
 import AdminInvitesManager from "@/components/dashboard/AdminInvitesManager";
+import CalendarSection from "@/components/dashboard/sections/CalendarSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -116,7 +117,7 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "scheduled",         label: "Scheduled",        icon: Calendar,        group: "Pipeline" },
   { id: "published",         label: "Published",        icon: CheckCircle2,    group: "Pipeline" },
   { id: "archived",          label: "Archived",         icon: Inbox,           group: "Pipeline" },
-  { id: "calendar",          label: "Editorial Calendar", icon: Calendar,      group: "Content" },
+  { id: "calendar",          label: "RTG Calendar",     icon: Calendar,        group: "Content" },
   { id: "media",             label: "Media Library",    icon: ImageIcon,       group: "Studio" },
   { id: "import",            label: "Article Import",   icon: Upload,          group: "Studio" },
   { id: "social",            label: "Social Studio",    icon: Instagram,       group: "Studio" },
@@ -160,12 +161,13 @@ const STATUS_LABEL: Record<Status, string> = {
 const Dashboard = () => {
   const { user, roles, signOut, hasRole } = useAuth();
   const navigate = useNavigate();
+  const { section: urlSection } = useParams<{ section?: string }>();
   // "my-profile" is available to every signed-in user — profiles are default, roles control extras.
   const navItems = useMemo(
     () => ALL_NAV.filter((n) => n.id === "my-profile" || can(roles, n.id)),
     [roles],
   );
-  const [section, setSection] = useState<SectionId>("overview");
+  const [section, setSection] = useState<SectionId>((urlSection as SectionId) ?? "overview");
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState<Article | null>(null);
   const [newType, setNewType] = useState<ArticleType>("standard");
@@ -211,8 +213,20 @@ const Dashboard = () => {
   useEffect(() => { loadArticles(); }, []);
 
   useEffect(() => {
-    if (!navItems.find((n) => n.id === section)) setSection("overview");
-  }, [navItems, section]);
+    if (urlSection && navItems.find((n) => n.id === urlSection)) {
+      setSection(urlSection as SectionId);
+    } else if (!navItems.find((n) => n.id === section)) {
+      setSection("overview");
+    }
+  }, [navItems, section, urlSection]);
+
+  // Keep URL in sync when user navigates via sidebar
+  useEffect(() => {
+    const target = section === "overview" ? "/dashboard" : `/dashboard/${section}`;
+    if (window.location.pathname !== target) {
+      navigate(target, { replace: true });
+    }
+  }, [section, navigate]);
 
   const openEditor = (a: Article | null = null, type: ArticleType = "standard") => {
     setEditing(a);
@@ -468,7 +482,7 @@ const Dashboard = () => {
               {section === "scheduled" && <ArticleList articles={filtered(["scheduled"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
               {section === "published" && <ArticleList articles={filtered(["approved", "published"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
               {section === "archived" && <ArticleList articles={filtered(["archived"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
-              {section === "calendar" && <CalendarView articles={filtered(["approved", "scheduled", "published"])} />}
+              {section === "calendar" && <CalendarSection />}
               {section === "media" && <MediaLibrary />}
               {section === "social" && <SocialKit articles={filtered(["published"])} />}
               {section === "bookings" && <BookingsDashboard />}
@@ -607,6 +621,11 @@ const Overview = ({ articles, onCreate, canCreate }: { articles: Article[]; onCr
             </Button>
           )}
         </div>
+      </div>
+
+      <div>
+        <PageHead title="Upcoming Schedule" sub="Today & this week" />
+        <CalendarSection compact />
       </div>
     </div>
   );

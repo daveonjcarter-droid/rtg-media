@@ -763,6 +763,63 @@ export type Database = {
         }
         Relationships: []
       }
+      calendar_events: {
+        Row: {
+          all_day: boolean
+          assigned_user_ids: string[]
+          color: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          end_time: string
+          id: string
+          location: string | null
+          related_id: string | null
+          related_type: Database["public"]["Enums"]["calendar_related_type"]
+          start_time: string
+          status: Database["public"]["Enums"]["calendar_event_status"]
+          title: string
+          type: Database["public"]["Enums"]["calendar_event_type"]
+          updated_at: string
+        }
+        Insert: {
+          all_day?: boolean
+          assigned_user_ids?: string[]
+          color?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          end_time: string
+          id?: string
+          location?: string | null
+          related_id?: string | null
+          related_type?: Database["public"]["Enums"]["calendar_related_type"]
+          start_time: string
+          status?: Database["public"]["Enums"]["calendar_event_status"]
+          title: string
+          type?: Database["public"]["Enums"]["calendar_event_type"]
+          updated_at?: string
+        }
+        Update: {
+          all_day?: boolean
+          assigned_user_ids?: string[]
+          color?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          end_time?: string
+          id?: string
+          location?: string | null
+          related_id?: string | null
+          related_type?: Database["public"]["Enums"]["calendar_related_type"]
+          start_time?: string
+          status?: Database["public"]["Enums"]["calendar_event_status"]
+          title?: string
+          type?: Database["public"]["Enums"]["calendar_event_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       chicago_feed: {
         Row: {
           created_at: string
@@ -1947,6 +2004,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_calendar_ops: { Args: { _uid: string }; Returns: boolean }
       link_staff_profile_to_user: {
         Args: { _profile_id: string; _user_id: string }
         Returns: undefined
@@ -2040,6 +2098,18 @@ export type Database = {
         | "completed"
         | "declined"
         | "pending_deposit"
+      calendar_event_status: "scheduled" | "completed" | "canceled"
+      calendar_event_type:
+        | "shoot"
+        | "interview"
+        | "article_deadline"
+        | "edit_deadline"
+        | "client_booking"
+        | "team_meeting"
+        | "release_date"
+        | "content_drop"
+        | "personal_block"
+      calendar_related_type: "article" | "booking" | "project" | "none"
       contact_method: "email" | "phone" | "text"
       film_verdict: "recommended" | "mixed" | "not_recommended"
       lead_source: "booking" | "newsletter" | "advertise" | "contact" | "other"
@@ -2245,6 +2315,19 @@ export const Constants = {
         "declined",
         "pending_deposit",
       ],
+      calendar_event_status: ["scheduled", "completed", "canceled"],
+      calendar_event_type: [
+        "shoot",
+        "interview",
+        "article_deadline",
+        "edit_deadline",
+        "client_booking",
+        "team_meeting",
+        "release_date",
+        "content_drop",
+        "personal_block",
+      ],
+      calendar_related_type: ["article", "booking", "project", "none"],
       contact_method: ["email", "phone", "text"],
       film_verdict: ["recommended", "mixed", "not_recommended"],
       lead_source: ["booking", "newsletter", "advertise", "contact", "other"],
