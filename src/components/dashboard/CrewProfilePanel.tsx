@@ -300,6 +300,15 @@ export const MyAssignedBookings = () => {
     if (error) return toast.error(error.message);
     toast.success(`Booking ${status}`);
     setBookings((b) => b.map((x) => x.id === id ? { ...x, crew_response_status: status } : x));
+    // Log to activity feed so admins see crew responses in realtime
+    const booking = bookings.find((x) => x.id === id);
+    const { logActivity } = await import("@/lib/activity");
+    logActivity({
+      kind: "booking_received",
+      title: `Crew ${status}: ${booking?.service ?? "Booking"} — ${booking?.name ?? ""}`,
+      detail: `${booking?.project_date ?? "TBD"} ${booking?.project_time ?? ""}`,
+      meta: { booking_id: id, response: status },
+    });
   };
 
   if (loading) return <p className="text-sm text-muted-foreground">Loading bookings…</p>;
