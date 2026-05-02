@@ -350,10 +350,15 @@ export const CommandCenterOverview = ({ onCreate, onImport, onJump, canCreate }:
           }
         />
         <div className="border border-border/60 bg-[#080808] rounded-sm divide-y divide-border/40">
-          {activity.length === 0 ? (
-            <div className="px-4 py-10 text-center text-xs text-muted-foreground">
-              <Activity className="h-5 w-5 mx-auto mb-2 opacity-40" />
-              No activity yet. Things will show up here as your team works.
+          {loading ? (
+            <SkeletonRow lines={5} />
+          ) : activity.length === 0 ? (
+            <div className="px-4 py-12 text-center">
+              <Activity className="h-6 w-6 mx-auto mb-3 text-muted-foreground/50" />
+              <div className="font-display uppercase text-cream text-sm mb-1">No activity yet</div>
+              <div className="text-xs text-muted-foreground max-w-sm mx-auto">
+                Article publishes, bookings, leads, and uploads will stream in here in real time.
+              </div>
             </div>
           ) : (
             activity.map((a) => {
