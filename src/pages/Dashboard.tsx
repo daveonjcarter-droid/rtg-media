@@ -509,7 +509,14 @@ const Dashboard = () => {
             <div className="text-muted-foreground text-sm">Loading…</div>
           ) : (
             <>
-              {section === "overview" && <Overview articles={articles} onCreate={() => openEditor(null)} canCreate={canCreate} />}
+              {section === "overview" && (
+                <CommandCenterOverview
+                  onCreate={(t) => openEditor(null, (t as ArticleType) ?? "standard")}
+                  onImport={() => setImportOpen(true)}
+                  onJump={(s) => setSection(s as SectionId)}
+                  canCreate={canCreate}
+                />
+              )}
               {section === "drafts" && <ArticleList articles={filtered(["draft"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
               {section === "submitted" && <ArticleList articles={filtered(["submitted"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
               {section === "revisions" && <ArticleList articles={filtered(["revisions"])} onEdit={openEditor} onUpdateStatus={updateStatus} onDelete={deleteArticle} roles={roles} currentUserId={user?.id} />}
