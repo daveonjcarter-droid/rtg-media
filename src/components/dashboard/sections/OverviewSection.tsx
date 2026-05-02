@@ -204,42 +204,51 @@ const OverviewSection = ({
         <StatCard label="Leads Captured" value={leadCount} accent="bg-emerald-500" onClick={() => onJump?.("leads")} />
       </div>
 
-      {/* WEBSITE METRICS */}
+      {/* TRAFFIC SNAPSHOT */}
       <div>
-        <PageHead title="Website Metrics" sub="Last 30 days · live data" />
+        <PageHead
+          title="Traffic Snapshot"
+          sub="Last 30 days · live data"
+          actions={
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => onJump?.("analytics")}
+              className="rounded-sm uppercase tracking-widest text-[10px] h-8 px-3"
+            >
+              View Full Analytics <ArrowRight className="h-3 w-3 ml-1" />
+            </Button>
+          }
+        />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+          <StatCard label="Today's Views" value={snapshot.todayViews} accent="bg-primary" />
+          <StatCard label="Article Reads · 7d" value={snapshot.weekReads} accent="bg-gold" />
+          <StatCard label="Booking Clicks" value={snapshot.bookingClicks} sub="Last 30 days" accent="bg-sky-500" />
+          <StatCard label="New Leads · 7d" value={snapshot.newLeads} accent="bg-emerald-500" />
+        </div>
+        <div className="grid md:grid-cols-4 gap-3 mb-4">
           <StatCard label="Total Site Visits" value={siteVisits.total} delta={visitsDelta} accent="bg-primary" />
           <StatCard label="Unique Visitors" value={siteVisits.unique} accent="bg-cream" />
           <StatCard label="Avg Time on Site" value={`${Math.floor(avgSessionSec / 60)}m ${avgSessionSec % 60}s`} sub="approx" />
           <StatCard label="Bounce Rate" value={`${bounceRate}%`} accent={bounceRate > 70 ? "bg-primary" : "bg-emerald-500"} />
         </div>
-        <div className="border border-border rounded-sm bg-surface/30 p-4">
-          <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Visits over time</div>
-          {siteVisits.total === 0 ? (
-            <EmptyState icon={Eye} title="No traffic yet" body="Data will populate as visitors arrive on the site." />
+        <div className="border border-border rounded-sm bg-[#080808] p-4">
+          <div className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-2">Page views · Visitors · Article reads</div>
+          {siteVisits.total === 0 && snapshot.weekReads === 0 ? (
+            <EmptyState icon={Eye} title="Analytics will appear here once visitors start interacting with the site." />
           ) : (
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={series} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="visitGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
-                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="2 4" vertical={false} />
-                  <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} />
-                  <Tooltip
-                    contentStyle={{
-                      background: "hsl(var(--background))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: 2,
-                      fontSize: 11,
-                    }}
-                  />
-                  <Area type="monotone" dataKey="visits" stroke="hsl(var(--primary))" fill="url(#visitGrad)" strokeWidth={2} />
-                </AreaChart>
+                <LineChart data={series} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                  <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
+                  <XAxis dataKey="day" stroke="rgba(244,241,234,0.55)" fontSize={10} tickLine={false} axisLine={false} />
+                  <YAxis stroke="rgba(244,241,234,0.55)" fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <Tooltip contentStyle={{ background: "#080808", border: "1px solid rgba(244,241,234,0.18)", color: "#f4f1ea", fontSize: 11, borderRadius: 2 }} />
+                  <Legend wrapperStyle={{ fontSize: 10, paddingTop: 4 }} />
+                  <Line type="monotone" dataKey="visits" stroke="#ef3340" strokeWidth={2.5} dot={false} name="Page Views" />
+                  <Line type="monotone" dataKey="visitors" stroke="#f4f1ea" strokeWidth={2} dot={false} name="Unique Visitors" />
+                  <Line type="monotone" dataKey="reads" stroke="#e0b84c" strokeWidth={2} dot={false} name="Article Reads" />
+                </LineChart>
               </ResponsiveContainer>
             </div>
           )}
