@@ -23,7 +23,7 @@ type ActivityRow = {
   link_url: string | null;
 };
 
-type Series = { day: string; visits: number; visitors: number }[];
+type Series = { day: string; visits: number; visitors: number; reads: number }[];
 
 type Props = {
   articleCount: number;
@@ -63,6 +63,7 @@ const OverviewSection = ({
   const [scheduledSocial, setScheduledSocial] = useState(0);
   const [avgSessionSec, setAvgSessionSec] = useState(0);
   const [bounceRate, setBounceRate] = useState(0);
+  const [snapshot, setSnapshot] = useState({ todayViews: 0, weekReads: 0, bookingClicks: 0, newLeads: 0 });
 
   useEffect(() => {
     let cancelled = false;
