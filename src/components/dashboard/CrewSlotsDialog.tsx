@@ -201,8 +201,17 @@ export const CrewSlotsDialog = ({ bookingId, bookingName, crewRequestType, servi
           <div className="border border-border/60 rounded-lg p-3 bg-surface/30 space-y-2">
             <div className="flex items-start justify-between flex-wrap gap-2">
               <div>
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Client requested package</div>
-                <div className="font-display text-lg">{pkg?.label ?? "—"}</div>
+                {serviceSpec && (
+                  <>
+                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Service type</div>
+                    <div className="font-display text-lg flex items-center gap-2">
+                      <serviceSpec.icon className="h-4 w-4 text-primary" />
+                      {serviceSpec.label}
+                    </div>
+                  </>
+                )}
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-2">Client requested package</div>
+                <div className="font-display text-base">{pkg?.label ?? "—"}</div>
                 {pkg && <div className="text-xs text-muted-foreground">{pkg.scale} · {pkg.qualityLabel} · +${pkg.priceModifier} crew fee</div>}
                 {bookingDate && (
                   <div className="text-[11px] text-muted-foreground mt-1">
@@ -223,9 +232,11 @@ export const CrewSlotsDialog = ({ bookingId, bookingName, crewRequestType, servi
                 <Switch checked={locked} onCheckedChange={toggleLock} />
               </label>
             </div>
-            {pkg && (
+            {suggestedSlotLabels.length > 0 && (
               <Button size="sm" variant="outline" onClick={populateFromPackage}>
-                {slots.length === 0 ? `Create ${pkg.defaultSlots.length} slots from ${pkg.label}` : "Reset slots from package"}
+                {slots.length === 0
+                  ? `Create ${suggestedSlotLabels.length} suggested slots${serviceSpec ? ` for ${serviceSpec.label}` : ""}`
+                  : "Reset slots from suggestions"}
               </Button>
             )}
           </div>
