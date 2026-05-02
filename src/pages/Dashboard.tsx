@@ -27,6 +27,7 @@ import CalendarSection from "@/components/dashboard/sections/CalendarSection";
 import MyAvailabilitySection from "@/components/dashboard/sections/MyAvailabilitySection";
 import AvailabilityAdminSection from "@/components/dashboard/sections/AvailabilityAdminSection";
 import CommandCenterOverview from "@/components/dashboard/sections/CommandCenterOverview";
+import AuditLogSection from "@/components/dashboard/sections/AuditLogSection";
 import GlobalSearch from "@/components/dashboard/GlobalSearch";
 import NotificationsBell from "@/components/dashboard/NotificationsBell";
 import { useRealtimeTable } from "@/hooks/useRealtimeTable";
@@ -148,6 +149,7 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "profile-management", label: "Profile Management", icon: IdCard,        group: "Admin" },
   { id: "admin-invites",     label: "Admin Invite Codes", icon: KeyRound,       group: "Admin" },
   { id: "permissions",       label: "Role Permissions", icon: ShieldCheck,     group: "Admin" },
+  { id: "audit",             label: "Audit Log",        icon: ShieldCheck,     group: "Admin" },
   { id: "site-updates",      label: "Quick Site Updates", icon: Wand2,         group: "Admin" },
   { id: "settings",          label: "Settings",         icon: SettingsIcon,    group: "Admin" },
 ];
@@ -553,6 +555,7 @@ const Dashboard = () => {
             {section === "analytics" && <AnalyticsView />}
             {section === "settings" && <WorkspaceSettingsPanel />}
              {section === "permissions" && <PermissionsManager isHeadAdmin={isHeadAdmin(roles)} />}
+             {section === "audit" && <AuditLogSection canView={isHeadAdmin(roles)} />}
              {section === "production" && <ServicesManager />}
              {section === "portfolio" && <PortfolioWorksManager />}
              {section === "staff" && <StaffManager />}
