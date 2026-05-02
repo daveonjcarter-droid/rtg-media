@@ -5,7 +5,7 @@ import {
   TrendingUp, Activity, Users, FileEdit, Clock, Trophy, Sparkles, ArrowRight,
 } from "lucide-react";
 import {
-  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
+  ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid,
   LineChart, Line, Legend,
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
