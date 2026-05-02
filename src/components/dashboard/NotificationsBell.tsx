@@ -2,11 +2,12 @@
 // and supports inline actions: approve/view bookings, view/publish articles,
 // mark contacted/archive leads. Each action writes back to the relevant table
 // AND logs a follow-up activity row.
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Bell, Activity, Briefcase, Mail, FileText, Send, Calendar as CalIcon,
   Image as ImageIcon, Check, Eye, Archive as ArchiveIcon, MessageCircle, Loader2,
+  UserPlus, ChevronDown,
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,6 +45,9 @@ export const NotificationsBell = () => {
   const [unread, setUnread] = useState(0);
   const [busy, setBusy] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [assignFor, setAssignFor] = useState<string | null>(null); // notification row id
+  const [assignCandidates, setAssignCandidates] = useState<{ id: string; name: string; role: string | null; status: "available" | "off" | "unknown"; accepting: boolean }[]>([]);
+  const [assignLoading, setAssignLoading] = useState(false);
   const navigate = useNavigate();
 
   const load = async () => {
@@ -145,16 +149,120 @@ export const NotificationsBell = () => {
     load();
   };
 
+  // Mini-assign: load top 3 available crew for a booking's date
+  const openMiniAssign = async (r: Row) => {
+    const bookingId = entityIdFor(r);
+    if (!bookingId) return;
+    if (assignFor === r.id) { setAssignFor(null); return; }
+    setAssignFor(r.id);
+    setAssignLoading(true);
+    setAssignCandidates([]);
+    const [{ data: bk }, { data: staff }] = await Promise.all([
+      supabase.from("bookings").select("project_date").eq("id", bookingId).maybeSingle(),
+      supabase.from("staff_profiles").select("id,display_name,role_title,is_crew,accepting_bookings").eq("is_crew", true).order("display_name"),
+    ]);
+    const ids = ((staff as any) ?? []).map((s: any) => s.id);
+    let weekday: number | null = null;
+    const date = (bk as any)?.project_date as string | null;
+    if (date) weekday = new Date(`${date}T12:00:00`).getDay();
+    let avail: { staff_id: string; weekday: number }[] = [];
+    if (ids.length && weekday !== null) {
+      const { data: av } = await supabase
+        .from("staff_availability" as any)
+        .select("staff_id,weekday")
+        .in("staff_id", ids)
+        .eq("weekday", weekday);
+      avail = ((av as any) ?? []) as typeof avail;
+    }
+    const candidates = ((staff as any) ?? []).map((s: any) => {
+      const status: "available" | "off" | "unknown" =
+        weekday === null ? "unknown" : avail.some((a) => a.staff_id === s.id) ? "available" : "off";
+      return { id: s.id, name: s.display_name, role: s.role_title, status, accepting: !!s.accepting_bookings };
+    });
+    // Sort: available + accepting first, then unknown, then off; non-accepting last
+    candidates.sort((a: any, b: any) => {
+      const score = (c: any) => (c.accepting ? 0 : 10) + (c.status === "available" ? 0 : c.status === "unknown" ? 1 : 2);
+      return score(a) - score(b);
+    });
+    setAssignCandidates(candidates.slice(0, 3));
+    setAssignLoading(false);
+  };
+
+  const assignCrew = async (r: Row, staffId: string, staffName: string) => {
+    const bookingId = entityIdFor(r);
+    if (!bookingId) return;
+    setBusy(r.id);
+    const { error } = await supabase
+      .from("bookings")
+      .update({ assigned_staff_id: staffId, assignment_status: "assigned" })
+      .eq("id", bookingId);
+    setBusy(null);
+    if (error) return toast.error(error.message);
+    toast.success(`Assigned ${staffName}`);
+    await logActivity({
+      kind: "booking_received",
+      title: `Quick-assigned ${staffName} → ${r.title}`,
+      detail: "Assigned from notifications",
+      meta: { booking_id: bookingId, staff_id: staffId, source: "notifications" },
+    });
+    setAssignFor(null);
+    load();
+  };
+
   const renderActions = (r: Row) => {
     const isBusy = busy === r.id;
     if (isBusy) {
       return <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />;
     }
     if (r.kind === "booking_received") {
+      const expanded = assignFor === r.id;
       return (
-        <div className="flex items-center gap-1.5 mt-2">
-          <ActionBtn onClick={(e) => { e.stopPropagation(); approveBooking(r); }} icon={Check} label="Approve" tone="green" />
-          <ActionBtn onClick={(e) => { e.stopPropagation(); navigateTo(r); }} icon={Eye} label="View" tone="gray" />
+        <div className="mt-2 space-y-1.5">
+          <div className="flex items-center gap-1.5">
+            <ActionBtn onClick={(e) => { e.stopPropagation(); approveBooking(r); }} icon={Check} label="Approve" tone="green" />
+            <ActionBtn onClick={(e) => { e.stopPropagation(); openMiniAssign(r); }} icon={UserPlus} label={expanded ? "Hide" : "Assign"} tone="blue" />
+            <ActionBtn onClick={(e) => { e.stopPropagation(); navigateTo(r); }} icon={Eye} label="View" tone="gray" />
+          </div>
+          {expanded && (
+            <div className="border border-border/60 rounded-sm bg-surface/40 p-2 space-y-1">
+              <div className="text-[9px] uppercase tracking-widest text-muted-foreground px-1">
+                Top crew {assignLoading ? "· loading…" : "for this date"}
+              </div>
+              {assignLoading ? (
+                <Loader2 className="h-3 w-3 animate-spin text-muted-foreground mx-auto my-2" />
+              ) : assignCandidates.length === 0 ? (
+                <div className="text-[10px] text-muted-foreground px-1 py-1">No crew available.</div>
+              ) : (
+                assignCandidates.map((c) => {
+                  const dot =
+                    !c.accepting ? "bg-muted-foreground" :
+                    c.status === "available" ? "bg-emerald-400" :
+                    c.status === "off" ? "bg-primary/70" :
+                    "bg-muted-foreground";
+                  const tag =
+                    !c.accepting ? "Not accepting" :
+                    c.status === "available" ? "Available" :
+                    c.status === "off" ? "Off this day" : "Unknown";
+                  return (
+                    <button
+                      key={c.id}
+                      onClick={(e) => { e.stopPropagation(); assignCrew(r, c.id, c.name); }}
+                      className="w-full flex items-center gap-2 px-2 py-1.5 rounded-sm hover:bg-surface/80 transition-colors text-left"
+                    >
+                      <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${dot}`} />
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-[11px] text-cream truncate">{c.name}</span>
+                        <span className="block text-[9px] uppercase tracking-widest text-muted-foreground">
+                          {c.role || "Crew"} · {tag}
+                        </span>
+                      </span>
+                      <Check className="h-3 w-3 text-muted-foreground shrink-0" />
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          )}
         </div>
       );
     }
