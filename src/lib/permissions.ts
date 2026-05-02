@@ -39,7 +39,8 @@ export type SectionId =
   | "portfolio-approvals"
   | "profile-management"
   | "admin-invites"
-  | "availability";
+  | "availability"
+  | "audit";
 
 export type Group = "Overview" | "Content" | "Pipeline" | "Studio" | "Ops" | "Ecosystem" | "Admin" | "Crew" | "My Work";
 
