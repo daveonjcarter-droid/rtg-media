@@ -280,7 +280,11 @@ const Dashboard = () => {
   const grouped = useMemo(() => {
     const g: Record<string, typeof navItems> = {};
     navItems.forEach((n) => { (g[n.group] ||= []).push(n); });
-    return g;
+    // Return entries in canonical order
+    const ordered: Record<string, typeof navItems> = {};
+    GROUP_ORDER.forEach((k) => { if (g[k]) ordered[k] = g[k]; });
+    Object.keys(g).forEach((k) => { if (!ordered[k]) ordered[k] = g[k]; });
+    return ordered;
   }, [navItems]);
 
   const canCreate = hasRole("writer") || hasRole("editor") || hasRole("admin");
