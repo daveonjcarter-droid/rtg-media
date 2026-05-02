@@ -149,6 +149,7 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "profile-management", label: "Profile Management", icon: IdCard,        group: "Admin" },
   { id: "admin-invites",     label: "Admin Invite Codes", icon: KeyRound,       group: "Admin" },
   { id: "permissions",       label: "Role Permissions", icon: ShieldCheck,     group: "Admin" },
+  { id: "audit",             label: "Audit Log",        icon: ShieldCheck,     group: "Admin" },
   { id: "site-updates",      label: "Quick Site Updates", icon: Wand2,         group: "Admin" },
   { id: "settings",          label: "Settings",         icon: SettingsIcon,    group: "Admin" },
 ];
