@@ -23,6 +23,7 @@ import { logActivity } from "@/lib/activity";
 import AvailabilityCalendar from "@/components/dashboard/AvailabilityCalendar";
 import { CrewSlotsDialog } from "@/components/dashboard/CrewSlotsDialog";
 import { CREW_PACKAGES, type CrewPackageId } from "@/lib/crewPackages";
+import { ServiceDetailsSummary, ServiceTypeBadge } from "@/components/booking/ServiceDetailsSummary";
 
 const slugify = (s: string) =>
   s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -873,6 +874,8 @@ type BookingRow = {
   crew_request_type: string | null;
   crew_price_modifier: number | null;
   internal_assignment_locked: boolean;
+  service_type: string | null;
+  service_details: Record<string, unknown> | null;
 };
 
 const BOOKING_STATUSES = ["new", "contacted", "pending_deposit", "booked", "completed", "declined"] as const;
@@ -955,6 +958,7 @@ export const BookingsDashboard = () => {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <div className="font-display text-base uppercase">{b.name}</div>
+                      <ServiceTypeBadge serviceType={b.service_type} />
                       <span className="text-[9px] uppercase tracking-widest border border-border rounded-sm px-1.5 py-0.5 text-muted-foreground">
                         {b.status.replace("_", " ")}
                       </span>
@@ -1006,7 +1010,11 @@ export const BookingsDashboard = () => {
                     </Button>
                   </div>
                 </div>
-                {b.description && <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border whitespace-pre-wrap line-clamp-3">{b.description}</p>}
+                {b.service_type && b.service_details && Object.keys(b.service_details).length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <ServiceDetailsSummary serviceType={b.service_type} details={b.service_details} compact />
+                  </div>
+                )}
               </div>
             );
           })}
@@ -1021,6 +1029,7 @@ export const BookingsDashboard = () => {
           bookingId={crewSlotsFor.id}
           bookingName={crewSlotsFor.name}
           crewRequestType={crewSlotsFor.crew_request_type}
+          serviceType={crewSlotsFor.service_type}
           internalAssignmentLocked={crewSlotsFor.internal_assignment_locked ?? true}
           onClose={() => { setCrewSlotsFor(null); load(); }}
         />

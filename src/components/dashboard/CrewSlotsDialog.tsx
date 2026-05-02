@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Plus, Trash2, GripVertical, Check, Circle } from "lucide-react";
 import { CREW_PACKAGES, CREW_STATUS_LABELS, CREW_STATUS_STYLES, type CrewPackageId } from "@/lib/crewPackages";
+import { getServiceSpec } from "@/lib/serviceTypes";
 import { logActivity } from "@/lib/activity";
 
 type Slot = {
@@ -35,13 +36,14 @@ type Props = {
   bookingId: string;
   bookingName: string;
   crewRequestType: string | null;
+  serviceType?: string | null;
   internalAssignmentLocked: boolean;
   onClose: () => void;
 };
 
 type Avail = { staff_id: string; weekday: number; start_time: string; end_time: string };
 
-export const CrewSlotsDialog = ({ bookingId, bookingName, crewRequestType, internalAssignmentLocked, onClose }: Props) => {
+export const CrewSlotsDialog = ({ bookingId, bookingName, crewRequestType, serviceType, internalAssignmentLocked, onClose }: Props) => {
   const [slots, setSlots] = useState<Slot[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
   const [availability, setAvailability] = useState<Avail[]>([]);
@@ -96,19 +98,32 @@ export const CrewSlotsDialog = ({ bookingId, bookingName, crewRequestType, inter
 
   useEffect(() => { load(); }, [bookingId]);
 
+  const serviceSpec = getServiceSpec(serviceType);
+
+  // Smart defaults: union of service-specific roles + package roles, deduped, service first.
+  const suggestedSlotLabels = useMemo(() => {
+    const fromService = serviceSpec?.defaultCrewSlots ?? [];
+    const fromPkg = CREW_PACKAGES[crewRequestType as CrewPackageId]?.defaultSlots ?? [];
+    const seen = new Set<string>();
+    return [...fromService, ...fromPkg].filter((l) => {
+      const k = l.toLowerCase();
+      if (seen.has(k)) return false;
+      seen.add(k); return true;
+    });
+  }, [serviceSpec, crewRequestType]);
+
   const populateFromPackage = async () => {
-    const pkg = CREW_PACKAGES[crewRequestType as CrewPackageId];
-    if (!pkg) return toast.error("No crew package on this booking");
+    if (suggestedSlotLabels.length === 0) return toast.error("No suggestions available");
     if (slots.length > 0) {
-      if (!confirm("Replace existing slots with the package defaults?")) return;
+      if (!confirm("Replace existing slots with the suggested defaults?")) return;
       await supabase.from("crew_assignments").delete().eq("booking_id", bookingId);
     }
-    const rows = pkg.defaultSlots.map((label, i) => ({
+    const rows = suggestedSlotLabels.map((label, i) => ({
       booking_id: bookingId, role_label: label, sort_order: i, status: "pending",
     }));
     const { error } = await supabase.from("crew_assignments").insert(rows as any);
     if (error) return toast.error(error.message);
-    toast.success(`Created ${rows.length} crew slots from ${pkg.label}`);
+    toast.success(`Created ${rows.length} crew slots`);
     load();
   };
 
@@ -186,8 +201,17 @@ export const CrewSlotsDialog = ({ bookingId, bookingName, crewRequestType, inter
           <div className="border border-border/60 rounded-lg p-3 bg-surface/30 space-y-2">
             <div className="flex items-start justify-between flex-wrap gap-2">
               <div>
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Client requested package</div>
-                <div className="font-display text-lg">{pkg?.label ?? "—"}</div>
+                {serviceSpec && (
+                  <>
+                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Service type</div>
+                    <div className="font-display text-lg flex items-center gap-2">
+                      <serviceSpec.icon className="h-4 w-4 text-primary" />
+                      {serviceSpec.label}
+                    </div>
+                  </>
+                )}
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-2">Client requested package</div>
+                <div className="font-display text-base">{pkg?.label ?? "—"}</div>
                 {pkg && <div className="text-xs text-muted-foreground">{pkg.scale} · {pkg.qualityLabel} · +${pkg.priceModifier} crew fee</div>}
                 {bookingDate && (
                   <div className="text-[11px] text-muted-foreground mt-1">
@@ -208,9 +232,11 @@ export const CrewSlotsDialog = ({ bookingId, bookingName, crewRequestType, inter
                 <Switch checked={locked} onCheckedChange={toggleLock} />
               </label>
             </div>
-            {pkg && (
+            {suggestedSlotLabels.length > 0 && (
               <Button size="sm" variant="outline" onClick={populateFromPackage}>
-                {slots.length === 0 ? `Create ${pkg.defaultSlots.length} slots from ${pkg.label}` : "Reset slots from package"}
+                {slots.length === 0
+                  ? `Create ${suggestedSlotLabels.length} suggested slots${serviceSpec ? ` for ${serviceSpec.label}` : ""}`
+                  : "Reset slots from suggestions"}
               </Button>
             )}
           </div>

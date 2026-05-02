@@ -703,7 +703,9 @@ export type Database = {
           reference_link: string | null
           requested_staff_id: string | null
           service: string | null
+          service_details: Json
           service_id: string | null
+          service_type: string | null
           shoot_type: Database["public"]["Enums"]["shoot_type"] | null
           status: Database["public"]["Enums"]["booking_status"]
           studio_cost: number | null
@@ -745,7 +747,9 @@ export type Database = {
           reference_link?: string | null
           requested_staff_id?: string | null
           service?: string | null
+          service_details?: Json
           service_id?: string | null
+          service_type?: string | null
           shoot_type?: Database["public"]["Enums"]["shoot_type"] | null
           status?: Database["public"]["Enums"]["booking_status"]
           studio_cost?: number | null
@@ -787,7 +791,9 @@ export type Database = {
           reference_link?: string | null
           requested_staff_id?: string | null
           service?: string | null
+          service_details?: Json
           service_id?: string | null
+          service_type?: string | null
           shoot_type?: Database["public"]["Enums"]["shoot_type"] | null
           status?: Database["public"]["Enums"]["booking_status"]
           studio_cost?: number | null
