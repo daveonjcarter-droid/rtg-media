@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Plus, Trash2, GripVertical, Check, Circle } from "lucide-react";
 import { CREW_PACKAGES, CREW_STATUS_LABELS, CREW_STATUS_STYLES, type CrewPackageId } from "@/lib/crewPackages";
+import { getServiceSpec } from "@/lib/serviceTypes";
 import { logActivity } from "@/lib/activity";
 
 type Slot = {
@@ -35,13 +36,14 @@ type Props = {
   bookingId: string;
   bookingName: string;
   crewRequestType: string | null;
+  serviceType?: string | null;
   internalAssignmentLocked: boolean;
   onClose: () => void;
 };
 
 type Avail = { staff_id: string; weekday: number; start_time: string; end_time: string };
 
-export const CrewSlotsDialog = ({ bookingId, bookingName, crewRequestType, internalAssignmentLocked, onClose }: Props) => {
+export const CrewSlotsDialog = ({ bookingId, bookingName, crewRequestType, serviceType, internalAssignmentLocked, onClose }: Props) => {
   const [slots, setSlots] = useState<Slot[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
   const [availability, setAvailability] = useState<Avail[]>([]);
