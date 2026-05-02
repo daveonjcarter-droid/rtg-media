@@ -622,6 +622,11 @@ const Overview = ({ articles, onCreate, canCreate }: { articles: Article[]; onCr
           )}
         </div>
       </div>
+
+      <div>
+        <PageHead title="Upcoming Schedule" sub="Today & this week" />
+        <CalendarSection compact />
+      </div>
     </div>
   );
 };
