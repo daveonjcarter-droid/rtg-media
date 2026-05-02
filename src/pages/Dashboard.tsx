@@ -263,6 +263,18 @@ const Dashboard = () => {
     const { error } = await supabase.from("articles").update(patch).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success(`Moved to ${STATUS_LABEL[status]}`);
+    // Auto-log meaningful status transitions
+    const article = articles.find((a) => a.id === id);
+    if (article) {
+      const kind =
+        status === "published" ? "article_published" :
+        status === "scheduled" ? "article_scheduled" :
+        status === "draft" ? "article_drafted" : null;
+      if (kind) {
+        const { logActivity } = await import("@/lib/activity");
+        logActivity({ kind, title: article.title, detail: `Status → ${STATUS_LABEL[status]}`, meta: { id } });
+      }
+    }
     loadArticles();
   };
 
