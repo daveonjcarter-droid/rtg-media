@@ -510,7 +510,9 @@ const Dashboard = () => {
             {section === "profile-management" && <ProfileManagement />}
             {section === "admin-invites" && <AdminInvitesManager />}
             {section === "my-profile" && <CrewProfilePanel />}
+            {section === "my-availability" && <MyAvailabilitySection />}
             {section === "my-bookings" && <MyAssignedBookings />}
+            {section === "availability" && <AvailabilityAdminSection />}
             </>
           )}
         </div>
