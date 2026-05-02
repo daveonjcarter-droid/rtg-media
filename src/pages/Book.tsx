@@ -3,31 +3,24 @@ import { useSearchParams } from "react-router-dom";
 import SiteLayout from "@/components/site/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/lib/activity";
 import { cn } from "@/lib/utils";
 import {
-  Camera, Home, MapPin, HelpCircle, ArrowRight, ArrowLeft,
-  CheckCircle2, ShieldCheck, Clock, Users, Star, Sparkles, CalendarIcon, Briefcase,
+  ArrowRight, ArrowLeft, CheckCircle2, ShieldCheck, Clock, Users, Star,
+  Sparkles, CalendarIcon,
 } from "lucide-react";
 import { CREW_PACKAGES, CREW_PACKAGE_ORDER, type CrewPackageId } from "@/lib/crewPackages";
-
-type Service = {
-  id: string;
-  slug: string | null;
-  name: string;
-  short_description: string | null;
-  pricing_model: string;
-  base_price: number | null;
-  sale_price: number | null;
-};
+import {
+  SERVICE_TYPES, SERVICE_TYPE_ORDER, getServiceSpec,
+  validateServiceDetails, type ServiceTypeId,
+} from "@/lib/serviceTypes";
+import { DynamicServiceForm } from "@/components/booking/DynamicServiceForm";
 
 type Staff = {
   id: string;
@@ -40,18 +33,12 @@ type Staff = {
   is_bookable: boolean;
 };
 
-const SHOOT_TYPES = [
-  { value: "Studio", icon: Home, desc: "Controlled environment, lighting, cyc." },
-  { value: "Location", icon: MapPin, desc: "We come to you — on-location capture." },
-  { value: "Not Sure", icon: HelpCircle, desc: "We'll scope it together on the call." },
-] as const;
-
-const BUDGETS = [
-  { value: "$300 – $700", note: "Quick session, single deliverable" },
-  { value: "$700 – $1500", note: "Half-day shoots, light edit" },
-  { value: "$1500 – $3000", note: "Full-day, full crew, post" },
-  { value: "$3000+", note: "Multi-day, larger productions" },
-] as const;
+type Service = {
+  id: string;
+  name: string;
+  base_price: number | null;
+  sale_price: number | null;
+};
 
 const TRUST = [
   { icon: ShieldCheck, label: "Black-owned & operated" },
@@ -60,164 +47,191 @@ const TRUST = [
   { icon: Star, label: "Cinematic quality" },
 ];
 
-const STEP_TITLES = [
-  "Service",
-  "Shoot Type",
-  "Choose Crew",
-  "Date & Time",
-  "Project Details",
-  "Contact Info",
-];
+const STEP_TITLES = ["Service", "Project Details", "Crew", "Date", "Contact"];
 
-const schema = z.object({
-  service_id: z.string().uuid("Pick a service"),
-  shoot_type: z.enum(["Studio", "Location", "Not Sure"]),
-  crew_request_type: z.enum(["videographer_only", "photographer_only", "small_crew", "full_crew"]),
-  staff_id: z.string().uuid().nullable(),
-  no_preference: z.boolean(),
-  project_date: z.date().nullable(),
-  project_time: z.string().nullable(),
-  budget: z.string().min(1, "Pick a budget"),
-  description: z.string().trim().min(10, "Tell us a bit more (min 10 chars)").max(2000),
-  name: z.string().trim().min(2, "Name is required").max(80),
-  email: z.string().trim().email("Enter a valid email").max(255),
-  phone: z.string().trim().min(7, "Phone number is required").max(40),
-  instagram: z.string().trim().max(60).optional().or(z.literal("")),
-});
+type FormState = {
+  service_type: ServiceTypeId | "";
+  service_details: Record<string, unknown>;
+  crew_request_type: CrewPackageId;
+  staff_id: string | null;
+  no_preference: boolean;
+  project_date: Date | null;
+  project_time: string | null;
+  name: string;
+  email: string;
+  phone: string;
+  instagram: string;
+};
 
-type Form = z.infer<typeof schema>;
-
-const EMPTY: Form = {
-  service_id: "",
-  shoot_type: "Studio",
-  crew_request_type: "videographer_only",
+const EMPTY: FormState = {
+  service_type: "",
+  service_details: {},
+  crew_request_type: "small_crew",
   staff_id: null,
-  no_preference: false,
+  no_preference: true,
   project_date: null,
   project_time: null,
-  budget: "",
-  description: "",
   name: "",
   email: "",
   phone: "",
   instagram: "",
 };
 
+// Default crew package per service for sensible starting point
+const DEFAULT_CREW: Record<ServiceTypeId, CrewPackageId> = {
+  music_video: "small_crew",
+  photography: "photographer_only",
+  film_production: "full_crew",
+  editing: "videographer_only", // crew not really used; keep cheapest
+  event_coverage: "small_crew",
+  creative_direction: "videographer_only",
+  custom: "small_crew",
+};
+
 const Book = () => {
   const [params] = useSearchParams();
-  const presetServiceId = params.get("service") || "";
+  const presetServiceType = (params.get("type") || "") as ServiceTypeId | "";
   const presetStaffSlug = params.get("staff") || "";
 
-  const [step, setStep] = useState(0); // 0..5, 6 = submitted
+  const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
-  const [services, setServices] = useState<Service[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
-  const [form, setForm] = useState<Form>({ ...EMPTY, service_id: presetServiceId });
+  const [services, setServices] = useState<Service[]>([]);
+  const [form, setForm] = useState<FormState>({
+    ...EMPTY,
+    service_type: presetServiceType || "",
+    crew_request_type: presetServiceType ? DEFAULT_CREW[presetServiceType] : "small_crew",
+  });
 
-  const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm((f) => ({ ...f, [k]: v }));
+  const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
+    setForm((f) => ({ ...f, [k]: v }));
+
+  const updateDetail = (key: string, value: unknown) =>
+    setForm((f) => ({ ...f, service_details: { ...f.service_details, [key]: value } }));
 
   useEffect(() => {
-    // Funnel: page entered the booking flow
     import("@/lib/tracking").then(({ trackEvent }) =>
-      trackEvent("booking_click", { source: "book_page", preset_service: presetServiceId || null, preset_staff: presetStaffSlug || null }),
+      trackEvent("booking_click", {
+        source: "book_page",
+        preset_service_type: presetServiceType || null,
+        preset_staff: presetStaffSlug || null,
+      }),
     );
     (async () => {
-      const [{ data: svc }, { data: st }] = await Promise.all([
-        supabase.from("services" as any).select("*").eq("is_available", true).order("sort_order"),
-        supabase.from("staff_profiles" as any).select("id,slug,display_name,role_title,photo_url,specialties,service_ids,is_bookable").eq("is_public", true).eq("is_bookable", true).order("sort_order"),
+      const [{ data: st }, { data: svc }] = await Promise.all([
+        supabase.from("staff_profiles" as any)
+          .select("id,slug,display_name,role_title,photo_url,specialties,service_ids,is_bookable")
+          .eq("is_public", true).eq("is_bookable", true).order("sort_order"),
+        supabase.from("services" as any)
+          .select("id,name,base_price,sale_price").eq("is_available", true),
       ]);
+      const list = (st as any) || [];
+      setStaff(list);
       setServices((svc as any) || []);
-      const staffList = (st as any) || [];
-      setStaff(staffList);
-      // preset staff from query string
       if (presetStaffSlug) {
-        const match = staffList.find((s: Staff) => s.slug === presetStaffSlug);
-        if (match) setForm((f) => ({ ...f, staff_id: match.id }));
+        const m = list.find((s: Staff) => s.slug === presetStaffSlug);
+        if (m) setForm((f) => ({ ...f, staff_id: m.id, no_preference: false }));
       }
     })();
-  }, [presetStaffSlug]);
+  }, [presetStaffSlug, presetServiceType]);
 
-  // Filter staff to those offering the chosen service
-  const eligibleStaff = useMemo(() => {
-    if (!form.service_id) return staff;
-    return staff.filter((s) => s.service_ids.includes(form.service_id) || s.service_ids.length === 0);
-  }, [staff, form.service_id]);
+  const spec = useMemo(() => getServiceSpec(form.service_type || null), [form.service_type]);
 
   const stepValid = useMemo(() => {
     switch (step) {
-      case 0: return !!form.service_id;
-      case 1: return !!form.shoot_type;
-      case 2: return !!form.crew_request_type; // preferred crew member is optional now
-      case 3: return !!form.budget;
-      case 4: return form.description.trim().length >= 10;
-      case 5: return form.name.trim().length >= 2 && /\S+@\S+\.\S+/.test(form.email) && form.phone.trim().length >= 7;
+      case 0: return !!form.service_type;
+      case 1: return spec ? validateServiceDetails(spec, form.service_details) === null : false;
+      case 2: return !!form.crew_request_type;
+      case 3: return true; // date optional
+      case 4:
+        return form.name.trim().length >= 2
+          && /\S+@\S+\.\S+/.test(form.email)
+          && form.phone.trim().length >= 7;
       default: return false;
     }
-  }, [step, form]);
+  }, [step, form, spec]);
 
-  const next = () => stepValid && setStep((s) => Math.min(5, s + 1));
+  const next = () => {
+    if (!stepValid) return;
+    // When leaving service picker, reset crew package + details to good defaults
+    if (step === 0 && form.service_type) {
+      setForm((f) => ({
+        ...f,
+        crew_request_type: DEFAULT_CREW[f.service_type as ServiceTypeId],
+      }));
+    }
+    setStep((s) => Math.min(4, s + 1));
+  };
   const back = () => setStep((s) => Math.max(0, s - 1));
 
   const submit = async () => {
-    const parsed = schema.safeParse(form);
-    if (!parsed.success) {
-      toast.error(parsed.error.issues[0].message);
-      return;
-    }
-    setBusy(true);
-    const svc = services.find((s) => s.id === parsed.data.service_id);
-    const staffPick = staff.find((s) => s.id === parsed.data.staff_id);
+    if (!spec) return toast.error("Pick a service first");
+    const err = validateServiceDetails(spec, form.service_details);
+    if (err) return toast.error(err);
+    if (!/\S+@\S+\.\S+/.test(form.email)) return toast.error("Enter a valid email");
 
-    const crewMod = CREW_PACKAGES[parsed.data.crew_request_type].priceModifier;
+    setBusy(true);
+    const matchedService = services.find((s) =>
+      s.name.toLowerCase().includes(spec.label.toLowerCase().split(" ")[0]),
+    );
+    const crewMod = CREW_PACKAGES[form.crew_request_type].priceModifier;
+    const budget = (form.service_details.budget as string) || null;
+
     const payload = {
-      name: parsed.data.name,
-      email: parsed.data.email,
-      phone: parsed.data.phone,
-      instagram: parsed.data.instagram || null,
-      service: svc?.name ?? null,
-      service_id: parsed.data.service_id,
-      shoot_type: parsed.data.shoot_type === "Not Sure" ? null : (parsed.data.shoot_type === "Studio" ? "studio" : "on_location"),
-      project_date: parsed.data.project_date ? format(parsed.data.project_date, "yyyy-MM-dd") : null,
-      project_time: parsed.data.project_time,
-      budget: parsed.data.budget,
-      description: parsed.data.description,
-      requested_staff_id: parsed.data.staff_id,
-      assigned_staff_id: parsed.data.staff_id,
-      no_preference: parsed.data.no_preference,
+      name: form.name.trim(),
+      email: form.email.trim(),
+      phone: form.phone.trim(),
+      instagram: form.instagram.trim() || null,
+      service: spec.label,
+      service_type: spec.id,
+      service_details: form.service_details,
+      service_id: matchedService?.id ?? null,
+      project_date: form.project_date ? format(form.project_date, "yyyy-MM-dd") : null,
+      project_time: form.project_time,
+      budget,
+      description: typeof form.service_details.concept === "string"
+        ? (form.service_details.concept as string)
+        : typeof form.service_details.description === "string"
+        ? (form.service_details.description as string)
+        : typeof form.service_details.project_summary === "string"
+        ? (form.service_details.project_summary as string)
+        : "",
+      requested_staff_id: form.staff_id,
+      assigned_staff_id: form.staff_id,
+      no_preference: form.no_preference,
       assignment_status: "needs_assignment",
-      crew_request_type: parsed.data.crew_request_type,
+      crew_request_type: form.crew_request_type,
       crew_price_modifier: crewMod,
       internal_assignment_locked: true,
       preferred_contact: "email" as const,
     };
 
-    const { error, data } = await supabase.from("bookings").insert(payload as any).select("id").maybeSingle();
+    const { error, data } = await supabase
+      .from("bookings").insert(payload as any).select("id").maybeSingle();
 
     if (!error) {
       await supabase.from("leads").insert({
-        name: parsed.data.name,
-        email: parsed.data.email,
-        phone: parsed.data.phone,
-        source: "booking" as const,
+        name: payload.name, email: payload.email, phone: payload.phone, source: "booking" as const,
       } as any);
       logActivity({
         kind: "booking_received",
-        title: `${parsed.data.name} requested ${svc?.name ?? "a project"}`,
-        detail: staffPick ? `Requested ${staffPick.display_name}` : (parsed.data.no_preference ? "No preference — RTG to assign" : "Crew assignment needed"),
-        meta: { booking_id: data?.id, service_id: parsed.data.service_id },
+        title: `${payload.name} requested ${spec.label}`,
+        detail: form.staff_id
+          ? `Requested specific crew member`
+          : "No preference — RTG to assign",
+        meta: { booking_id: data?.id, service_type: spec.id },
       });
       const { trackEvent } = await import("@/lib/tracking");
-      trackEvent("booking_submit", { booking_id: data?.id, service_id: parsed.data.service_id });
+      trackEvent("booking_submit", { booking_id: data?.id, service_type: spec.id });
     }
     setBusy(false);
-
-    if (error) { toast.error(error.message); return; }
+    if (error) return toast.error(error.message);
     toast.success("Project submitted. We'll be in touch.");
-    setStep(6);
+    setStep(5);
   };
 
   /* ============== Confirmation ============== */
-  if (step === 6) {
+  if (step === 5) {
     return (
       <SiteLayout>
         <section className="container-rtg py-24 md:py-32 max-w-2xl">
@@ -242,17 +256,40 @@ const Book = () => {
     );
   }
 
+  const eligibleStaff = useMemo(() => {
+    if (!spec) return staff;
+    // Filter staff whose specialties overlap the service label/keywords (lightweight)
+    const key = spec.id;
+    const keywords: Record<ServiceTypeId, string[]> = {
+      music_video: ["music", "video", "director", "videographer"],
+      photography: ["photo", "photographer"],
+      film_production: ["film", "director", "dp", "producer"],
+      editing: ["edit", "editor", "post", "color"],
+      event_coverage: ["event", "video", "photo"],
+      creative_direction: ["creative", "director", "art"],
+      custom: [],
+    };
+    const kw = keywords[key];
+    if (kw.length === 0) return staff;
+    return staff.filter((s) => {
+      const blob = `${s.role_title ?? ""} ${(s.specialties ?? []).join(" ")}`.toLowerCase();
+      return kw.some((k) => blob.includes(k)) || (s.specialties ?? []).length === 0;
+    });
+  }, [staff, spec]);
+
   return (
     <SiteLayout>
       <section className="container-rtg pt-12 md:pt-16 pb-6">
         <div className="eyebrow mb-3">Book RTG</div>
         <h1 className="font-display text-4xl md:text-6xl uppercase leading-none">Start a Project.</h1>
-        <p className="mt-4 max-w-xl text-muted-foreground">Six quick steps. No friction. We'll be in touch within 48 hours.</p>
+        <p className="mt-4 max-w-xl text-muted-foreground">
+          Pick what you're making — we'll tailor the intake to your project.
+        </p>
       </section>
 
       {/* Stepper */}
       <section className="container-rtg pb-4">
-        <div className="grid grid-cols-6 gap-1 max-w-3xl">
+        <div className="grid grid-cols-5 gap-1 max-w-3xl">
           {STEP_TITLES.map((t, i) => (
             <div key={t} className="text-center">
               <div className={cn(
@@ -270,48 +307,54 @@ const Book = () => {
         </div>
       </section>
 
-      {/* Step body */}
       <section className="container-rtg pb-16">
         <div className="border border-border bg-surface/30 p-6 md:p-10 max-w-3xl min-h-[400px]">
+          {/* Step 0 — Service picker */}
           {step === 0 && (
-            <Step title="Choose a service" sub="What are we creating together?">
-              {services.length === 0 ? (
-                <div className="text-sm text-muted-foreground">Loading services…</div>
-              ) : (
-                <div className="grid sm:grid-cols-2 gap-2">
-                  {services.map((s) => (
-                    <Choice key={s.id} active={form.service_id === s.id} onClick={() => set("service_id", s.id)}>
-                      <div className="font-display uppercase text-base leading-tight">{s.name}</div>
-                      {s.short_description && <div className="text-[11px] text-muted-foreground mt-1.5">{s.short_description}</div>}
-                      {(s.base_price != null || s.sale_price != null) && (
-                        <div className="text-[10px] uppercase tracking-widest mt-2 text-primary">
-                          {s.sale_price != null ? `Now $${s.sale_price}` : `From $${s.base_price}`}
+            <Step title="What are you booking?" sub="Pick a service and we'll tailor the intake to it.">
+              <div className="grid sm:grid-cols-2 gap-2">
+                {SERVICE_TYPE_ORDER.map((id) => {
+                  const s = SERVICE_TYPES[id];
+                  const Icon = s.icon;
+                  const active = form.service_type === id;
+                  return (
+                    <Choice key={id} active={active} onClick={() => set("service_type", id)}>
+                      <div className="flex items-start gap-3">
+                        <div className={cn(
+                          "h-10 w-10 shrink-0 border rounded-sm flex items-center justify-center",
+                          active ? "border-primary text-primary bg-primary/10" : "border-border text-muted-foreground"
+                        )}>
+                          <Icon className="h-5 w-5" />
                         </div>
-                      )}
+                        <div className="min-w-0">
+                          <div className="font-display uppercase text-base leading-tight">{s.label}</div>
+                          <div className="text-[11px] text-muted-foreground mt-1">{s.short}</div>
+                        </div>
+                      </div>
                     </Choice>
-                  ))}
-                </div>
-              )}
-            </Step>
-          )}
-
-          {step === 1 && (
-            <Step title="Shoot type" sub="Where should we capture this?">
-              <div className="grid sm:grid-cols-3 gap-2">
-                {SHOOT_TYPES.map((s) => (
-                  <Choice key={s.value} active={form.shoot_type === s.value} onClick={() => set("shoot_type", s.value)}>
-                    <s.icon className="h-5 w-5 text-primary mb-2" />
-                    <div className="font-display uppercase text-sm">{s.value}</div>
-                    <div className="text-[11px] text-muted-foreground mt-1">{s.desc}</div>
-                  </Choice>
-                ))}
+                  );
+                })}
               </div>
             </Step>
           )}
 
+          {/* Step 1 — Dynamic form */}
+          {step === 1 && spec && (
+            <Step
+              title={`${spec.label} details`}
+              sub="Only the fields that matter for this kind of project."
+            >
+              <DynamicServiceForm
+                spec={spec}
+                values={form.service_details}
+                onChange={updateDetail}
+              />
+            </Step>
+          )}
+
+          {/* Step 2 — Crew */}
           {step === 2 && (
             <Step title="Choose your crew" sub="Pick a crew package, then optionally request a specific team member.">
-              {/* Crew packages */}
               <div className="eyebrow mb-3">Crew package</div>
               <div className="grid sm:grid-cols-2 gap-2 mb-6">
                 {CREW_PACKAGE_ORDER.map((id) => {
@@ -322,14 +365,13 @@ const Book = () => {
                       <div className="flex items-start justify-between gap-2">
                         <div className="font-display uppercase text-sm leading-tight">{pkg.label}</div>
                         <div className="text-[10px] uppercase tracking-widest text-primary whitespace-nowrap">
-                          {pkg.priceModifier === 0 ? "Base price" : `+$${pkg.priceModifier}`}
+                          {pkg.priceModifier === 0 ? "Base" : `+$${pkg.priceModifier}`}
                         </div>
                       </div>
-                      <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1.5">{pkg.scale} · {pkg.qualityLabel}</div>
-                      <div className="mt-2 text-[11px] text-muted-foreground">
-                        <span className="text-foreground/80">Best for:</span> {pkg.bestFor.slice(0, 2).join(", ")}
+                      <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1.5">
+                        {pkg.scale} · {pkg.qualityLabel}
                       </div>
-                      <div className="mt-1.5 text-[11px] text-muted-foreground">
+                      <div className="mt-2 text-[11px] text-muted-foreground">
                         <span className="text-foreground/80">Includes:</span> {pkg.includes.join(", ")}
                       </div>
                     </Choice>
@@ -337,8 +379,9 @@ const Book = () => {
                 })}
               </div>
 
-              {/* Optional preferred crew member */}
-              <div className="eyebrow mb-3">Preferred crew member <span className="text-muted-foreground/60 normal-case">(optional)</span></div>
+              <div className="eyebrow mb-3">
+                Preferred crew member <span className="text-muted-foreground/60 normal-case">(optional)</span>
+              </div>
               <Choice
                 active={form.no_preference}
                 onClick={() => { set("no_preference", true); set("staff_id", null); }}
@@ -347,15 +390,17 @@ const Book = () => {
                 <div className="flex items-start gap-3">
                   <Sparkles className="h-5 w-5 text-primary shrink-0" />
                   <div>
-                    <div className="font-display uppercase text-base">No preference — assign RTG staff</div>
-                    <div className="text-[11px] text-muted-foreground mt-1">We'll pair you with the right crew based on the project, schedule, and chemistry.</div>
+                    <div className="font-display uppercase text-base">No preference — RTG assigns</div>
+                    <div className="text-[11px] text-muted-foreground mt-1">
+                      We'll match you with the right crew based on the project, schedule, and chemistry.
+                    </div>
                   </div>
                 </div>
               </Choice>
 
               {eligibleStaff.length === 0 ? (
                 <div className="text-xs text-muted-foreground border border-dashed border-border p-4 rounded-sm">
-                  No staff available for this service yet — RTG will assign internally.
+                  No matching crew available — RTG will assign internally.
                 </div>
               ) : (
                 <div className="grid sm:grid-cols-2 gap-2">
@@ -375,47 +420,35 @@ const Book = () => {
                         </div>
                         <div className="min-w-0">
                           <div className="font-display uppercase text-sm leading-tight truncate">{s.display_name}</div>
-                          <div className="text-[10px] uppercase tracking-widest text-muted-foreground truncate">{s.role_title}</div>
-                          {s.specialties?.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-1.5">
-                              {s.specialties.slice(0, 2).map((t) => (
-                                <span key={t} className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 border border-border text-muted-foreground">{t}</span>
-                              ))}
-                            </div>
-                          )}
+                          <div className="text-[10px] uppercase tracking-widest text-muted-foreground truncate">
+                            {s.role_title}
+                          </div>
                         </div>
                       </div>
                     </Choice>
                   ))}
                 </div>
               )}
-
-              {/* Live price preview */}
-              {(() => {
-                const svc = services.find((s) => s.id === form.service_id);
-                const base = svc?.sale_price ?? svc?.base_price ?? 0;
-                const mod = CREW_PACKAGES[form.crew_request_type as CrewPackageId].priceModifier;
-                if (!base && !mod) return null;
-                return (
-                  <div className="mt-6 border border-primary/40 p-4 bg-primary/5 rounded-sm">
-                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Estimated starting price</div>
-                    <div className="font-display text-2xl text-foreground mt-1">
-                      ${(Number(base) + mod).toLocaleString()}
-                      {mod > 0 && <span className="text-xs text-muted-foreground ml-2 normal-case">(${Number(base).toLocaleString()} base + ${mod} crew)</span>}
-                    </div>
-                  </div>
-                );
-              })()}
             </Step>
           )}
 
+          {/* Step 3 — Date */}
           {step === 3 && (
-            <Step title="Date & budget" sub="Pick a target date — we'll confirm availability.">
+            <Step title="Date & time" sub="Optional — pick a target date if you have one.">
               <div className="grid sm:grid-cols-2 gap-3">
-                <Field label="Target date">
+                <div>
+                  <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 block">
+                    Target date
+                  </Label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className={cn("w-full justify-start text-left font-normal h-11 rounded-sm", !form.project_date && "text-muted-foreground")}>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal h-11 rounded-sm",
+                          !form.project_date && "text-muted-foreground",
+                        )}
+                      >
                         <CalendarIcon className="h-4 w-4 mr-2" />
                         {form.project_date ? format(form.project_date, "PPP") : "Pick a date (optional)"}
                       </Button>
@@ -427,49 +460,46 @@ const Book = () => {
                         onSelect={(d) => set("project_date", d ?? null)}
                         disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
                         initialFocus
-                        className={cn("p-3 pointer-events-auto")}
+                        className="p-3 pointer-events-auto"
                       />
                     </PopoverContent>
                   </Popover>
-                </Field>
-                <Field label="Time (optional)">
-                  <Input type="time" value={form.project_time ?? ""} onChange={(e) => set("project_time", e.target.value || null)} className="h-11 rounded-sm" />
-                </Field>
-              </div>
-              <div className="mt-5">
-                <div className="eyebrow mb-3">Budget</div>
-                <div className="grid sm:grid-cols-2 gap-2">
-                  {BUDGETS.map((b) => (
-                    <Choice key={b.value} active={form.budget === b.value} onClick={() => set("budget", b.value)}>
-                      <div className="font-display uppercase text-sm">{b.value}</div>
-                      <div className="text-[11px] text-muted-foreground mt-1">{b.note}</div>
-                    </Choice>
-                  ))}
+                </div>
+                <div>
+                  <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 block">
+                    Time (optional)
+                  </Label>
+                  <Input
+                    type="time"
+                    value={form.project_time ?? ""}
+                    onChange={(e) => set("project_time", e.target.value || null)}
+                    className="h-11 rounded-sm"
+                  />
                 </div>
               </div>
             </Step>
           )}
 
+          {/* Step 4 — Contact */}
           {step === 4 && (
-            <Step title="Project details" sub="Tell us what you're making — vibe, references, deliverables.">
-              <Textarea
-                rows={8}
-                value={form.description}
-                onChange={(e) => set("description", e.target.value)}
-                placeholder="A short narrative film exploring identity in Chicago neighborhoods. 3-day shoot, mostly locations, need final edit + color in 4 weeks…"
-                className="rounded-sm"
-              />
-              <div className="text-[10px] text-muted-foreground mt-2 uppercase tracking-widest">{form.description.length} / 2000</div>
-            </Step>
-          )}
-
-          {step === 5 && (
             <Step title="Your contact info" sub="Where should RTG reach you?">
               <div className="grid sm:grid-cols-2 gap-3">
-                <Field label="Name"><Input value={form.name} onChange={(e) => set("name", e.target.value)} className="h-11 rounded-sm" /></Field>
-                <Field label="Email"><Input value={form.email} onChange={(e) => set("email", e.target.value)} className="h-11 rounded-sm" /></Field>
-                <Field label="Phone"><Input value={form.phone} onChange={(e) => set("phone", e.target.value)} className="h-11 rounded-sm" /></Field>
-                <Field label="Instagram (optional)"><Input value={form.instagram ?? ""} onChange={(e) => set("instagram", e.target.value)} className="h-11 rounded-sm" placeholder="@handle" /></Field>
+                <Field label="Name">
+                  <Input value={form.name} onChange={(e) => set("name", e.target.value)} className="h-11 rounded-sm" />
+                </Field>
+                <Field label="Email">
+                  <Input value={form.email} onChange={(e) => set("email", e.target.value)} className="h-11 rounded-sm" />
+                </Field>
+                <Field label="Phone">
+                  <Input value={form.phone} onChange={(e) => set("phone", e.target.value)} className="h-11 rounded-sm" />
+                </Field>
+                <Field label="Instagram (optional)">
+                  <Input
+                    value={form.instagram}
+                    onChange={(e) => set("instagram", e.target.value)}
+                    className="h-11 rounded-sm" placeholder="@handle"
+                  />
+                </Field>
               </div>
             </Step>
           )}
@@ -477,25 +507,21 @@ const Book = () => {
           {/* Nav */}
           <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
             <Button
-              variant="ghost"
-              onClick={back}
-              disabled={step === 0}
+              variant="ghost" onClick={back} disabled={step === 0}
               className="rounded-none uppercase tracking-widest text-xs"
             >
               <ArrowLeft className="h-3.5 w-3.5 mr-1.5" /> Back
             </Button>
-            {step < 5 ? (
+            {step < 4 ? (
               <Button
-                onClick={next}
-                disabled={!stepValid}
+                onClick={next} disabled={!stepValid}
                 className="rounded-none uppercase tracking-widest text-xs h-11 px-6"
               >
                 Continue <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
               </Button>
             ) : (
               <Button
-                onClick={submit}
-                disabled={!stepValid || busy}
+                onClick={submit} disabled={!stepValid || busy}
                 className="rounded-none uppercase tracking-widest text-xs h-11 px-6"
               >
                 {busy ? "Submitting…" : "Submit Project"}
@@ -538,10 +564,8 @@ const Choice = ({
     onClick={onClick}
     className={cn(
       "text-left border rounded-sm p-4 transition-all w-full",
-      active
-        ? "border-primary bg-primary/10"
-        : "border-border bg-background hover:border-foreground/40 hover:bg-surface/40",
-      className
+      active ? "border-primary bg-primary/10" : "border-border bg-background hover:border-foreground/40 hover:bg-surface/40",
+      className,
     )}
   >
     {children}
