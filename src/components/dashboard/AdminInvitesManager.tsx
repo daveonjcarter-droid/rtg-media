@@ -10,7 +10,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Copy, KeyRound, Trash2, Plus } from "lucide-react";
+import { Copy, KeyRound, Trash2, Plus, Mail, MailCheck, MailX, Send } from "lucide-react";
 
 type Invite = {
   id: string;
@@ -22,6 +22,9 @@ type Invite = {
   expires_at: string | null;
   used_at: string | null;
   created_at: string;
+  email_sent: boolean;
+  email_sent_at: string | null;
+  email_error: string | null;
 };
 
 const ELEVATED_ROLES = [
@@ -34,6 +37,8 @@ const ELEVATED_ROLES = [
   { value: "producer",   label: "Producer",   app_roles: ["producer"] },
 ];
 
+const SIGNUP_URL = "https://runnerstogreatness.com/signup";
+
 const generateCode = () =>
   Array.from({ length: 4 }, () => Math.random().toString(36).slice(2, 6).toUpperCase()).join("-");
 
@@ -43,6 +48,7 @@ const AdminInvitesManager = () => {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [roleType, setRoleType] = useState("admin");
+  const [sendingId, setSendingId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -57,21 +63,70 @@ const AdminInvitesManager = () => {
 
   useEffect(() => { load(); }, []);
 
+  const sendInviteEmail = async (invite: { id: string; email: string; role_type: string; invite_code: string }) => {
+    setSendingId(invite.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "admin-invite",
+          recipientEmail: invite.email,
+          idempotencyKey: `admin-invite:${invite.id}`,
+          templateData: {
+            email: invite.email,
+            role: invite.role_type,
+            inviteCode: invite.invite_code,
+            signupUrl: SIGNUP_URL,
+          },
+        },
+      });
+      if (error) throw error;
+      if (data && (data as any).error) throw new Error((data as any).error);
+
+      await supabase.from("admin_invites").update({
+        email_sent: true,
+        email_sent_at: new Date().toISOString(),
+        email_error: null,
+      }).eq("id", invite.id);
+      toast.success("Invite email sent");
+      return true;
+    } catch (err: any) {
+      const msg = err?.message ?? "Failed to send email";
+      await supabase.from("admin_invites").update({
+        email_sent: false,
+        email_error: msg,
+      }).eq("id", invite.id);
+      toast.error(`Email failed: ${msg}`);
+      return false;
+    } finally {
+      setSendingId(null);
+    }
+  };
+
   const create = async () => {
     if (!email) { toast.error("Email required"); return; }
     const def = ELEVATED_ROLES.find((r) => r.value === roleType)!;
     const code = generateCode();
-    const { error } = await supabase.from("admin_invites").insert({
+    const { data: created, error } = await supabase.from("admin_invites").insert({
       email,
       invite_code: code,
       role_type: roleType,
       app_roles: def.app_roles as any,
-    });
+    }).select("*").single();
     if (error) return toast.error(error.message);
-    toast.success("Admin invite created");
+    toast.success("Invite created — sending email…");
     setEmail("");
     setOpen(false);
+
+    if (created) {
+      await sendInviteEmail(created as any);
+    }
     load();
+  };
+
+  const resend = async (inv: Invite) => {
+    const ok = await sendInviteEmail(inv);
+    if (ok) load();
+    else load();
   };
 
   const revoke = async (id: string) => {
@@ -79,6 +134,28 @@ const AdminInvitesManager = () => {
     if (error) return toast.error(error.message);
     toast.success("Revoked");
     load();
+  };
+
+  const renderEmailStatus = (inv: Invite) => {
+    if (inv.email_sent) {
+      return (
+        <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-sm border bg-emerald-500/15 text-emerald-300 border-emerald-500/30">
+          <MailCheck className="size-3" /> Sent
+        </span>
+      );
+    }
+    if (inv.email_error) {
+      return (
+        <span title={inv.email_error} className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-sm border bg-destructive/15 text-destructive border-destructive/40">
+          <MailX className="size-3" /> Failed
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-sm border bg-muted text-muted-foreground border-border">
+        <Mail className="size-3" /> Pending
+      </span>
+    );
   };
 
   return (
@@ -110,6 +187,7 @@ const AdminInvitesManager = () => {
                 <th className="px-3 py-2 font-normal">Role</th>
                 <th className="px-3 py-2 font-normal">Code</th>
                 <th className="px-3 py-2 font-normal">Status</th>
+                <th className="px-3 py-2 font-normal">Email</th>
                 <th className="px-3 py-2 font-normal text-right">Actions</th>
               </tr>
             </thead>
@@ -128,13 +206,26 @@ const AdminInvitesManager = () => {
                       "bg-muted text-muted-foreground border-border"
                     }`}>{inv.status}</span>
                   </td>
-                  <td className="px-3 py-2.5 text-right">
+                  <td className="px-3 py-2.5">{renderEmailStatus(inv)}</td>
+                  <td className="px-3 py-2.5 text-right whitespace-nowrap">
                     <Button size="sm" variant="ghost" className="h-7 gap-1" onClick={() => {
                       navigator.clipboard.writeText(inv.invite_code);
                       toast.success("Code copied");
-                    }}><Copy className="size-3" /></Button>
+                    }} title="Copy code"><Copy className="size-3" /></Button>
                     {inv.status === "pending" && (
-                      <Button size="sm" variant="ghost" className="h-7 gap-1 text-destructive" onClick={() => revoke(inv.id)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 gap-1"
+                        disabled={sendingId === inv.id}
+                        onClick={() => resend(inv)}
+                        title="Resend email"
+                      >
+                        <Send className="size-3" />
+                      </Button>
+                    )}
+                    {inv.status === "pending" && (
+                      <Button size="sm" variant="ghost" className="h-7 gap-1 text-destructive" onClick={() => revoke(inv.id)} title="Revoke">
                         <Trash2 className="size-3" />
                       </Button>
                     )}
@@ -154,6 +245,7 @@ const AdminInvitesManager = () => {
             </DialogTitle>
             <DialogDescription>
               The recipient must sign up with this email <strong>and</strong> the generated code to receive elevated access.
+              An email will be sent automatically.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
@@ -173,7 +265,9 @@ const AdminInvitesManager = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={create} className="bg-primary text-primary-foreground hover:bg-primary/90">Generate Code</Button>
+            <Button onClick={create} className="bg-primary text-primary-foreground hover:bg-primary/90">
+              Generate &amp; Send
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
