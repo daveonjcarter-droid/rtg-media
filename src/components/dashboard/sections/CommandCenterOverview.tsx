@@ -172,6 +172,8 @@ export const CommandCenterOverview = ({ onCreate, onImport, onJump, canCreate }:
   useRealtimeTable("bookings", () => loadAll({ showSpinner: false }));
   useRealtimeTable("articles", () => loadAll({ showSpinner: false }));
   useRealtimeTable("calendar_events", () => loadAll({ showSpinner: false }));
+  useRealtimeTable("staff_profiles", () => loadAll({ showSpinner: false }));
+  useRealtimeTable("crew_assignments", () => loadAll({ showSpinner: false }));
 
   const sampleData: Series = useMemo(() => ([
     { day: "Mon", visits: 120, visitors: 80, reads: 45, bookingClicks: 8 },
