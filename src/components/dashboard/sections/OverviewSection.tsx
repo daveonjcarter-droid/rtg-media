@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   FileText, Send, Inbox, Calendar as CalIcon, Briefcase, Mail, Eye,
-  TrendingUp, Activity, Users, FileEdit, Clock, Trophy, Sparkles,
+  TrendingUp, Activity, Users, FileEdit, Clock, Trophy, Sparkles, ArrowRight,
 } from "lucide-react";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
