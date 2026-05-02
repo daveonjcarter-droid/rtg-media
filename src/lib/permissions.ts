@@ -143,6 +143,7 @@ export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
   "profile-management": [HEAD, "admin", "owner", "co_ceo"],
   "admin-invites":      [HEAD, "admin", "owner", "co_ceo"],
   availability:         [HEAD, "admin", "owner", "co_ceo", "editor", "booking_manager"],
+  audit:                [HEAD, "owner", "co_ceo"],
 };
 
 export const OWNERSHIP_ONLY: SectionId[] = [];
