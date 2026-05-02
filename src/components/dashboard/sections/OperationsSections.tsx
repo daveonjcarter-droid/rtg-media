@@ -1029,6 +1029,7 @@ export const BookingsDashboard = () => {
           bookingId={crewSlotsFor.id}
           bookingName={crewSlotsFor.name}
           crewRequestType={crewSlotsFor.crew_request_type}
+          serviceType={crewSlotsFor.service_type}
           internalAssignmentLocked={crewSlotsFor.internal_assignment_locked ?? true}
           onClose={() => { setCrewSlotsFor(null); load(); }}
         />
