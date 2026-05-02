@@ -267,6 +267,12 @@ export const CrewProfilePanel = () => {
 
       <PortfolioManager staffId={profile.id} userId={user!.id} />
 
+        </TabsContent>
+
+        <TabsContent value="availability" className="mt-4">
+          <MyAvailabilitySection embedded />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
