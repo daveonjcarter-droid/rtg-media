@@ -353,7 +353,7 @@ const AnalyticsSection = () => {
               <Legend wrapperStyle={{ fontSize: 11, paddingTop: 12 }} />
               <Line type="monotone" dataKey="pageViews" stroke="#ef3340" strokeWidth={2.5} dot={false} name="Page Views" />
               <Line type="monotone" dataKey="uniqueVisitors" stroke="#7ec1ff" strokeWidth={2} dot={false} name="Unique Visitors" />
-              <Line type="monotone" dataKey="articleReads" stroke="#0e2a47" strokeWidth={2} dot={false} name="Article Reads" />
+              <Line type="monotone" dataKey="articleReads" stroke="#c9a961" strokeWidth={2} dot={false} name="Article Reads" />
               <Line type="monotone" dataKey="bookingClicks" stroke="#e87722" strokeWidth={2} dot={false} name="Booking Clicks" />
               <Line type="monotone" dataKey="newsletterSignups" stroke="#18c58f" strokeWidth={2} dot={false} name="Newsletter Signups" />
             </LineChart>
