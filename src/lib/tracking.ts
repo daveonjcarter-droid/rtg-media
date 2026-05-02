@@ -136,6 +136,41 @@ export const bumpArticleView = async (articleId: string): Promise<void> => {
   }
 };
 
+/** Generic product event recorder — writes to public.analytics_events. */
+export type AnalyticsEventType =
+  | "page_view"
+  | "article_view"
+  | "article_read"
+  | "booking_click"
+  | "booking_submit"
+  | "newsletter_signup"
+  | "contact_submit"
+  | "media_view"
+  | "profile_view";
+
+export const trackEvent = async (
+  eventType: AnalyticsEventType,
+  metadata: Record<string, unknown> = {},
+): Promise<void> => {
+  try {
+    const path = (metadata.path as string | undefined) ?? (typeof window !== "undefined" ? window.location.pathname : null);
+    const referrer = typeof document !== "undefined" ? document.referrer : "";
+    await supabase.from("analytics_events" as never).insert({
+      event_type: eventType,
+      page_path: path,
+      article_id: (metadata.articleId as string | undefined) ?? null,
+      session_id: getSessionId(),
+      visitor_id: getVisitorId(),
+      referrer: referrer || null,
+      device_type: detectDevice(),
+      source: detectSource(referrer),
+      metadata,
+    } as never);
+  } catch {
+    /* silent — never break UI */
+  }
+};
+
 /** Increment shares counter when a user shares an article. */
 export const bumpArticleShare = async (articleId: string): Promise<void> => {
   try {
