@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   LayoutDashboard, FileEdit, Inbox, RotateCcw, CheckCircle2, Calendar, Image as ImageIcon,
   Users, Plus, Copy, Instagram, Twitter, LogOut, Send, ArrowRight, Briefcase, Mail, Archive,
@@ -161,12 +161,13 @@ const STATUS_LABEL: Record<Status, string> = {
 const Dashboard = () => {
   const { user, roles, signOut, hasRole } = useAuth();
   const navigate = useNavigate();
+  const { section: urlSection } = useParams<{ section?: string }>();
   // "my-profile" is available to every signed-in user — profiles are default, roles control extras.
   const navItems = useMemo(
     () => ALL_NAV.filter((n) => n.id === "my-profile" || can(roles, n.id)),
     [roles],
   );
-  const [section, setSection] = useState<SectionId>("overview");
+  const [section, setSection] = useState<SectionId>((urlSection as SectionId) ?? "overview");
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState<Article | null>(null);
   const [newType, setNewType] = useState<ArticleType>("standard");
@@ -212,8 +213,20 @@ const Dashboard = () => {
   useEffect(() => { loadArticles(); }, []);
 
   useEffect(() => {
-    if (!navItems.find((n) => n.id === section)) setSection("overview");
-  }, [navItems, section]);
+    if (urlSection && navItems.find((n) => n.id === urlSection)) {
+      setSection(urlSection as SectionId);
+    } else if (!navItems.find((n) => n.id === section)) {
+      setSection("overview");
+    }
+  }, [navItems, section, urlSection]);
+
+  // Keep URL in sync when user navigates via sidebar
+  useEffect(() => {
+    const target = section === "overview" ? "/dashboard" : `/dashboard/${section}`;
+    if (window.location.pathname !== target) {
+      navigate(target, { replace: true });
+    }
+  }, [section, navigate]);
 
   const openEditor = (a: Article | null = null, type: ArticleType = "standard") => {
     setEditing(a);
