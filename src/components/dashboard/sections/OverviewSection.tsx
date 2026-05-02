@@ -76,28 +76,34 @@ const OverviewSection = ({
         { data: act },
         { data: pv },
         { data: pvPrev },
+        { data: ev },
         { data: bookings },
         { data: leads },
         { data: socials },
         { data: pubArticles },
+        { count: leadsRecent },
       ] = await Promise.all([
         supabase.from("activity_log").select("*").order("created_at", { ascending: false }).limit(8),
         supabase.from("page_views").select("created_at,visitor_id,session_id,path").gte("created_at", since),
         supabase.from("page_views").select("session_id").gte("created_at", sincePrev).lt("created_at", sinceMid),
+        supabase.from("analytics_events" as never).select("created_at,event_type,article_id,page_path").gte("created_at", since),
         supabase.from("bookings").select("id", { count: "exact", head: true }),
         supabase.from("leads").select("id", { count: "exact", head: true }),
         supabase.from("social_posts").select("id", { count: "exact", head: true }).eq("status", "scheduled"),
         supabase.from("articles").select("id,title,category,author_id,profiles:profiles!articles_author_id_fkey(display_name)")
           .eq("status", "published"),
+        supabase.from("leads").select("id", { count: "exact", head: true }).gte("created_at", daysAgo(7).toISOString()),
       ]);
 
       if (cancelled) return;
 
-      // Build daily series from page_views
-      const daily = new Map<string, { visits: number; visitors: Set<string> }>();
+      const evRows = ((ev as unknown) as { created_at: string; event_type: string; article_id: string | null; page_path: string | null }[]) ?? [];
+
+      // Build daily series from page_views + events
+      const daily = new Map<string, { visits: number; visitors: Set<string>; reads: number }>();
       for (let i = 29; i >= 0; i--) {
         const d = daysAgo(i);
-        daily.set(d.toISOString().slice(0, 10), { visits: 0, visitors: new Set() });
+        daily.set(d.toISOString().slice(0, 10), { visits: 0, visitors: new Set(), reads: 0 });
       }
       const sessions = new Map<string, { count: number; firstPath: string }>();
       (pv ?? []).forEach((row) => {
@@ -114,8 +120,14 @@ const OverviewSection = ({
           else sessions.set(sid, { count: 1, firstPath: row.path as string });
         }
       });
+      evRows.forEach((r) => {
+        if (r.event_type !== "article_view" && r.event_type !== "article_read") return;
+        const key = r.created_at.slice(0, 10);
+        const b = daily.get(key);
+        if (b) b.reads += 1;
+      });
       const built: Series = Array.from(daily.entries()).map(([k, v]) => ({
-        day: fmtDay(new Date(k)), visits: v.visits, visitors: v.visitors.size,
+        day: fmtDay(new Date(k)), visits: v.visits, visitors: v.visitors.size, reads: v.reads,
       }));
       setSeries(built);
       const totalVisits = built.reduce((s, r) => s + r.visits, 0);
