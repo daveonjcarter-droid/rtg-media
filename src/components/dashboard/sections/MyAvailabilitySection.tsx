@@ -43,11 +43,14 @@ export const MyAvailabilitySection = ({ embedded = false }: { embedded?: boolean
       .maybeSingle();
 
     if (!sp) {
+      const baseName = (user.user_metadata?.display_name as string | undefined) ?? user.email?.split("@")[0] ?? "Crew";
+      const slug = `${baseName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${user.id.slice(0, 6)}`;
       const { data: created, error } = await supabase
         .from("staff_profiles")
         .insert({
           user_id: user.id,
-          display_name: user.user_metadata?.display_name ?? user.email?.split("@")[0] ?? "Crew",
+          display_name: baseName,
+          slug,
         })
         .select("id, accepting_bookings, availability_notes")
         .single();
