@@ -109,6 +109,21 @@ const Book = () => {
   const updateDetail = (key: string, value: unknown) =>
     setForm((f) => ({ ...f, service_details: { ...f.service_details, [key]: value } }));
 
+  // Picking a service mid-flow must purge stale fields from a previous service
+  // and reset the suggested crew package — otherwise irrelevant data leaks through.
+  const pickService = (id: ServiceTypeId) => {
+    setForm((f) =>
+      f.service_type === id
+        ? f
+        : {
+            ...f,
+            service_type: id,
+            service_details: {},
+            crew_request_type: DEFAULT_CREW[id],
+          },
+    );
+  };
+
   useEffect(() => {
     import("@/lib/tracking").then(({ trackEvent }) =>
       trackEvent("booking_click", {
