@@ -29,13 +29,19 @@ type Row = {
 
 const KIND_ICON: Record<string, React.ComponentType<{ className?: string }>> = {
   article_published: Send, article_drafted: FileText, article_scheduled: CalIcon,
-  social_scheduled: CalIcon, social_posted: Send, booking_received: Briefcase,
+  social_scheduled: CalIcon, social_posted: Send,
+  booking_received: Briefcase, booking_approved: Check, booking_assigned: UserPlus,
+  booking_completed: Check, booking_canceled: ArchiveIcon,
+  crew_assigned: UserPlus, crew_accepted: Check, crew_declined: ArchiveIcon,
   lead_captured: Mail, inquiry_received: Mail, media_uploaded: ImageIcon,
 };
 
 const KIND_TO_SECTION: Record<string, string> = {
   article_published: "published", article_drafted: "drafts", article_scheduled: "scheduled",
-  social_scheduled: "social", social_posted: "social", booking_received: "bookings",
+  social_scheduled: "social", social_posted: "social",
+  booking_received: "bookings", booking_approved: "bookings", booking_assigned: "bookings",
+  booking_completed: "bookings", booking_canceled: "bookings",
+  crew_assigned: "bookings", crew_accepted: "bookings", crew_declined: "bookings",
   lead_captured: "leads", inquiry_received: "leads", media_uploaded: "media",
 };
 
@@ -97,6 +103,8 @@ export const NotificationsBell = () => {
     return null;
   };
 
+  const cleanTitle = (t: string) => t.replace(/^(Approved|Assigned|Quick-assigned):?\s*/i, "").trim();
+
   const approveBooking = async (r: Row) => {
     const id = entityIdFor(r);
     if (!id) return navigateTo(r);
@@ -105,7 +113,12 @@ export const NotificationsBell = () => {
     setBusy(null);
     if (error) return toast.error(error.message);
     toast.success("Booking confirmed");
-    await logActivity({ kind: "booking_received", title: `Approved: ${r.title}`, detail: "Marked approved from notifications", meta: { id } });
+    await logActivity({
+      kind: "booking_approved",
+      title: cleanTitle(r.title),
+      detail: "Approved from notifications",
+      meta: { booking_id: id },
+    });
     load();
   };
 
@@ -200,9 +213,9 @@ export const NotificationsBell = () => {
     if (error) return toast.error(error.message);
     toast.success(`Assigned ${staffName}`);
     await logActivity({
-      kind: "booking_received",
-      title: `Quick-assigned ${staffName} → ${r.title}`,
-      detail: "Assigned from notifications",
+      kind: "booking_assigned",
+      title: cleanTitle(r.title),
+      detail: `Assigned ${staffName}`,
       meta: { booking_id: bookingId, staff_id: staffId, source: "notifications" },
     });
     setAssignFor(null);
@@ -214,12 +227,13 @@ export const NotificationsBell = () => {
     if (isBusy) {
       return <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />;
     }
-    if (r.kind === "booking_received") {
+    if (r.kind === "booking_received" || r.kind === "booking_approved" || r.kind === "booking_assigned") {
       const expanded = assignFor === r.id;
+      const showApprove = r.kind === "booking_received";
       return (
         <div className="mt-2 space-y-1.5">
           <div className="flex items-center gap-1.5">
-            <ActionBtn onClick={(e) => { e.stopPropagation(); approveBooking(r); }} icon={Check} label="Approve" tone="green" />
+            {showApprove && <ActionBtn onClick={(e) => { e.stopPropagation(); approveBooking(r); }} icon={Check} label="Approve" tone="green" />}
             <ActionBtn onClick={(e) => { e.stopPropagation(); openMiniAssign(r); }} icon={UserPlus} label={expanded ? "Hide" : "Assign"} tone="blue" />
             <ActionBtn onClick={(e) => { e.stopPropagation(); navigateTo(r); }} icon={Eye} label="View" tone="gray" />
           </div>

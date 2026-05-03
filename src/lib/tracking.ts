@@ -142,6 +142,7 @@ export type AnalyticsEventType =
   | "article_view"
   | "article_read"
   | "booking_click"
+  | "booking_started"
   | "booking_submit"
   | "newsletter_signup"
   | "contact_submit"

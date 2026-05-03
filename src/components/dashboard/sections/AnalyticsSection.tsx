@@ -13,16 +13,24 @@ import { daysAgo, fmtDay, pctChange } from "@/lib/dateUtils";
 type Range = 7 | 30 | 90 | 365;
 const RANGE_LABELS: Record<Range, string> = { 7: "7D", 30: "30D", 90: "90D", 365: "12M" };
 
-const PIE_COLORS = ["#ef3340", "#f4f1ea", "#e0b84c", "#29a8ff", "#18c58f", "#a78bfa", "#fb923c"];
+// RTG branded chart palette
+const RTG_COLORS = {
+  pageViews: "#EF3340",
+  visitors: "#F4F1EA",
+  articleReads: "#D9A441",
+  bookingClicks: "#29A8FF",
+  bookingSubmits: "#18C58F",
+};
+const PIE_COLORS = ["#EF3340", "#F4F1EA", "#D9A441", "#29A8FF", "#18C58F", "#a78bfa", "#fb923c"];
 
 const SAMPLE_TRAFFIC = [
-  { date: "Mon", pageViews: 120, uniqueVisitors: 80, articleReads: 45, bookingClicks: 8, newsletterSignups: 3 },
-  { date: "Tue", pageViews: 145, uniqueVisitors: 92, articleReads: 55, bookingClicks: 12, newsletterSignups: 4 },
-  { date: "Wed", pageViews: 132, uniqueVisitors: 88, articleReads: 61, bookingClicks: 10, newsletterSignups: 5 },
-  { date: "Thu", pageViews: 180, uniqueVisitors: 110, articleReads: 75, bookingClicks: 18, newsletterSignups: 7 },
-  { date: "Fri", pageViews: 210, uniqueVisitors: 130, articleReads: 92, bookingClicks: 24, newsletterSignups: 10 },
-  { date: "Sat", pageViews: 260, uniqueVisitors: 160, articleReads: 120, bookingClicks: 31, newsletterSignups: 14 },
-  { date: "Sun", pageViews: 240, uniqueVisitors: 150, articleReads: 112, bookingClicks: 28, newsletterSignups: 12 },
+  { date: "Mon", pageViews: 120, uniqueVisitors: 80, articleReads: 45, bookingClicks: 8, bookingSubmits: 2, newsletterSignups: 3 },
+  { date: "Tue", pageViews: 145, uniqueVisitors: 92, articleReads: 55, bookingClicks: 12, bookingSubmits: 3, newsletterSignups: 4 },
+  { date: "Wed", pageViews: 132, uniqueVisitors: 88, articleReads: 61, bookingClicks: 10, bookingSubmits: 2, newsletterSignups: 5 },
+  { date: "Thu", pageViews: 180, uniqueVisitors: 110, articleReads: 75, bookingClicks: 18, bookingSubmits: 5, newsletterSignups: 7 },
+  { date: "Fri", pageViews: 210, uniqueVisitors: 130, articleReads: 92, bookingClicks: 24, bookingSubmits: 8, newsletterSignups: 10 },
+  { date: "Sat", pageViews: 260, uniqueVisitors: 160, articleReads: 120, bookingClicks: 31, bookingSubmits: 11, newsletterSignups: 14 },
+  { date: "Sun", pageViews: 240, uniqueVisitors: 150, articleReads: 112, bookingClicks: 28, bookingSubmits: 9, newsletterSignups: 12 },
 ];
 
 type PV = {
@@ -119,7 +127,7 @@ const AnalyticsSection = () => {
   const trafficData = useMemo(() => {
     const buckets = new Map<string, {
       date: string; pageViews: number; uniqueVisitors: Set<string>;
-      articleReads: number; bookingClicks: number; newsletterSignups: number;
+      articleReads: number; bookingClicks: number; bookingSubmits: number; newsletterSignups: number;
     }>();
     const steps = range === 365 ? 12 : range;
     for (let i = steps - 1; i >= 0; i--) {
@@ -129,7 +137,7 @@ const AnalyticsSection = () => {
       const key = range === 365 ? d.toISOString().slice(0, 7) : d.toISOString().slice(0, 10);
       buckets.set(key, {
         date: fmtBucket(d, range), pageViews: 0, uniqueVisitors: new Set(),
-        articleReads: 0, bookingClicks: 0, newsletterSignups: 0,
+        articleReads: 0, bookingClicks: 0, bookingSubmits: 0, newsletterSignups: 0,
       });
     }
     pv.forEach((r) => {
@@ -143,12 +151,14 @@ const AnalyticsSection = () => {
       const b = buckets.get(bucketKey(r.created_at, range));
       if (!b) return;
       if (r.event_type === "article_view" || r.event_type === "article_read") b.articleReads += 1;
-      else if (r.event_type === "booking_click" || r.event_type === "booking_submit") b.bookingClicks += 1;
+      else if (r.event_type === "booking_click") b.bookingClicks += 1;
+      else if (r.event_type === "booking_submit") b.bookingSubmits += 1;
       else if (r.event_type === "newsletter_signup") b.newsletterSignups += 1;
     });
     return Array.from(buckets.values()).map((b) => ({
       date: b.date, pageViews: b.pageViews, uniqueVisitors: b.uniqueVisitors.size,
-      articleReads: b.articleReads, bookingClicks: b.bookingClicks, newsletterSignups: b.newsletterSignups,
+      articleReads: b.articleReads, bookingClicks: b.bookingClicks,
+      bookingSubmits: b.bookingSubmits, newsletterSignups: b.newsletterSignups,
     }));
   }, [pv, events, range]);
 
@@ -167,17 +177,20 @@ const AnalyticsSection = () => {
     const bounce = sessions ? Math.round((bounced / sessions) * 100) : 0;
     const avgSec = sessions ? Math.round((visits / sessions) * 28) : 0;
     const articleReads = events.filter((e) => e.event_type === "article_view" || e.event_type === "article_read").length;
-    const bookingClicks = events.filter((e) => e.event_type === "booking_click" || e.event_type === "booking_submit").length;
+    const bookingClicks = events.filter((e) => e.event_type === "booking_click").length;
+    const bookingSubmits = events.filter((e) => e.event_type === "booking_submit").length;
     const contactLeads = leads;
     const nlSignups = events.filter((e) => e.event_type === "newsletter_signup").length || newsletterTotal;
-    return { visits, unique, sessions, bounce, avgSec, articleReads, bookingClicks, contactLeads, nlSignups };
+    const conversion = bookingClicks > 0 ? Math.round((bookingSubmits / bookingClicks) * 100) : 0;
+    return { visits, unique, sessions, bounce, avgSec, articleReads, bookingClicks, bookingSubmits, contactLeads, nlSignups, conversion };
   }, [pv, sessionMap, events, leads, newsletterTotal]);
 
   const prevTotals = useMemo(() => {
     const articleReads = eventsPrev.filter((e) => e.event_type === "article_view" || e.event_type === "article_read").length;
-    const bookingClicks = eventsPrev.filter((e) => e.event_type === "booking_click" || e.event_type === "booking_submit").length;
+    const bookingClicks = eventsPrev.filter((e) => e.event_type === "booking_click").length;
+    const bookingSubmits = eventsPrev.filter((e) => e.event_type === "booking_submit").length;
     const nlSignups = eventsPrev.filter((e) => e.event_type === "newsletter_signup").length;
-    return { visits: pvPrev.length, articleReads, bookingClicks, nlSignups };
+    return { visits: pvPrev.length, articleReads, bookingClicks, bookingSubmits, nlSignups };
   }, [pvPrev, eventsPrev]);
 
   /* ============ Top pages ============ */
@@ -351,11 +364,11 @@ const AnalyticsSection = () => {
                 labelStyle={{ color: "#f4f1ea" }}
               />
               <Legend wrapperStyle={{ fontSize: 11, paddingTop: 12 }} />
-              <Line type="monotone" dataKey="pageViews" stroke="#ef3340" strokeWidth={2.5} dot={false} name="Page Views" />
-              <Line type="monotone" dataKey="uniqueVisitors" stroke="#7ec1ff" strokeWidth={2} dot={false} name="Unique Visitors" />
-              <Line type="monotone" dataKey="articleReads" stroke="#c9a961" strokeWidth={2} dot={false} name="Article Reads" />
-              <Line type="monotone" dataKey="bookingClicks" stroke="#e87722" strokeWidth={2} dot={false} name="Booking Clicks" />
-              <Line type="monotone" dataKey="newsletterSignups" stroke="#18c58f" strokeWidth={2} dot={false} name="Newsletter Signups" />
+              <Line type="monotone" dataKey="pageViews" stroke={RTG_COLORS.pageViews} strokeWidth={3} dot={false} name="Page Views" />
+              <Line type="monotone" dataKey="uniqueVisitors" stroke={RTG_COLORS.visitors} strokeWidth={2} dot={false} name="Unique Visitors" />
+              <Line type="monotone" dataKey="articleReads" stroke={RTG_COLORS.articleReads} strokeWidth={2} dot={false} name="Article Reads" />
+              <Line type="monotone" dataKey="bookingClicks" stroke={RTG_COLORS.bookingClicks} strokeWidth={2} dot={false} name="Booking Clicks" />
+              <Line type="monotone" dataKey="bookingSubmits" stroke={RTG_COLORS.bookingSubmits} strokeWidth={2} dot={false} name="Booking Submits" />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -370,6 +383,8 @@ const AnalyticsSection = () => {
         <StatCard label="Bounce Rate" value={`${totals.bounce}%`} accent={totals.bounce > 70 ? "bg-primary" : "bg-emerald-500"} />
         <StatCard label="Newsletter Signups" value={totals.nlSignups} delta={pctChange(totals.nlSignups, prevTotals.nlSignups)} sub={RANGE_LABELS[range]} accent="bg-emerald-500" />
         <StatCard label="Booking Clicks" value={totals.bookingClicks} delta={pctChange(totals.bookingClicks, prevTotals.bookingClicks)} sub={RANGE_LABELS[range]} accent="bg-sky-500" />
+        <StatCard label="Booking Submits" value={totals.bookingSubmits} delta={pctChange(totals.bookingSubmits, prevTotals.bookingSubmits)} sub={RANGE_LABELS[range]} accent="bg-emerald-500" />
+        <StatCard label="Conversion Rate" value={`${totals.conversion}%`} sub="submits / clicks" accent="bg-gold" />
         <StatCard label="Contact Form Leads" value={totals.contactLeads} sub={RANGE_LABELS[range]} accent="bg-cream" />
         <StatCard label="Top Article" value={topArticle?.title ? (topArticle.title.length > 22 ? topArticle.title.slice(0, 20) + "…" : topArticle.title) : "—"} sub={topArticle ? `${topArticle.views} views` : "no data"} accent="bg-gold" />
         <StatCard label="Top Traffic Source" value={sourceData[0]?.name ?? "—"} sub={sourceData[0] ? `${sourceData[0].value} visits` : "no data"} accent="bg-primary" />

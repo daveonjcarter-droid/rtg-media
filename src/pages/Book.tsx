@@ -152,6 +152,36 @@ const Book = () => {
 
   const spec = useMemo(() => getServiceSpec(form.service_type || null), [form.service_type]);
 
+  const eligibleStaff = useMemo(() => {
+    if (!spec) return staff;
+    const key = spec.id;
+    const keywords: Record<ServiceTypeId, string[]> = {
+      music_video: ["music", "video", "director", "videographer"],
+      photography: ["photo", "photographer"],
+      film_production: ["film", "director", "dp", "producer"],
+      editing: ["edit", "editor", "post", "color"],
+      event_coverage: ["event", "video", "photo"],
+      creative_direction: ["creative", "director", "art"],
+      custom: [],
+    };
+    const kw = keywords[key];
+    if (kw.length === 0) return staff;
+    return staff.filter((s) => {
+      const blob = `${s.role_title ?? ""} ${(s.specialties ?? []).join(" ")}`.toLowerCase();
+      return kw.some((k) => blob.includes(k)) || (s.specialties ?? []).length === 0;
+    });
+  }, [staff, spec]);
+
+  // Fire booking_started once when the user advances past service picker
+  useEffect(() => {
+    if (step === 1 && form.service_type) {
+      import("@/lib/tracking").then(({ trackEvent }) =>
+        trackEvent("booking_started" as never, { service_type: form.service_type }),
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
   const stepValid = useMemo(() => {
     switch (step) {
       case 0: return !!form.service_type;
@@ -263,27 +293,6 @@ const Book = () => {
       </SiteLayout>
     );
   }
-
-  const eligibleStaff = useMemo(() => {
-    if (!spec) return staff;
-    // Filter staff whose specialties overlap the service label/keywords (lightweight)
-    const key = spec.id;
-    const keywords: Record<ServiceTypeId, string[]> = {
-      music_video: ["music", "video", "director", "videographer"],
-      photography: ["photo", "photographer"],
-      film_production: ["film", "director", "dp", "producer"],
-      editing: ["edit", "editor", "post", "color"],
-      event_coverage: ["event", "video", "photo"],
-      creative_direction: ["creative", "director", "art"],
-      custom: [],
-    };
-    const kw = keywords[key];
-    if (kw.length === 0) return staff;
-    return staff.filter((s) => {
-      const blob = `${s.role_title ?? ""} ${(s.specialties ?? []).join(" ")}`.toLowerCase();
-      return kw.some((k) => blob.includes(k)) || (s.specialties ?? []).length === 0;
-    });
-  }, [staff, spec]);
 
   return (
     <SiteLayout>
