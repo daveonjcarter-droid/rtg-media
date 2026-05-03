@@ -213,9 +213,9 @@ export const NotificationsBell = () => {
     if (error) return toast.error(error.message);
     toast.success(`Assigned ${staffName}`);
     await logActivity({
-      kind: "booking_received",
-      title: `Quick-assigned ${staffName} → ${r.title}`,
-      detail: "Assigned from notifications",
+      kind: "booking_assigned",
+      title: cleanTitle(r.title),
+      detail: `Assigned ${staffName}`,
       meta: { booking_id: bookingId, staff_id: staffId, source: "notifications" },
     });
     setAssignFor(null);
@@ -227,12 +227,13 @@ export const NotificationsBell = () => {
     if (isBusy) {
       return <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />;
     }
-    if (r.kind === "booking_received") {
+    if (r.kind === "booking_received" || r.kind === "booking_approved" || r.kind === "booking_assigned") {
       const expanded = assignFor === r.id;
+      const showApprove = r.kind === "booking_received";
       return (
         <div className="mt-2 space-y-1.5">
           <div className="flex items-center gap-1.5">
-            <ActionBtn onClick={(e) => { e.stopPropagation(); approveBooking(r); }} icon={Check} label="Approve" tone="green" />
+            {showApprove && <ActionBtn onClick={(e) => { e.stopPropagation(); approveBooking(r); }} icon={Check} label="Approve" tone="green" />}
             <ActionBtn onClick={(e) => { e.stopPropagation(); openMiniAssign(r); }} icon={UserPlus} label={expanded ? "Hide" : "Assign"} tone="blue" />
             <ActionBtn onClick={(e) => { e.stopPropagation(); navigateTo(r); }} icon={Eye} label="View" tone="gray" />
           </div>
