@@ -383,6 +383,8 @@ const AnalyticsSection = () => {
         <StatCard label="Bounce Rate" value={`${totals.bounce}%`} accent={totals.bounce > 70 ? "bg-primary" : "bg-emerald-500"} />
         <StatCard label="Newsletter Signups" value={totals.nlSignups} delta={pctChange(totals.nlSignups, prevTotals.nlSignups)} sub={RANGE_LABELS[range]} accent="bg-emerald-500" />
         <StatCard label="Booking Clicks" value={totals.bookingClicks} delta={pctChange(totals.bookingClicks, prevTotals.bookingClicks)} sub={RANGE_LABELS[range]} accent="bg-sky-500" />
+        <StatCard label="Booking Submits" value={totals.bookingSubmits} delta={pctChange(totals.bookingSubmits, prevTotals.bookingSubmits)} sub={RANGE_LABELS[range]} accent="bg-emerald-500" />
+        <StatCard label="Conversion Rate" value={`${totals.conversion}%`} sub="submits / clicks" accent="bg-gold" />
         <StatCard label="Contact Form Leads" value={totals.contactLeads} sub={RANGE_LABELS[range]} accent="bg-cream" />
         <StatCard label="Top Article" value={topArticle?.title ? (topArticle.title.length > 22 ? topArticle.title.slice(0, 20) + "…" : topArticle.title) : "—"} sub={topArticle ? `${topArticle.views} views` : "no data"} accent="bg-gold" />
         <StatCard label="Top Traffic Source" value={sourceData[0]?.name ?? "—"} sub={sourceData[0] ? `${sourceData[0].value} visits` : "no data"} accent="bg-primary" />
