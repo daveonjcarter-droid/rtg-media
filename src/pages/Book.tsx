@@ -168,13 +168,6 @@ const Book = () => {
 
   const next = () => {
     if (!stepValid) return;
-    // When leaving service picker, reset crew package + details to good defaults
-    if (step === 0 && form.service_type) {
-      setForm((f) => ({
-        ...f,
-        crew_request_type: DEFAULT_CREW[f.service_type as ServiceTypeId],
-      }));
-    }
     setStep((s) => Math.min(4, s + 1));
   };
   const back = () => setStep((s) => Math.max(0, s - 1));
