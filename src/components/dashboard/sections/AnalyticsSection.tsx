@@ -364,11 +364,11 @@ const AnalyticsSection = () => {
                 labelStyle={{ color: "#f4f1ea" }}
               />
               <Legend wrapperStyle={{ fontSize: 11, paddingTop: 12 }} />
-              <Line type="monotone" dataKey="pageViews" stroke="#ef3340" strokeWidth={2.5} dot={false} name="Page Views" />
-              <Line type="monotone" dataKey="uniqueVisitors" stroke="#7ec1ff" strokeWidth={2} dot={false} name="Unique Visitors" />
-              <Line type="monotone" dataKey="articleReads" stroke="#c9a961" strokeWidth={2} dot={false} name="Article Reads" />
-              <Line type="monotone" dataKey="bookingClicks" stroke="#e87722" strokeWidth={2} dot={false} name="Booking Clicks" />
-              <Line type="monotone" dataKey="newsletterSignups" stroke="#18c58f" strokeWidth={2} dot={false} name="Newsletter Signups" />
+              <Line type="monotone" dataKey="pageViews" stroke={RTG_COLORS.pageViews} strokeWidth={3} dot={false} name="Page Views" />
+              <Line type="monotone" dataKey="uniqueVisitors" stroke={RTG_COLORS.visitors} strokeWidth={2} dot={false} name="Unique Visitors" />
+              <Line type="monotone" dataKey="articleReads" stroke={RTG_COLORS.articleReads} strokeWidth={2} dot={false} name="Article Reads" />
+              <Line type="monotone" dataKey="bookingClicks" stroke={RTG_COLORS.bookingClicks} strokeWidth={2} dot={false} name="Booking Clicks" />
+              <Line type="monotone" dataKey="bookingSubmits" stroke={RTG_COLORS.bookingSubmits} strokeWidth={2} dot={false} name="Booking Submits" />
             </LineChart>
           </ResponsiveContainer>
         </div>
