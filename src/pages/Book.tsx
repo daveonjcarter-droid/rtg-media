@@ -294,27 +294,6 @@ const Book = () => {
     );
   }
 
-  const eligibleStaff = useMemo(() => {
-    if (!spec) return staff;
-    // Filter staff whose specialties overlap the service label/keywords (lightweight)
-    const key = spec.id;
-    const keywords: Record<ServiceTypeId, string[]> = {
-      music_video: ["music", "video", "director", "videographer"],
-      photography: ["photo", "photographer"],
-      film_production: ["film", "director", "dp", "producer"],
-      editing: ["edit", "editor", "post", "color"],
-      event_coverage: ["event", "video", "photo"],
-      creative_direction: ["creative", "director", "art"],
-      custom: [],
-    };
-    const kw = keywords[key];
-    if (kw.length === 0) return staff;
-    return staff.filter((s) => {
-      const blob = `${s.role_title ?? ""} ${(s.specialties ?? []).join(" ")}`.toLowerCase();
-      return kw.some((k) => blob.includes(k)) || (s.specialties ?? []).length === 0;
-    });
-  }, [staff, spec]);
-
   return (
     <SiteLayout>
       <section className="container-rtg pt-12 md:pt-16 pb-6">
