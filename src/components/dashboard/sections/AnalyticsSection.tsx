@@ -177,17 +177,20 @@ const AnalyticsSection = () => {
     const bounce = sessions ? Math.round((bounced / sessions) * 100) : 0;
     const avgSec = sessions ? Math.round((visits / sessions) * 28) : 0;
     const articleReads = events.filter((e) => e.event_type === "article_view" || e.event_type === "article_read").length;
-    const bookingClicks = events.filter((e) => e.event_type === "booking_click" || e.event_type === "booking_submit").length;
+    const bookingClicks = events.filter((e) => e.event_type === "booking_click").length;
+    const bookingSubmits = events.filter((e) => e.event_type === "booking_submit").length;
     const contactLeads = leads;
     const nlSignups = events.filter((e) => e.event_type === "newsletter_signup").length || newsletterTotal;
-    return { visits, unique, sessions, bounce, avgSec, articleReads, bookingClicks, contactLeads, nlSignups };
+    const conversion = bookingClicks > 0 ? Math.round((bookingSubmits / bookingClicks) * 100) : 0;
+    return { visits, unique, sessions, bounce, avgSec, articleReads, bookingClicks, bookingSubmits, contactLeads, nlSignups, conversion };
   }, [pv, sessionMap, events, leads, newsletterTotal]);
 
   const prevTotals = useMemo(() => {
     const articleReads = eventsPrev.filter((e) => e.event_type === "article_view" || e.event_type === "article_read").length;
-    const bookingClicks = eventsPrev.filter((e) => e.event_type === "booking_click" || e.event_type === "booking_submit").length;
+    const bookingClicks = eventsPrev.filter((e) => e.event_type === "booking_click").length;
+    const bookingSubmits = eventsPrev.filter((e) => e.event_type === "booking_submit").length;
     const nlSignups = eventsPrev.filter((e) => e.event_type === "newsletter_signup").length;
-    return { visits: pvPrev.length, articleReads, bookingClicks, nlSignups };
+    return { visits: pvPrev.length, articleReads, bookingClicks, bookingSubmits, nlSignups };
   }, [pvPrev, eventsPrev]);
 
   /* ============ Top pages ============ */
