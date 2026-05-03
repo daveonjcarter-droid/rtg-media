@@ -103,6 +103,8 @@ export const NotificationsBell = () => {
     return null;
   };
 
+  const cleanTitle = (t: string) => t.replace(/^(Approved|Assigned|Quick-assigned):?\s*/i, "").trim();
+
   const approveBooking = async (r: Row) => {
     const id = entityIdFor(r);
     if (!id) return navigateTo(r);
@@ -111,7 +113,12 @@ export const NotificationsBell = () => {
     setBusy(null);
     if (error) return toast.error(error.message);
     toast.success("Booking confirmed");
-    await logActivity({ kind: "booking_received", title: `Approved: ${r.title}`, detail: "Marked approved from notifications", meta: { id } });
+    await logActivity({
+      kind: "booking_approved",
+      title: cleanTitle(r.title),
+      detail: "Approved from notifications",
+      meta: { booking_id: id },
+    });
     load();
   };
 
