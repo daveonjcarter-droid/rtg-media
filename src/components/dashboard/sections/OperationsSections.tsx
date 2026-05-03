@@ -908,9 +908,29 @@ export const BookingsDashboard = () => {
   }, [rows, filter]);
 
   const updateBooking = async (id: string, patch: Partial<BookingRow>) => {
+    const prev = rows.find((r) => r.id === id);
     const { error } = await supabase.from("bookings").update(patch as any).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Updated");
+    // Lifecycle activity logging — no title stacking
+    const cleanTitle = prev ? `${prev.name} requested ${prev.service_type || prev.service || "Project"}` : "Booking";
+    if (patch.status && prev && patch.status !== prev.status) {
+      const map: Record<string, "booking_approved" | "booking_completed" | "booking_canceled" | null> = {
+        booked: "booking_approved",
+        completed: "booking_completed",
+        declined: "booking_canceled",
+      };
+      const kind = map[patch.status as string];
+      if (kind) {
+        await logActivity({ kind, title: cleanTitle, detail: `Status → ${patch.status}`, meta: { booking_id: id } });
+      }
+    }
+    if (patch.assigned_staff_id !== undefined && prev && patch.assigned_staff_id !== prev.assigned_staff_id) {
+      const staffName = staff.find((s) => s.id === patch.assigned_staff_id)?.display_name ?? "crew";
+      if (patch.assigned_staff_id) {
+        await logActivity({ kind: "booking_assigned", title: cleanTitle, detail: `Assigned ${staffName}`, meta: { booking_id: id, staff_id: patch.assigned_staff_id } });
+      }
+    }
     load();
   };
 
