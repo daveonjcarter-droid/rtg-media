@@ -271,10 +271,10 @@ export const CommandCenterOverview = ({ onCreate, onImport, onJump, canCreate }:
                 <XAxis dataKey="day" stroke="rgba(244,241,234,0.45)" fontSize={9} tickLine={false} axisLine={false} />
                 <YAxis stroke="rgba(244,241,234,0.45)" fontSize={9} tickLine={false} axisLine={false} allowDecimals={false} width={32} />
                 <Tooltip contentStyle={{ background: "#080808", border: "1px solid rgba(244,241,234,0.2)", color: "#f4f1ea", fontSize: 11, borderRadius: 2 }} cursor={{ stroke: "rgba(239,51,64,0.3)", strokeWidth: 1 }} />
-                <Line type="monotone" dataKey="visits" stroke="#ef3340" strokeWidth={2.5} dot={false} name="Page Views" />
-                <Line type="monotone" dataKey="visitors" stroke="#7ec1ff" strokeWidth={2} dot={false} name="Visitors" />
-                <Line type="monotone" dataKey="reads" stroke="#c9a961" strokeWidth={2} dot={false} name="Article Reads" />
-                <Line type="monotone" dataKey="bookingClicks" stroke="#e87722" strokeWidth={2} dot={false} name="Booking Clicks" />
+               <Line type="monotone" dataKey="visits" stroke="#EF3340" strokeWidth={3} dot={false} name="Page Views" />
+               <Line type="monotone" dataKey="visitors" stroke="#F4F1EA" strokeWidth={2} dot={false} name="Visitors" />
+               <Line type="monotone" dataKey="reads" stroke="#D9A441" strokeWidth={2} dot={false} name="Article Reads" />
+               <Line type="monotone" dataKey="bookingClicks" stroke="#29A8FF" strokeWidth={2} dot={false} name="Booking Clicks" />
               </LineChart>
             </ResponsiveContainer>
           </div>
