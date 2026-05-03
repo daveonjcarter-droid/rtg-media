@@ -976,7 +976,9 @@ export const BookingsDashboard = () => {
                       )}
                     </div>
                     <div className="text-xs text-muted-foreground mt-1">
-                      {b.service || "—"}{b.budget && ` · ${b.budget}`}{b.project_date && ` · ${b.project_date}`}
+                      {!b.service_type && (b.service || "—")}
+                      {b.budget && `${!b.service_type ? " · " : ""}${b.budget}`}
+                      {b.project_date && ` · ${b.project_date}`}
                     </div>
                     <div className="text-xs text-muted-foreground mt-0.5 truncate">
                       {b.email}{b.phone && ` · ${b.phone}`}
