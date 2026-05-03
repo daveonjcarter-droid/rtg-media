@@ -109,6 +109,21 @@ const Book = () => {
   const updateDetail = (key: string, value: unknown) =>
     setForm((f) => ({ ...f, service_details: { ...f.service_details, [key]: value } }));
 
+  // Picking a service mid-flow must purge stale fields from a previous service
+  // and reset the suggested crew package — otherwise irrelevant data leaks through.
+  const pickService = (id: ServiceTypeId) => {
+    setForm((f) =>
+      f.service_type === id
+        ? f
+        : {
+            ...f,
+            service_type: id,
+            service_details: {},
+            crew_request_type: DEFAULT_CREW[id],
+          },
+    );
+  };
+
   useEffect(() => {
     import("@/lib/tracking").then(({ trackEvent }) =>
       trackEvent("booking_click", {
@@ -153,13 +168,6 @@ const Book = () => {
 
   const next = () => {
     if (!stepValid) return;
-    // When leaving service picker, reset crew package + details to good defaults
-    if (step === 0 && form.service_type) {
-      setForm((f) => ({
-        ...f,
-        crew_request_type: DEFAULT_CREW[f.service_type as ServiceTypeId],
-      }));
-    }
     setStep((s) => Math.min(4, s + 1));
   };
   const back = () => setStep((s) => Math.max(0, s - 1));
@@ -318,7 +326,7 @@ const Book = () => {
                   const Icon = s.icon;
                   const active = form.service_type === id;
                   return (
-                    <Choice key={id} active={active} onClick={() => set("service_type", id)}>
+                    <Choice key={id} active={active} onClick={() => pickService(id)}>
                       <div className="flex items-start gap-3">
                         <div className={cn(
                           "h-10 w-10 shrink-0 border rounded-sm flex items-center justify-center",
@@ -336,6 +344,27 @@ const Book = () => {
                 })}
               </div>
             </Step>
+          )}
+
+          {/* Persistent service context — keeps the user oriented across steps */}
+          {step > 0 && spec && (
+            <div className="mb-6 -mt-2 flex items-center justify-between gap-3 border border-primary/30 bg-primary/5 rounded-sm px-3 py-2">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <spec.icon className="h-4 w-4 text-primary shrink-0" />
+                <div className="min-w-0">
+                  <div className="text-[9px] uppercase tracking-widest text-muted-foreground">Booking</div>
+                  <div className="font-display uppercase text-sm leading-tight truncate">{spec.label}</div>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setStep(0)}
+                className="rounded-none uppercase tracking-widest text-[10px] h-8"
+              >
+                Change
+              </Button>
+            </div>
           )}
 
           {/* Step 1 — Dynamic form */}
