@@ -127,7 +127,7 @@ const AnalyticsSection = () => {
   const trafficData = useMemo(() => {
     const buckets = new Map<string, {
       date: string; pageViews: number; uniqueVisitors: Set<string>;
-      articleReads: number; bookingClicks: number; newsletterSignups: number;
+      articleReads: number; bookingClicks: number; bookingSubmits: number; newsletterSignups: number;
     }>();
     const steps = range === 365 ? 12 : range;
     for (let i = steps - 1; i >= 0; i--) {
@@ -137,7 +137,7 @@ const AnalyticsSection = () => {
       const key = range === 365 ? d.toISOString().slice(0, 7) : d.toISOString().slice(0, 10);
       buckets.set(key, {
         date: fmtBucket(d, range), pageViews: 0, uniqueVisitors: new Set(),
-        articleReads: 0, bookingClicks: 0, newsletterSignups: 0,
+        articleReads: 0, bookingClicks: 0, bookingSubmits: 0, newsletterSignups: 0,
       });
     }
     pv.forEach((r) => {
@@ -151,12 +151,14 @@ const AnalyticsSection = () => {
       const b = buckets.get(bucketKey(r.created_at, range));
       if (!b) return;
       if (r.event_type === "article_view" || r.event_type === "article_read") b.articleReads += 1;
-      else if (r.event_type === "booking_click" || r.event_type === "booking_submit") b.bookingClicks += 1;
+      else if (r.event_type === "booking_click") b.bookingClicks += 1;
+      else if (r.event_type === "booking_submit") b.bookingSubmits += 1;
       else if (r.event_type === "newsletter_signup") b.newsletterSignups += 1;
     });
     return Array.from(buckets.values()).map((b) => ({
       date: b.date, pageViews: b.pageViews, uniqueVisitors: b.uniqueVisitors.size,
-      articleReads: b.articleReads, bookingClicks: b.bookingClicks, newsletterSignups: b.newsletterSignups,
+      articleReads: b.articleReads, bookingClicks: b.bookingClicks,
+      bookingSubmits: b.bookingSubmits, newsletterSignups: b.newsletterSignups,
     }));
   }, [pv, events, range]);
 
