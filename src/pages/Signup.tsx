@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { ROLE_LABELS } from "@/lib/permissions";
 import { toast } from "sonner";
 import { z } from "zod";
+import { CheckCircle2 } from "lucide-react";
 import logoLight from "@/assets/rtg-logo-light.png";
 
 const schema = z.object({
@@ -16,143 +16,78 @@ const schema = z.object({
   password: z.string().min(8, "At least 8 characters").max(128),
 });
 
-type InvitePreview = {
-  id: string;
-  email: string;
-  full_name: string | null;
-  invite_type: "staff" | "crew" | "hybrid";
-  roles: string[];
-  internal_title: string | null;
-  status: string;
-  invited_by_name: string | null;
-};
-
-const INVALID_INVITE_MSG = "Your invite link is invalid or expired. Please contact RTG Media admin for a new invite.";
-
 const Signup = () => {
   const { signUp, user } = useAuth();
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const inviteToken = params.get("invite_token");
-  const adminCodeParam = params.get("code");
-  const staffCodeParam = params.get("staff_code");
+  const codeParam = params.get("code") ?? params.get("signup_code") ?? "";
+  const adminCodeParam = params.get("admin_code") ?? "";
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [adminCode, setAdminCode] = useState(adminCodeParam ?? "");
-  const [staffCode, setStaffCode] = useState(staffCodeParam ?? "");
-  const [showStaffCode, setShowStaffCode] = useState(!!staffCodeParam);
+  const [adminCode, setAdminCode] = useState(adminCodeParam);
+  const [signupCode, setSignupCode] = useState(codeParam);
+  const [codeLabel, setCodeLabel] = useState<string | null>(null);
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const [validating, setValidating] = useState(false);
+  const [codeAccepted, setCodeAccepted] = useState(false);
   const [busy, setBusy] = useState(false);
-
-  const [invite, setInvite] = useState<InvitePreview | null>(null);
-  const [inviteLoading, setInviteLoading] = useState<boolean>(!!inviteToken);
-  const [inviteError, setInviteError] = useState<string | null>(null);
-
-  // Backup code lookup state
-  const [staffCodeInvite, setStaffCodeInvite] = useState<InvitePreview | null>(null);
-  const [staffCodeError, setStaffCodeError] = useState<string | null>(null);
-  const [staffCodeChecking, setStaffCodeChecking] = useState(false);
 
   useEffect(() => { if (user) navigate("/dashboard", { replace: true }); }, [user, navigate]);
 
-  const loadInviteRow = async (whereCol: "invite_token" | "invite_code", value: string) => {
-    const { data, error } = await supabase
-      .from("invited_users" as any)
-      .select("id, email, full_name, invite_type, roles, internal_title, status, invited_by, expires_at, invite_code, invite_token")
-      .eq(whereCol, whereCol === "invite_code" ? value.toUpperCase() : value)
-      .maybeSingle();
-    if (error || !data) return { error: INVALID_INVITE_MSG, inv: null as any };
-    const inv: any = data;
-    if (inv.status === "disabled" || inv.status === "revoked") return { error: "This invite has been revoked.", inv: null };
-    if (inv.status === "active") return { error: "This invite has already been used. Please sign in instead.", inv: null };
-    if (inv.expires_at && new Date(inv.expires_at) < new Date()) return { error: INVALID_INVITE_MSG, inv: null };
-    let invitedByName: string | null = null;
-    if (inv.invited_by) {
-      const { data: p } = await supabase.from("profiles").select("display_name").eq("id", inv.invited_by).maybeSingle();
-      invitedByName = p?.display_name ?? null;
+  const validateCode = async () => {
+    const code = signupCode.trim();
+    if (!code) { setCodeError("Enter your invite code."); return; }
+    setValidating(true);
+    setCodeError(null);
+    const { data, error } = await supabase.rpc("validate_signup_code" as any, { _code: code });
+    setValidating(false);
+    if (error) { setCodeError(error.message); return; }
+    const result = (data as any) ?? {};
+    if (!result.valid) {
+      setCodeAccepted(false);
+      setCodeLabel(null);
+      setCodeError(result.error || "Invalid code.");
+      return;
     }
-    const preview: InvitePreview = {
-      id: inv.id, email: inv.email, full_name: inv.full_name,
-      invite_type: inv.invite_type, roles: inv.roles ?? [],
-      internal_title: inv.internal_title, status: inv.status,
-      invited_by_name: invitedByName,
-    };
-    return { error: null as string | null, inv: preview };
+    setCodeAccepted(true);
+    setCodeLabel(result.label ?? null);
+    setCodeError(null);
+    toast.success("Code accepted. Complete your account.");
   };
 
-  // Load + validate invite token from URL
+  // Auto-validate when arriving with ?code=
   useEffect(() => {
-    if (!inviteToken) return;
-    let cancelled = false;
-    (async () => {
-      setInviteLoading(true);
-      setInviteError(null);
-      const { error, inv } = await loadInviteRow("invite_token", inviteToken);
-      if (cancelled) return;
-      if (error || !inv) { setInviteError(error || INVALID_INVITE_MSG); setShowStaffCode(true); setInviteLoading(false); return; }
-      setInvite(inv);
-      setEmail(inv.email);
-      if (inv.full_name) setName(inv.full_name);
-      setInviteLoading(false);
-    })();
-    return () => { cancelled = true; };
-  }, [inviteToken]);
+    if (codeParam && !codeAccepted && !codeError) { validateCode(); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const checkStaffCode = async () => {
-    const code = staffCode.trim().toUpperCase();
-    if (!code) { setStaffCodeError("Enter your invite code."); return; }
-    setStaffCodeChecking(true);
-    setStaffCodeError(null);
-    const { error, inv } = await loadInviteRow("invite_code", code);
-    setStaffCodeChecking(false);
-    if (error || !inv) { setStaffCodeError(error || INVALID_INVITE_MSG); setStaffCodeInvite(null); return; }
-    setStaffCodeInvite(inv);
-    setEmail(inv.email);
-    if (inv.full_name) setName(inv.full_name);
-    toast.success("Invite code accepted");
-  };
-
-  const activeInvite = invite || staffCodeInvite;
-  const emailLocked = useMemo(() => !!activeInvite, [activeInvite]);
-
-  // Always show backup code UI when there's no valid invite token loaded
-  const inviteInvalidOrMissing = !invite && (!inviteToken || !!inviteError);
-
-  useEffect(() => {
-    if (inviteInvalidOrMissing) {
-      setShowStaffCode(true);
-      // eslint-disable-next-line no-console
-      console.log("Backup invite code UI rendered");
-    }
-  }, [inviteInvalidOrMissing]);
+  const canSubmit = codeAccepted || !!adminCode.trim();
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (inviteToken) {
-      if (inviteError) { toast.error(inviteError); return; }
-      if (!invite) { toast.error(INVALID_INVITE_MSG); return; }
-    }
-    if (showStaffCode && !staffCodeInvite) {
-      toast.error("Validate your staff invite code before continuing.");
+    if (!canSubmit) {
+      toast.error("Validate your signup code first.");
       return;
     }
     const parsed = schema.safeParse({ name, email, password });
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
-    if (activeInvite && parsed.data.email.toLowerCase() !== activeInvite.email.toLowerCase()) {
-      toast.error("Email must match the invited address.");
-      return;
-    }
     setBusy(true);
     const { error } = await signUp(
       parsed.data.email,
       parsed.data.password,
       parsed.data.name,
-      adminCode || undefined,
-      staffCodeInvite ? staffCode.trim().toUpperCase() : undefined,
+      adminCode.trim() || undefined,
+      undefined,
     );
+    if (error) { setBusy(false); toast.error(error); return; }
+
+    // Pass signup_code via raw_user_meta_data — the trigger will redeem it
+    if (codeAccepted && signupCode.trim()) {
+      await supabase.auth.updateUser({ data: { signup_code: signupCode.trim() } });
+    }
     setBusy(false);
-    if (error) { toast.error(error); return; }
     toast.success("Account created");
     navigate("/dashboard", { replace: true });
   };
@@ -162,13 +97,13 @@ const Signup = () => {
       <div className="hidden lg:flex flex-col justify-between p-12 bg-ink relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-transparent" />
         <Link to="/" className="relative flex items-center gap-3">
-          <img src={logoLight} alt="RTG Media" className="h-10 " />
+          <img src={logoLight} alt="RTG Media" className="h-10" />
         </Link>
         <div className="relative">
           <div className="eyebrow text-primary mb-3">Join the studio</div>
           <h1 className="font-display text-5xl uppercase leading-none">Build the next<br/>chapter with us.</h1>
           <p className="text-muted-foreground mt-6 max-w-md">
-            You've been invited. Your access will be applied automatically after signup.
+            Enter your signup code to create your account. An admin will assign your role after signup.
           </p>
         </div>
         <div className="relative text-xs text-muted-foreground uppercase tracking-widest">© RTG Media — Chicago</div>
@@ -177,103 +112,69 @@ const Signup = () => {
       <div className="flex items-center justify-center p-8">
         <form onSubmit={onSubmit} noValidate className="w-full max-w-sm space-y-6">
           <div className="lg:hidden flex justify-center mb-4">
-            <img src={logoLight} alt="RTG" className="h-10 " />
+            <img src={logoLight} alt="RTG" className="h-10" />
           </div>
           <div>
             <div className="eyebrow text-primary">Create account</div>
-            <h2 className="font-display text-3xl uppercase mt-1">Accept Invitation</h2>
+            <h2 className="font-display text-3xl uppercase mt-1">Staff Signup</h2>
           </div>
 
-          {inviteLoading && (
-            <div className="text-xs text-muted-foreground uppercase tracking-widest">Validating invite…</div>
-          )}
-
-          {inviteError && (
-            <div className="border border-destructive/40 bg-destructive/10 rounded-sm p-3 text-xs text-destructive">
-              {inviteError}
+          {/* Signup code section */}
+          <div className="border border-border rounded-sm p-4 space-y-3 bg-surface/30">
+            <div>
+              <h3 className="font-display text-base uppercase tracking-widest">Signup code</h3>
+              <p className="text-xs text-muted-foreground mt-1">
+                Enter the code provided by your admin to unlock account creation.
+              </p>
             </div>
-          )}
-
-          {/* Backup invite code section — always visible when no valid token-loaded invite */}
-          {!invite && (
-            <div className="border border-border rounded-sm p-4 space-y-3 bg-surface/30">
-              <div>
-                <h3 className="font-display text-base uppercase tracking-widest">Invite link not working?</h3>
-                <p className="text-xs text-muted-foreground mt-1">Enter your staff invite code below.</p>
-              </div>
-              <div className="flex gap-2">
-                <Input
-                  value={staffCode}
-                  onChange={(e) => { setStaffCode(e.target.value.toUpperCase()); setStaffCodeInvite(null); setStaffCodeError(null); }}
-                  placeholder="Staff invite code"
-                  className="h-10 rounded-sm uppercase tracking-widest text-xs"
-                />
-                <Button type="button" onClick={checkStaffCode} disabled={staffCodeChecking} className="h-10 rounded-sm uppercase tracking-widest text-[10px] bg-primary text-primary-foreground whitespace-nowrap">
-                  {staffCodeChecking ? "…" : "Validate Code"}
-                </Button>
-              </div>
-              {staffCodeError && <div className="text-[11px] text-destructive">{staffCodeError}</div>}
-              {staffCodeInvite && <div className="text-[11px] text-emerald-400">Code valid — finish signup below.</div>}
+            <div className="flex gap-2">
+              <Input
+                value={signupCode}
+                onChange={(e) => { setSignupCode(e.target.value.toUpperCase()); setCodeAccepted(false); setCodeError(null); setCodeLabel(null); }}
+                placeholder="Signup code"
+                className="h-10 rounded-sm uppercase tracking-widest text-xs"
+                disabled={codeAccepted}
+              />
+              <Button
+                type="button"
+                onClick={validateCode}
+                disabled={validating || codeAccepted}
+                className="h-10 rounded-sm uppercase tracking-widest text-[10px] bg-primary text-primary-foreground whitespace-nowrap"
+              >
+                {validating ? "…" : codeAccepted ? "Accepted" : "Validate Code"}
+              </Button>
             </div>
-          )}
-
-          {activeInvite && (
-            <div className="border border-primary/30 bg-primary/5 rounded-sm p-4 space-y-2">
-              <div className="text-[9px] uppercase tracking-[0.3em] text-primary">Invitation</div>
-              <div className="text-sm">
-                <span className="text-muted-foreground">Type: </span>
-                <span className="uppercase tracking-widest text-xs">{activeInvite.invite_type}</span>
+            {codeError && !codeAccepted && (
+              <div className="border border-destructive/40 bg-destructive/10 rounded-sm p-2 text-[11px] text-destructive">
+                {codeError}
               </div>
-              {activeInvite.internal_title && (
-                <div className="text-sm">
-                  <span className="text-muted-foreground">Title: </span>
-                  <span>{activeInvite.internal_title}</span>
+            )}
+            {codeAccepted && (
+              <div className="flex items-start gap-2 border border-emerald-500/30 bg-emerald-500/10 rounded-sm p-2 text-[11px] text-emerald-300">
+                <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                <div>
+                  Code accepted. Complete your account below.
+                  {codeLabel && <div className="text-emerald-400/70 mt-0.5">Code: {codeLabel}</div>}
                 </div>
-              )}
-              {activeInvite.roles.length > 0 && (
-                <div className="text-xs flex flex-wrap gap-1 pt-1">
-                  {activeInvite.roles.map((r) => (
-                    <span key={r} className="px-1.5 py-0.5 bg-background border border-border rounded-sm uppercase tracking-widest text-[9px]">
-                      {ROLE_LABELS[r as keyof typeof ROLE_LABELS] ?? r}
-                    </span>
-                  ))}
-                </div>
-              )}
-              {activeInvite.invited_by_name && (
-                <div className="text-[11px] text-muted-foreground pt-1">
-                  Invited by <span className="text-foreground">{activeInvite.invited_by_name}</span>
-                </div>
-              )}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
 
           <div className="space-y-4">
             <div>
               <Label className="eyebrow mb-2 block">Full name</Label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} required className="h-11 rounded-sm" />
+              <Input value={name} onChange={(e) => setName(e.target.value)} className="h-11 rounded-sm" />
             </div>
             <div>
               <Label className="eyebrow mb-2 block">Email</Label>
-              <Input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                readOnly={emailLocked}
-                className={`h-11 rounded-sm ${emailLocked ? "bg-surface/40 cursor-not-allowed" : ""}`}
-              />
-              {emailLocked && (
-                <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-widest">
-                  Locked to invited address
-                </p>
-              )}
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="h-11 rounded-sm" />
             </div>
             <div>
               <Label className="eyebrow mb-2 block">Password</Label>
-              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="h-11 rounded-sm" />
-              <p className="text-xs text-muted-foreground mt-1">Min 8 characters. Checked against known breached passwords.</p>
+              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="h-11 rounded-sm" />
+              <p className="text-xs text-muted-foreground mt-1">Min 8 characters.</p>
             </div>
-            {!inviteToken && !staffCodeInvite && (
+            {!codeAccepted && (
               <div>
                 <Label className="eyebrow mb-2 block">Admin Invite Code (optional)</Label>
                 <Input value={adminCode} onChange={(e) => setAdminCode(e.target.value.toUpperCase())} className="h-11 rounded-sm uppercase tracking-widest" placeholder="XXXX-XXXX-XXXX-XXXX" />
@@ -284,7 +185,7 @@ const Signup = () => {
 
           <Button
             type="submit"
-            disabled={busy || (!!inviteToken && (inviteLoading || !!inviteError || !invite)) || (!invite && !staffCodeInvite && !adminCode)}
+            disabled={busy || !canSubmit}
             className="w-full h-11 rounded-sm uppercase tracking-widest text-xs bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {busy ? "Creating…" : "Accept & Create Account"}
