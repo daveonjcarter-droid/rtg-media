@@ -185,6 +185,8 @@ export default function InvitesManager() {
     const isNew = !editing.id;
     const token = editing.invite_token ?? generateInviteToken();
     const inviteUrl = buildInviteUrl(token, email);
+    const inviteCode = editing.invite_code ?? generateBackupCode();
+    const expiresAt = editing.expires_at ?? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     const payload: any = {
       email,
       full_name: editing.full_name?.trim() || null,
@@ -200,6 +202,8 @@ export default function InvitesManager() {
       invited_by: user?.id,
       invite_token: token,
       invite_url: inviteUrl,
+      invite_code: inviteCode,
+      expires_at: expiresAt,
     };
     if (isNew) {
       payload.email_delivery_status = "pending";
@@ -223,6 +227,8 @@ export default function InvitesManager() {
         internalTitle: editing.internal_title?.trim() || null,
         reportsToName: supervisorName,
         inviteUrl,
+        inviteCode,
+        expiresAt,
       });
       if (result.ok) toast.success("Invite sent");
       else toast.error("Invite saved, but email failed to send.", { description: result.error });
@@ -235,8 +241,16 @@ export default function InvitesManager() {
   const resend = async (inv: Invite) => {
     const token = inv.invite_token ?? generateInviteToken();
     const inviteUrl = inv.invite_url ?? buildInviteUrl(token, inv.email);
-    if (!inv.invite_token || !inv.invite_url) {
-      await supabase.from("invited_users" as any).update({ invite_token: token, invite_url: inviteUrl }).eq("id", inv.id);
+    const inviteCode = inv.invite_code ?? generateBackupCode();
+    const expiresAt = inv.expires_at && new Date(inv.expires_at) > new Date()
+      ? inv.expires_at
+      : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const patch: any = {};
+    if (!inv.invite_token || !inv.invite_url) { patch.invite_token = token; patch.invite_url = inviteUrl; }
+    if (!inv.invite_code) patch.invite_code = inviteCode;
+    if (expiresAt !== inv.expires_at) patch.expires_at = expiresAt;
+    if (Object.keys(patch).length) {
+      await supabase.from("invited_users" as any).update(patch).eq("id", inv.id);
     }
     const supervisorName = profiles.find((p) => p.id === inv.reports_to)?.display_name ?? null;
     const result = await sendInviteEmail(inv.id, {
@@ -247,6 +261,8 @@ export default function InvitesManager() {
       internalTitle: inv.internal_title,
       reportsToName: supervisorName,
       inviteUrl,
+      inviteCode,
+      expiresAt,
     });
     if (result.ok) toast.success("Invite resent");
     else toast.error("Email failed to send.", { description: result.error });
@@ -264,11 +280,31 @@ export default function InvitesManager() {
     }
   };
 
-  const revoke = async (id: string) => {
-    if (!confirm("Revoke this invite? The link will stop working.")) return;
-    const newToken = generateInviteToken(); // rotate so old URL is dead
+  const copyCode = async (inv: Invite) => {
+    if (!inv.invite_code) { toast.error("No backup code yet — regenerate first."); return; }
+    try {
+      await navigator.clipboard.writeText(inv.invite_code);
+      toast.success("Backup invite code copied");
+    } catch {
+      toast.error("Couldn't copy — copy manually:", { description: inv.invite_code });
+    }
+  };
+
+  const regenerateCode = async (inv: Invite) => {
+    const newCode = generateBackupCode();
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     const { error } = await supabase.from("invited_users" as any)
-      .update({ status: "disabled", invite_token: newToken, invite_url: null })
+      .update({ invite_code: newCode, expires_at: expiresAt }).eq("id", inv.id);
+    if (error) return toast.error(error.message);
+    toast.success("New backup code generated");
+    load();
+  };
+
+  const revoke = async (id: string) => {
+    if (!confirm("Revoke this invite? The link and code will stop working.")) return;
+    const newToken = generateInviteToken();
+    const { error } = await supabase.from("invited_users" as any)
+      .update({ status: "disabled", invite_token: newToken, invite_url: null, invite_code: null })
       .eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Invite revoked"); load();
