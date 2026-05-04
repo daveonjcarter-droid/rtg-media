@@ -23,6 +23,7 @@ import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
 import StaffCodeSignup from "./pages/StaffCodeSignup.tsx";
 import StaffApprovals from "./pages/StaffApprovals.tsx";
+import ClientPortal from "./pages/ClientPortal.tsx";
 import Apply from "./pages/Apply.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -69,6 +70,8 @@ const App = () => (
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/dashboard/:section" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/staff-approvals" element={<ProtectedRoute><StaffApprovals /></ProtectedRoute>} />
+              <Route path="/portal" element={<ClientPortal />} />
+              <Route path="/portal/:tab" element={<ClientPortal />} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>
