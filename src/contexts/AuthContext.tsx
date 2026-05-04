@@ -50,7 +50,7 @@ type AuthContextValue = {
   roles: AppRole[];
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string, displayName: string, adminInviteCode?: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, displayName: string, adminInviteCode?: string, staffInviteCode?: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   hasRole: (role: AppRole) => boolean;
   refreshRoles: () => Promise<void>;
