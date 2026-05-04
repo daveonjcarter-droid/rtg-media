@@ -578,6 +578,7 @@ const Dashboard = () => {
             {section === "profile-management" && <ProfileManagement />}
             {section === "admin-invites" && <AdminInvitesManager />}
             {section === "signup-codes" && <SignupCodesManager />}
+            {section === "staff-approvals" && <StaffApprovalsSection />}
             {section === "role-management" && <RoleManagementSection isHeadAdmin={isHeadAdmin(roles)} />}
             {section === "my-profile" && <CrewProfilePanel />}
             {section === "my-availability" && <MyAvailabilitySection />}
