@@ -90,7 +90,7 @@ const Signup = () => {
       setInviteError(null);
       const { error, inv } = await loadInviteRow("invite_token", inviteToken);
       if (cancelled) return;
-      if (error || !inv) { setInviteError(error || INVALID_INVITE_MSG); setInviteLoading(false); return; }
+      if (error || !inv) { setInviteError(error || INVALID_INVITE_MSG); setShowStaffCode(true); setInviteLoading(false); return; }
       setInvite(inv);
       setEmail(inv.email);
       if (inv.full_name) setName(inv.full_name);
@@ -205,7 +205,7 @@ const Signup = () => {
       </div>
 
       <div className="flex items-center justify-center p-8">
-        <form onSubmit={onSubmit} className="w-full max-w-sm space-y-6">
+        <form onSubmit={onSubmit} noValidate className="w-full max-w-sm space-y-6">
           <div className="lg:hidden flex justify-center mb-4">
             <img src={logoLight} alt="RTG" className="h-10 " />
           </div>
