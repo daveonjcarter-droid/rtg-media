@@ -21,6 +21,7 @@ import Fest from "./pages/Fest.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
+import StaffCodeSignup from "./pages/StaffCodeSignup.tsx";
 import Apply from "./pages/Apply.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -60,6 +61,7 @@ const App = () => (
               {/* Auth */}
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/staff-code-signup" element={<StaffCodeSignup />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
 
               {/* Private */}
