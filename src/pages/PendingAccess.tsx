@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Clock, LogOut, RefreshCw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import logoLight from "@/assets/rtg-logo-light.png";
 
 const PendingAccess = () => {
@@ -18,6 +20,22 @@ const PendingAccess = () => {
   const handleRefresh = async () => {
     setRefreshing(true);
     await refreshRoles();
+    if (user?.id) {
+      const { data } = await supabase
+        .from("profile_meta")
+        .select("role_type, status")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (data && data.role_type && data.role_type !== "pending_staff") {
+        if (data.role_type === "rejected_staff" || data.status === "rejected") {
+          toast.error("Your staff request was not approved.");
+        } else {
+          navigate("/dashboard", { replace: true });
+        }
+      } else {
+        toast("Your access is still pending admin approval.");
+      }
+    }
     setRefreshing(false);
   };
 
