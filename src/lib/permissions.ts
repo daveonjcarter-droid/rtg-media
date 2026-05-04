@@ -91,6 +91,7 @@ export const ROLE_DESCRIPTIONS: Record<AppRole, string> = {
   booking_manager: "Sales and inquiries. Manage clients and bookings.",
   media_manager: "Asset library. Upload and manage all media.",
   social_articles_lead: "Lead for social + editorial. Combines Social Manager + Editor + analytics access.",
+  project_manager: "High-trust operator. Manages projects, tasks, bookings, crew, calendar, and content drafts. All actions audited.",
   crew: "Production crew. Manage own profile, availability, and assigned bookings.",
   photographer: "Crew — Photography assignments and portfolio.",
   videographer: "Crew — Video capture assignments and reel.",
