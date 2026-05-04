@@ -1199,9 +1199,11 @@ export type Database = {
           email_delivery_status: string
           email_error: string | null
           email_sent_at: string | null
+          expires_at: string | null
           full_name: string | null
           id: string
           internal_title: string | null
+          invite_code: string | null
           invite_token: string | null
           invite_type: string
           invite_url: string | null
@@ -1223,9 +1225,11 @@ export type Database = {
           email_delivery_status?: string
           email_error?: string | null
           email_sent_at?: string | null
+          expires_at?: string | null
           full_name?: string | null
           id?: string
           internal_title?: string | null
+          invite_code?: string | null
           invite_token?: string | null
           invite_type?: string
           invite_url?: string | null
@@ -1247,9 +1251,11 @@ export type Database = {
           email_delivery_status?: string
           email_error?: string | null
           email_sent_at?: string | null
+          expires_at?: string | null
           full_name?: string | null
           id?: string
           internal_title?: string | null
+          invite_code?: string | null
           invite_token?: string | null
           invite_type?: string
           invite_url?: string | null
@@ -2110,6 +2116,7 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      generate_invite_code: { Args: never; Returns: string }
       get_user_roles: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]

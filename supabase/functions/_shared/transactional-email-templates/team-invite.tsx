@@ -24,6 +24,7 @@ interface TeamInviteProps {
   internalTitle?: string | null
   reportsToName?: string | null
   inviteUrl?: string
+  inviteCode?: string | null
   expiresAt?: string
 }
 
@@ -38,32 +39,20 @@ const TeamInviteEmail = ({
   roles = [],
   internalTitle,
   reportsToName,
-  inviteUrl = '#',
+  inviteUrl = 'https://runnerstogreatness.com/signup',
+  inviteCode,
   expiresAt,
 }: TeamInviteProps) => {
   const firstName = fullName ? fullName.trim().split(/\s+/)[0] : ''
-  const greeting = firstName ? `Welcome, ${firstName}.` : 'Welcome to RTG Media.'
+  const greeting = firstName ? `Welcome, ${firstName}.` : "You've Been Invited."
 
+  const hasRoles = roles.length > 0
   const hasMultipleRoles = roles.length > 1
-  const roleIntro = internalTitle
-    ? `You've been invited to join RTG Media in the role of ${internalTitle}.`
-    : hasMultipleRoles
-      ? "You've been granted access to the following areas:"
-      : roles.length === 1
-        ? `You've been invited to join RTG Media in the role of ${formatRole(roles[0])}.`
-        : "You've been invited to join the RTG Media team."
-
-  const typeBlurb =
-    inviteType === 'crew'
-      ? "You'll complete a crew profile, set your availability, upload portfolio work, and respond to booking requests assigned to you."
-      : inviteType === 'hybrid'
-        ? "You'll have access to RTG Media's Studio Dashboard and a public crew profile — manage your tools, content, availability, and portfolio in one place."
-        : "You'll have access to RTG Media's Studio Dashboard, where you can manage your tools, content, and assignments."
 
   return (
     <Html lang="en" dir="ltr">
       <Head />
-      <Preview>You've been invited to join {SITE_NAME}</Preview>
+      <Preview>You've Been Invited to Join {SITE_NAME}</Preview>
       <Body style={main}>
         <Container style={container}>
           {/* Header */}
@@ -74,27 +63,24 @@ const TeamInviteEmail = ({
 
           <Section style={cardOuter}>
             <Heading style={h1}>{greeting}</Heading>
-            <Text style={lede}>{roleIntro}</Text>
+            <Text style={lede}>
+              You've been invited to join the {SITE_NAME} team. Click the link below to create
+              your staff account and complete your profile.
+            </Text>
 
-            {hasMultipleRoles && !internalTitle && (
+            {(internalTitle || hasRoles) && (
               <Section style={accessBlock}>
-                <Text style={accessLabel}>ASSIGNED ACCESS</Text>
-                {roles.map((r, i) => (
-                  <Text key={i} style={bullet}>
-                    <span style={bulletDot}>•</span> {formatRole(r)}
-                  </Text>
-                ))}
-              </Section>
-            )}
-
-            {internalTitle && roles.length > 0 && (
-              <Section style={accessBlock}>
-                <Text style={accessLabel}>ASSIGNED ACCESS</Text>
-                {roles.map((r, i) => (
-                  <Text key={i} style={bullet}>
-                    <span style={bulletDot}>•</span> {formatRole(r)}
-                  </Text>
-                ))}
+                <Text style={accessLabel}>YOUR ROLE</Text>
+                {internalTitle && <Text style={bullet}><span style={bulletDot}>•</span> {internalTitle}</Text>}
+                {hasMultipleRoles
+                  ? roles.map((r, i) => (
+                      <Text key={i} style={bullet}>
+                        <span style={bulletDot}>•</span> {formatRole(r)}
+                      </Text>
+                    ))
+                  : !internalTitle && hasRoles && (
+                      <Text style={bullet}><span style={bulletDot}>•</span> {formatRole(roles[0])}</Text>
+                    )}
               </Section>
             )}
 
@@ -105,14 +91,13 @@ const TeamInviteEmail = ({
               </Text>
             )}
 
-            <Text style={text}>{typeBlurb}</Text>
-
-            <Section style={{ textAlign: 'center', margin: '36px 0 12px' }}>
+            <Section style={{ textAlign: 'center', margin: '32px 0 12px' }}>
+              <Text style={{ ...accessLabel, textAlign: 'center', margin: '0 0 12px' }}>CREATE YOUR ACCOUNT</Text>
               <Button style={button} href={inviteUrl}>
                 ACCEPT INVITATION
               </Button>
               <Text style={buttonSub}>
-                This link will take you to your secure signup page.
+                Opens your secure RTG Media signup page.
               </Text>
             </Section>
 
@@ -122,11 +107,28 @@ const TeamInviteEmail = ({
               <span style={{ color: '#e11d2e', wordBreak: 'break-all' }}>{inviteUrl}</span>
             </Text>
 
+            {inviteCode && (
+              <Section style={codeBlock}>
+                <Text style={codeLabel}>BACKUP INVITE CODE</Text>
+                <Text style={codeValue}>{inviteCode}</Text>
+                <Text style={codeHelp}>
+                  If the link above doesn't work, go to{' '}
+                  <span style={{ color: '#e11d2e' }}>runnerstogreatness.com/signup</span> and
+                  enter this code manually. The code is single-use and tied to this email.
+                </Text>
+              </Section>
+            )}
+
             {expiresAt && (
               <Text style={smallText}>
-                This invitation expires on <strong style={{ color: '#f5f5f5' }}>{expiresAt}</strong>.
+                This invitation expires on{' '}
+                <strong style={{ color: '#f5f5f5' }}>{expiresAt}</strong>.
               </Text>
             )}
+
+            <Text style={smallText}>
+              If this invite was sent to you by mistake, you can ignore this email.
+            </Text>
           </Section>
 
           <Hr style={hr} />
@@ -134,7 +136,7 @@ const TeamInviteEmail = ({
           {/* Footer */}
           <Section style={footerWrap}>
             <Text style={footerBrand}>RTG MEDIA</Text>
-            <Text style={footerLine}>Runners To Greatness</Text>
+            <Text style={footerLine}>Runners to Greatness</Text>
             <Text style={footerLine}>Chicago, IL</Text>
             <Text style={footerMuted}>
               Questions? Reach the studio at{' '}
@@ -142,9 +144,6 @@ const TeamInviteEmail = ({
                 {SUPPORT_EMAIL}
               </a>
               .
-            </Text>
-            <Text style={footerMuted}>
-              If you didn't request this invite, you can ignore this email.
             </Text>
           </Section>
         </Container>
@@ -155,10 +154,7 @@ const TeamInviteEmail = ({
 
 export const template = {
   component: TeamInviteEmail,
-  subject: (data: Record<string, any>) =>
-    `You've been invited to join ${SITE_NAME}${
-      data?.internalTitle ? ` — ${data.internalTitle}` : ''
-    }`,
+  subject: () => `You've Been Invited to Join ${SITE_NAME}`,
   displayName: 'Team invitation',
   previewData: {
     fullName: 'Trinity',
@@ -167,6 +163,7 @@ export const template = {
     internalTitle: 'Head of Social Media / Articles Lead',
     reportsToName: 'Brendyn Shields',
     inviteUrl: 'https://runnerstogreatness.com/signup?invite_token=sample',
+    inviteCode: 'ABCD-EFGH-JKLM',
     expiresAt: 'May 14, 2026',
   },
 } satisfies TemplateEntry
@@ -316,4 +313,32 @@ const footerMuted: React.CSSProperties = {
   color: '#737373',
   margin: '14px 0 0',
   lineHeight: 1.6,
+}
+const codeBlock: React.CSSProperties = {
+  border: '1px solid #2a2a2a',
+  backgroundColor: '#0a0a0a',
+  borderLeft: '3px solid #e11d2e',
+  padding: '18px 20px',
+  margin: '24px 0 16px',
+}
+const codeLabel: React.CSSProperties = {
+  fontSize: '10px',
+  letterSpacing: '0.22em',
+  color: '#e11d2e',
+  fontWeight: 700,
+  margin: '0 0 8px',
+}
+const codeValue: React.CSSProperties = {
+  fontSize: '20px',
+  fontFamily: 'ui-monospace, Menlo, Consolas, monospace',
+  color: '#ffffff',
+  letterSpacing: '0.08em',
+  fontWeight: 700,
+  margin: '0 0 10px',
+}
+const codeHelp: React.CSSProperties = {
+  fontSize: '11px',
+  color: '#a3a3a3',
+  lineHeight: 1.55,
+  margin: 0,
 }
