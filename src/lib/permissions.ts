@@ -39,6 +39,8 @@ export type SectionId =
   | "portfolio-approvals"
   | "profile-management"
   | "admin-invites"
+  | "signup-codes"
+  | "role-management"
   | "availability"
   | "audit";
 
@@ -142,6 +144,8 @@ export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
   "my-portfolio":      ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
   "profile-management": [HEAD, "admin", "owner", "co_ceo"],
   "admin-invites":      [HEAD, "admin", "owner", "co_ceo"],
+  "signup-codes":       [HEAD, "admin", "owner", "co_ceo"],
+  "role-management":    [HEAD, "owner", "co_ceo"],
   availability:         [HEAD, "admin", "owner", "co_ceo", "editor", "booking_manager"],
   audit:                [HEAD, "owner", "co_ceo"],
 };
