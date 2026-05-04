@@ -156,6 +156,10 @@ export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
   "role-management":    [HEAD, "owner", "co_ceo"],
   availability:         [HEAD, "admin", "owner", "co_ceo", "editor", "booking_manager", "project_manager"],
   audit:                [HEAD, "owner", "co_ceo"],
+  projects:             [HEAD, "admin", "owner", "co_ceo", "editor", "booking_manager", "project_manager"],
+  tasks:                [HEAD, "admin", "owner", "co_ceo", "editor", "writer", "journalist", "social_manager", "social_articles_lead", "booking_manager", "media_manager", "designer", "project_manager", "crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
+  deadlines:            [HEAD, "admin", "owner", "co_ceo", "editor", "booking_manager", "project_manager", "social_articles_lead"],
+  "pm-dashboard":       [HEAD, "admin", "owner", "co_ceo", "project_manager"],
 };
 
 export const OWNERSHIP_ONLY: SectionId[] = [];
