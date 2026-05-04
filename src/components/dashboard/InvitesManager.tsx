@@ -137,6 +137,8 @@ export default function InvitesManager() {
     internalTitle: string | null;
     reportsToName: string | null;
     inviteUrl: string;
+    inviteCode: string | null;
+    expiresAt: string | null;
   }) => {
     try {
       const { error } = await supabase.functions.invoke("send-transactional-email", {
@@ -151,6 +153,10 @@ export default function InvitesManager() {
             internalTitle: opts.internalTitle,
             reportsToName: opts.reportsToName,
             inviteUrl: opts.inviteUrl,
+            inviteCode: opts.inviteCode ?? undefined,
+            expiresAt: opts.expiresAt
+              ? new Date(opts.expiresAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+              : undefined,
           },
         },
       });
