@@ -205,7 +205,7 @@ const Signup = () => {
       </div>
 
       <div className="flex items-center justify-center p-8">
-        <form onSubmit={onSubmit} className="w-full max-w-sm space-y-6">
+        <form onSubmit={onSubmit} noValidate className="w-full max-w-sm space-y-6">
           <div className="lg:hidden flex justify-center mb-4">
             <img src={logoLight} alt="RTG" className="h-10 " />
           </div>
