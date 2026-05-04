@@ -66,6 +66,7 @@ const StaffCodeSignup = () => {
     const parsed = schema.safeParse({ name, email, password });
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     setBusy(true);
+    console.log("Creating auth user...");
     const { error } = await signUp(
       parsed.data.email,
       parsed.data.password,
@@ -74,8 +75,28 @@ const StaffCodeSignup = () => {
       undefined,
       code.trim(),
     );
+    if (error) {
+      setBusy(false);
+      console.error("Auth signup error:", error);
+      const msg = /already|registered|exists/i.test(error)
+        ? "Email already in use or invalid."
+        : error;
+      toast.error(msg);
+      return;
+    }
+    // Confirm session/profile created by trigger
+    const { data: sess } = await supabase.auth.getUser();
+    console.log("Auth success:", sess.user?.id);
+    console.log("Creating profile...");
+    if (sess.user?.id) {
+      // Profile is auto-created by handle_new_user trigger; verify and log
+      const { error: pErr } = await supabase
+        .from("profiles")
+        .upsert({ id: sess.user.id, display_name: parsed.data.name }, { onConflict: "id" });
+      if (pErr) console.error("Database profile insert error:", pErr);
+      else console.log("Profile created");
+    }
     setBusy(false);
-    if (error) { toast.error(error); return; }
     toast.success("Account created. Pending role approval.");
     navigate("/dashboard", { replace: true });
   };
