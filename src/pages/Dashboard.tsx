@@ -30,6 +30,9 @@ import CommandCenterOverview from "@/components/dashboard/sections/CommandCenter
 import AuditLogSection from "@/components/dashboard/sections/AuditLogSection";
 import GlobalSearch from "@/components/dashboard/GlobalSearch";
 import NotificationsBell from "@/components/dashboard/NotificationsBell";
+import PendingAccess from "@/pages/PendingAccess";
+import SignupCodesManager from "@/components/dashboard/SignupCodesManager";
+import RoleManagementSection from "@/components/dashboard/RoleManagementSection";
 import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -172,9 +175,14 @@ const STATUS_LABEL: Record<Status, string> = {
 };
 
 const Dashboard = () => {
-  const { user, roles, signOut, hasRole } = useAuth();
+  const { user, roles, signOut, hasRole, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { section: urlSection } = useParams<{ section?: string }>();
+
+  // Pending Access gate — user signed in but no roles assigned yet
+  if (!authLoading && user && roles.length === 0) {
+    return <PendingAccess />;
+  }
   // "my-profile" is available to every signed-in user — profiles are default, roles control extras.
   const navItems = useMemo(
     () => ALL_NAV.filter((n) => n.id === "my-profile" || can(roles, n.id)),
