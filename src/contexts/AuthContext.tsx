@@ -17,6 +17,7 @@ export type AppRole =
   | "booking_manager"
   | "media_manager"
   | "social_articles_lead"
+  | "project_manager"
   | "crew"
   | "photographer"
   | "videographer"

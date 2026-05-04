@@ -62,6 +62,7 @@ export const ROLE_LABELS: Record<AppRole, string> = {
   booking_manager: "Booking Manager",
   media_manager: "Media Manager",
   social_articles_lead: "Social / Articles Lead",
+  project_manager: "Project Manager",
   crew: "Crew",
   photographer: "Photographer",
   videographer: "Videographer",
