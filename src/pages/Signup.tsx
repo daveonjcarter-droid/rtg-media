@@ -189,15 +189,8 @@ const Signup = () => {
           )}
 
           {inviteError && (
-            <div className="border border-destructive/40 bg-destructive/10 rounded-sm p-3 text-xs text-destructive space-y-2">
-              <div>{inviteError}</div>
-              <button
-                type="button"
-                onClick={() => setShowStaffCode(true)}
-                className="underline uppercase tracking-widest text-[10px]"
-              >
-                Have a backup invite code? Enter it below.
-              </button>
+            <div className="border border-destructive/40 bg-destructive/10 rounded-sm p-3 text-xs text-destructive">
+              {inviteError}
             </div>
           )}
 
