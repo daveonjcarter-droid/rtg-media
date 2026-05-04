@@ -2292,6 +2292,7 @@ export type Database = {
         | "designer"
         | "intern"
         | "client"
+        | "project_manager"
       application_experience:
         | "none"
         | "beginner"
@@ -2503,6 +2504,7 @@ export const Constants = {
         "designer",
         "intern",
         "client",
+        "project_manager",
       ],
       application_experience: [
         "none",
