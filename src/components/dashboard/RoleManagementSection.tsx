@@ -16,7 +16,7 @@ import type { AppRole } from "@/contexts/AuthContext";
 import { logActivity } from "@/lib/activity";
 
 const DEFAULT_JOB_ROLES: AppRole[] = [
-  "head_admin", "admin", "booking_manager", "journalist",
+  "head_admin", "admin", "project_manager", "booking_manager", "journalist",
   "photographer", "videographer", "editor", "social_manager",
   "designer", "crew",
 ];
