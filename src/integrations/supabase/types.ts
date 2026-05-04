@@ -1323,6 +1323,45 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          kind: string
+          link_url: string | null
+          read_at: string | null
+          related_id: string | null
+          related_type: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          link_url?: string | null
+          read_at?: string | null
+          related_id?: string | null
+          related_type?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          link_url?: string | null
+          read_at?: string | null
+          related_id?: string | null
+          related_type?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       page_views: {
         Row: {
           article_id: string | null
@@ -1513,6 +1552,119 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      project_tasks: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: Database["public"]["Enums"]["project_priority"]
+          project_id: string | null
+          related_article_id: string | null
+          related_booking_id: string | null
+          status: Database["public"]["Enums"]["task_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["project_priority"]
+          project_id?: string | null
+          related_article_id?: string | null
+          related_booking_id?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: Database["public"]["Enums"]["project_priority"]
+          project_id?: string | null
+          related_article_id?: string | null
+          related_booking_id?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          assigned_user_ids: string[]
+          created_at: string
+          created_by: string
+          description: string | null
+          due_date: string | null
+          id: string
+          notes: string | null
+          priority: Database["public"]["Enums"]["project_priority"]
+          project_manager_id: string | null
+          related_article_id: string | null
+          related_booking_id: string | null
+          status: Database["public"]["Enums"]["project_status"]
+          title: string
+          type: Database["public"]["Enums"]["project_type"]
+          updated_at: string
+        }
+        Insert: {
+          assigned_user_ids?: string[]
+          created_at?: string
+          created_by: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          priority?: Database["public"]["Enums"]["project_priority"]
+          project_manager_id?: string | null
+          related_article_id?: string | null
+          related_booking_id?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
+          title: string
+          type?: Database["public"]["Enums"]["project_type"]
+          updated_at?: string
+        }
+        Update: {
+          assigned_user_ids?: string[]
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          priority?: Database["public"]["Enums"]["project_priority"]
+          project_manager_id?: string | null
+          related_article_id?: string | null
+          related_booking_id?: string | null
+          status?: Database["public"]["Enums"]["project_status"]
+          title?: string
+          type?: Database["public"]["Enums"]["project_type"]
           updated_at?: string
         }
         Relationships: []
@@ -2143,6 +2295,38 @@ export type Database = {
         }
         Relationships: []
       }
+      task_comments: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          task_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          task_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_comments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "project_tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_hierarchy: {
         Row: {
           internal_title: string | null
@@ -2219,6 +2403,18 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      fn_notify: {
+        Args: {
+          _body: string
+          _kind: string
+          _link: string
+          _related_id: string
+          _related_type: string
+          _title: string
+          _user_id: string
+        }
+        Returns: undefined
       }
       generate_invite_code: { Args: never; Returns: string }
       get_user_roles: {
@@ -2348,9 +2544,28 @@ export type Database = {
       contact_method: "email" | "phone" | "text"
       film_verdict: "recommended" | "mixed" | "not_recommended"
       lead_source: "booking" | "newsletter" | "advertise" | "contact" | "other"
+      project_priority: "low" | "normal" | "high" | "urgent"
+      project_status:
+        | "idea"
+        | "planning"
+        | "active"
+        | "editing"
+        | "review"
+        | "completed"
+        | "archived"
+      project_type:
+        | "article"
+        | "shoot"
+        | "music_video"
+        | "film"
+        | "event"
+        | "campaign"
+        | "client_booking"
+        | "internal"
       shoot_type: "studio" | "location" | "hybrid"
       social_platform: "instagram" | "tiktok" | "x" | "youtube"
       social_status: "draft" | "ready" | "posted" | "scheduled" | "archived"
+      task_status: "todo" | "in_progress" | "blocked" | "review" | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2567,9 +2782,30 @@ export const Constants = {
       contact_method: ["email", "phone", "text"],
       film_verdict: ["recommended", "mixed", "not_recommended"],
       lead_source: ["booking", "newsletter", "advertise", "contact", "other"],
+      project_priority: ["low", "normal", "high", "urgent"],
+      project_status: [
+        "idea",
+        "planning",
+        "active",
+        "editing",
+        "review",
+        "completed",
+        "archived",
+      ],
+      project_type: [
+        "article",
+        "shoot",
+        "music_video",
+        "film",
+        "event",
+        "campaign",
+        "client_booking",
+        "internal",
+      ],
       shoot_type: ["studio", "location", "hybrid"],
       social_platform: ["instagram", "tiktok", "x", "youtube"],
       social_status: ["draft", "ready", "posted", "scheduled", "archived"],
+      task_status: ["todo", "in_progress", "blocked", "review", "completed"],
     },
   },
 } as const

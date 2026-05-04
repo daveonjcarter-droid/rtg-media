@@ -34,6 +34,11 @@ import PendingAccess from "@/pages/PendingAccess";
 import SignupCodesManager from "@/components/dashboard/SignupCodesManager";
 import RoleManagementSection from "@/components/dashboard/RoleManagementSection";
 import StaffApprovalsSection from "@/components/dashboard/StaffApprovalsSection";
+import ProjectsSection from "@/components/dashboard/sections/ProjectsSection";
+import TasksSection from "@/components/dashboard/sections/TasksSection";
+import DeadlinesSection from "@/components/dashboard/sections/DeadlinesSection";
+import PMDashboardSection from "@/components/dashboard/sections/PMDashboardSection";
+import PersonalNotificationsBell from "@/components/dashboard/PersonalNotificationsBell";
 import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -128,6 +133,10 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "scheduled",         label: "Scheduled",        icon: Calendar,        group: "Content" },
   { id: "published",         label: "Published",        icon: CheckCircle2,    group: "Content" },
   { id: "archived",          label: "Archive",          icon: Archive,         group: "Content" },
+  { id: "pm-dashboard",      label: "PM Workload",      icon: LayoutDashboard, group: "Ops" },
+  { id: "projects",          label: "Projects",         icon: FileText,        group: "Ops" },
+  { id: "tasks",             label: "Tasks",            icon: CheckSquare,     group: "Ops" },
+  { id: "deadlines",         label: "Deadlines",        icon: Clock,           group: "Ops" },
   { id: "bookings",          label: "Bookings",         icon: Briefcase,       group: "Ops" },
   { id: "leads",             label: "Leads",            icon: Mail,            group: "Ops" },
   { id: "production",        label: "Production Services", icon: Camera,       group: "Ops" },
@@ -558,6 +567,10 @@ const Dashboard = () => {
               {section === "social" && <SocialKit articles={filtered(["published"])} />}
               {section === "bookings" && <BookingsDashboard />}
               {section === "leads" && <LeadsView />}
+              {section === "projects" && <ProjectsSection />}
+              {section === "tasks" && <TasksSection />}
+              {section === "deadlines" && <DeadlinesSection />}
+              {section === "pm-dashboard" && <PMDashboardSection />}
             {section === "users" && <UsersView />}
             {section === "invites" && <InvitesManager />}
             {section === "applicants" && <ApplicantsManager />}
