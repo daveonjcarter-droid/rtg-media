@@ -19,14 +19,15 @@ type PendingUser = {
 const APPROVABLE_ROLES: AppRole[] = [
   "editor", "journalist", "photographer", "videographer",
   "booking_manager", "social_manager", "media_manager", "designer",
-  "crew", "admin",
+  "project_manager", "crew", "admin",
 ];
 
 const ROLE_TO_META: Record<string, string> = {
   editor: "editor", journalist: "journalist", photographer: "photographer",
   videographer: "videographer", booking_manager: "booking_manager",
   social_manager: "social_manager", media_manager: "media_manager",
-  designer: "designer", crew: "crew", admin: "admin",
+  designer: "designer", project_manager: "project_manager",
+  crew: "crew", admin: "admin",
 };
 
 const StaffApprovalsSection = () => {
