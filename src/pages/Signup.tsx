@@ -90,7 +90,7 @@ const Signup = () => {
       setInviteError(null);
       const { error, inv } = await loadInviteRow("invite_token", inviteToken);
       if (cancelled) return;
-      if (error || !inv) { setInviteError(error || INVALID_INVITE_MSG); setInviteLoading(false); return; }
+      if (error || !inv) { setInviteError(error || INVALID_INVITE_MSG); setShowStaffCode(true); setInviteLoading(false); return; }
       setInvite(inv);
       setEmail(inv.email);
       if (inv.full_name) setName(inv.full_name);
