@@ -201,21 +201,22 @@ const Signup = () => {
             </div>
           )}
 
-          {/* Backup invite code section */}
-          {showStaffCode && !invite && (
-            <div className="border border-border rounded-sm p-3 space-y-2 bg-surface/30">
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                Having trouble with your invite link? Enter your staff invite code.
+          {/* Backup invite code section — always visible when no valid token-loaded invite */}
+          {!invite && (
+            <div className="border border-border rounded-sm p-4 space-y-3 bg-surface/30">
+              <div>
+                <h3 className="font-display text-base uppercase tracking-widest">Invite link not working?</h3>
+                <p className="text-xs text-muted-foreground mt-1">Enter your staff invite code below.</p>
               </div>
               <div className="flex gap-2">
                 <Input
                   value={staffCode}
                   onChange={(e) => { setStaffCode(e.target.value.toUpperCase()); setStaffCodeInvite(null); setStaffCodeError(null); }}
-                  placeholder="XXXX-XXXX-XXXX"
+                  placeholder="Staff invite code"
                   className="h-10 rounded-sm uppercase tracking-widest text-xs"
                 />
-                <Button type="button" onClick={checkStaffCode} disabled={staffCodeChecking} className="h-10 rounded-sm uppercase tracking-widest text-[10px] bg-primary text-primary-foreground">
-                  {staffCodeChecking ? "…" : "Verify"}
+                <Button type="button" onClick={checkStaffCode} disabled={staffCodeChecking} className="h-10 rounded-sm uppercase tracking-widest text-[10px] bg-primary text-primary-foreground whitespace-nowrap">
+                  {staffCodeChecking ? "…" : "Validate Code"}
                 </Button>
               </div>
               {staffCodeError && <div className="text-[11px] text-destructive">{staffCodeError}</div>}
