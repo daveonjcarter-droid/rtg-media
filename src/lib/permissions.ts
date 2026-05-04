@@ -43,7 +43,11 @@ export type SectionId =
   | "staff-approvals"
   | "role-management"
   | "availability"
-  | "audit";
+  | "audit"
+  | "projects"
+  | "tasks"
+  | "deadlines"
+  | "pm-dashboard";
 
 export type Group = "Overview" | "Content" | "Pipeline" | "Studio" | "Ops" | "Ecosystem" | "Admin" | "Crew" | "My Work";
 
