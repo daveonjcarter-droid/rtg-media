@@ -2233,6 +2233,7 @@ export type Database = {
         Returns: boolean
       }
       is_calendar_ops: { Args: { _uid: string }; Returns: boolean }
+      is_pm_or_admin: { Args: { _uid: string }; Returns: boolean }
       link_staff_profile_to_user: {
         Args: { _profile_id: string; _user_id: string }
         Returns: undefined
@@ -2292,6 +2293,7 @@ export type Database = {
         | "designer"
         | "intern"
         | "client"
+        | "project_manager"
       application_experience:
         | "none"
         | "beginner"
@@ -2503,6 +2505,7 @@ export const Constants = {
         "designer",
         "intern",
         "client",
+        "project_manager",
       ],
       application_experience: [
         "none",

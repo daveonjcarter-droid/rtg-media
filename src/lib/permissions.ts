@@ -62,6 +62,7 @@ export const ROLE_LABELS: Record<AppRole, string> = {
   booking_manager: "Booking Manager",
   media_manager: "Media Manager",
   social_articles_lead: "Social / Articles Lead",
+  project_manager: "Project Manager",
   crew: "Crew",
   photographer: "Photographer",
   videographer: "Videographer",
@@ -90,6 +91,7 @@ export const ROLE_DESCRIPTIONS: Record<AppRole, string> = {
   booking_manager: "Sales and inquiries. Manage clients and bookings.",
   media_manager: "Asset library. Upload and manage all media.",
   social_articles_lead: "Lead for social + editorial. Combines Social Manager + Editor + analytics access.",
+  project_manager: "High-trust operator. Manages projects, tasks, bookings, crew, calendar, and content drafts. All actions audited.",
   crew: "Production crew. Manage own profile, availability, and assigned bookings.",
   photographer: "Crew — Photography assignments and portfolio.",
   videographer: "Crew — Video capture assignments and reel.",
@@ -107,22 +109,22 @@ const HEAD = "head_admin" as const;
 
 /** Sections each role can access. head_admin sees everything. */
 export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
-  overview:           [HEAD, "admin", "editor", "writer", "social_manager", "booking_manager", "media_manager", "social_articles_lead"],
-  drafts:             [HEAD, "admin", "editor", "writer", "social_articles_lead"],
-  submitted:          [HEAD, "admin", "editor", "writer", "social_articles_lead"],
-  revisions:          [HEAD, "admin", "editor", "writer", "social_articles_lead"],
-  scheduled:          [HEAD, "admin", "editor", "writer", "social_manager", "social_articles_lead"],
-  published:          [HEAD, "admin", "editor", "writer", "social_manager", "social_articles_lead"],
+  overview:           [HEAD, "admin", "editor", "writer", "social_manager", "booking_manager", "media_manager", "social_articles_lead", "project_manager"],
+  drafts:             [HEAD, "admin", "editor", "writer", "social_articles_lead", "project_manager"],
+  submitted:          [HEAD, "admin", "editor", "writer", "social_articles_lead", "project_manager"],
+  revisions:          [HEAD, "admin", "editor", "writer", "social_articles_lead", "project_manager"],
+  scheduled:          [HEAD, "admin", "editor", "writer", "social_manager", "social_articles_lead", "project_manager"],
+  published:          [HEAD, "admin", "editor", "writer", "social_manager", "social_articles_lead", "project_manager"],
   archived:           [HEAD, "admin", "editor", "social_articles_lead"],
-  calendar:           [HEAD, "admin", "owner", "co_ceo", "editor", "writer", "journalist", "social_manager", "social_articles_lead", "booking_manager", "media_manager", "designer", "intern", "crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
-  media:              [HEAD, "admin", "editor", "writer", "media_manager", "social_manager", "social_articles_lead"],
+  calendar:           [HEAD, "admin", "owner", "co_ceo", "editor", "writer", "journalist", "social_manager", "social_articles_lead", "booking_manager", "media_manager", "designer", "intern", "project_manager", "crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
+  media:              [HEAD, "admin", "editor", "writer", "media_manager", "social_manager", "social_articles_lead", "project_manager"],
   import:             [HEAD, "admin", "editor", "writer", "social_articles_lead"],
-  social:             [HEAD, "admin", "editor", "social_manager", "social_articles_lead"],
-  bookings:           [HEAD, "admin", "editor", "booking_manager"],
-  leads:              [HEAD, "admin", "editor", "booking_manager"],
-  production:         [HEAD, "admin", "booking_manager"],
+  social:             [HEAD, "admin", "editor", "social_manager", "social_articles_lead", "project_manager"],
+  bookings:           [HEAD, "admin", "editor", "booking_manager", "project_manager"],
+  leads:              [HEAD, "admin", "editor", "booking_manager", "project_manager"],
+  production:         [HEAD, "admin", "booking_manager", "project_manager"],
   portfolio:          [HEAD, "admin", "editor", "media_manager"],
-  staff:              [HEAD, "admin", "editor", "booking_manager"],
+  staff:              [HEAD, "admin", "editor", "booking_manager", "project_manager"],
   films:              [HEAD, "admin", "editor"],
   fest:               [HEAD, "admin", "editor"],
   chicago:            [HEAD, "admin", "editor"],
@@ -137,10 +139,10 @@ export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
   community:          [HEAD, "admin", "editor", "social_manager", "social_articles_lead"],
   permissions:        [HEAD],
   settings:           [HEAD, "admin"],
-  crew:                [HEAD, "admin", "booking_manager"],
+  crew:                [HEAD, "admin", "booking_manager", "project_manager"],
   "portfolio-approvals": [HEAD, "admin", "editor", "media_manager"],
-  "my-profile":        [HEAD, "admin", "editor", "writer", "social_manager", "booking_manager", "media_manager", "social_articles_lead", "crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
-  "my-availability":   ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff", HEAD, "admin", "booking_manager"],
+  "my-profile":        [HEAD, "admin", "editor", "writer", "social_manager", "booking_manager", "media_manager", "social_articles_lead", "project_manager", "crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
+  "my-availability":   ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff", HEAD, "admin", "booking_manager", "project_manager"],
   "my-bookings":       ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
   "my-portfolio":      ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
   "profile-management": [HEAD, "admin", "owner", "co_ceo"],
@@ -148,7 +150,7 @@ export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
   "signup-codes":       [HEAD, "admin", "owner", "co_ceo"],
   "staff-approvals":    [HEAD, "admin", "owner", "co_ceo"],
   "role-management":    [HEAD, "owner", "co_ceo"],
-  availability:         [HEAD, "admin", "owner", "co_ceo", "editor", "booking_manager"],
+  availability:         [HEAD, "admin", "owner", "co_ceo", "editor", "booking_manager", "project_manager"],
   audit:                [HEAD, "owner", "co_ceo"],
 };
 
@@ -176,6 +178,6 @@ export const canManageBilling = (roles: AppRole[]) =>
   roles.includes("head_admin") || roles.includes("owner");
 
 export const primaryRole = (roles: AppRole[]): AppRole => {
-  const order: AppRole[] = ["owner", "co_ceo", "head_admin", "admin", "social_articles_lead", "editor", "journalist", "writer", "booking_manager", "social_manager", "media_manager", "designer", "producer", "crew", "intern", "client"];
+  const order: AppRole[] = ["owner", "co_ceo", "head_admin", "admin", "social_articles_lead", "editor", "journalist", "project_manager", "writer", "booking_manager", "social_manager", "media_manager", "designer", "producer", "crew", "intern", "client"];
   return order.find((r) => roles.includes(r)) ?? "client";
 };
