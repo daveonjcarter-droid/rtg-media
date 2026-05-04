@@ -116,46 +116,16 @@ const Signup = () => {
   const activeInvite = invite || staffCodeInvite;
   const emailLocked = useMemo(() => !!activeInvite, [activeInvite]);
 
-  // INVITE-ONLY: block when no token, no admin code, no staff code attempt
-  if (!inviteToken && !adminCodeParam && !adminCode && !showStaffCode) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-6">
-        <div className="w-full max-w-md text-center space-y-6">
-          <Link to="/" className="inline-flex">
-            <img src={logoLight} alt="RTG Media" className="h-12 mx-auto" />
-          </Link>
-          <div className="eyebrow text-primary">Access Restricted</div>
-          <h1 className="font-display text-3xl uppercase">Invite-only signup</h1>
-          <p className="text-sm text-muted-foreground">
-            RTG Media accounts are created by invitation only. Use the link from your invite email,
-            or enter a code below if you have one.
-          </p>
-          <div className="space-y-3 text-left">
-            <div>
-              <Label className="eyebrow">Admin Invite Code</Label>
-              <Input value={adminCode} onChange={(e) => setAdminCode(e.target.value.toUpperCase())} placeholder="XXXX-XXXX-XXXX-XXXX" className="h-11 rounded-sm uppercase tracking-widest mt-1" />
-            </div>
-            <div className="text-center text-[10px] uppercase tracking-widest text-muted-foreground">— or —</div>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowStaffCode(true)}
-              className="w-full h-11 rounded-sm uppercase tracking-widest text-xs"
-            >
-              Use staff invite code
-            </Button>
-          </div>
-          <div className="flex justify-center pt-2">
-            <Link to="/login" className="inline-block">
-              <Button className="h-11 rounded-sm uppercase tracking-widest text-xs bg-primary text-primary-foreground hover:bg-primary/90">
-                Sign in
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Always show backup code UI when there's no valid invite token loaded
+  const inviteInvalidOrMissing = !invite && (!inviteToken || !!inviteError);
+
+  useEffect(() => {
+    if (inviteInvalidOrMissing) {
+      setShowStaffCode(true);
+      // eslint-disable-next-line no-console
+      console.log("Backup invite code UI rendered");
+    }
+  }, [inviteInvalidOrMissing]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -219,33 +189,27 @@ const Signup = () => {
           )}
 
           {inviteError && (
-            <div className="border border-destructive/40 bg-destructive/10 rounded-sm p-3 text-xs text-destructive space-y-2">
-              <div>{inviteError}</div>
-              <button
-                type="button"
-                onClick={() => setShowStaffCode(true)}
-                className="underline uppercase tracking-widest text-[10px]"
-              >
-                Have a backup invite code? Enter it below.
-              </button>
+            <div className="border border-destructive/40 bg-destructive/10 rounded-sm p-3 text-xs text-destructive">
+              {inviteError}
             </div>
           )}
 
-          {/* Backup invite code section */}
-          {showStaffCode && !invite && (
-            <div className="border border-border rounded-sm p-3 space-y-2 bg-surface/30">
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                Having trouble with your invite link? Enter your staff invite code.
+          {/* Backup invite code section — always visible when no valid token-loaded invite */}
+          {!invite && (
+            <div className="border border-border rounded-sm p-4 space-y-3 bg-surface/30">
+              <div>
+                <h3 className="font-display text-base uppercase tracking-widest">Invite link not working?</h3>
+                <p className="text-xs text-muted-foreground mt-1">Enter your staff invite code below.</p>
               </div>
               <div className="flex gap-2">
                 <Input
                   value={staffCode}
                   onChange={(e) => { setStaffCode(e.target.value.toUpperCase()); setStaffCodeInvite(null); setStaffCodeError(null); }}
-                  placeholder="XXXX-XXXX-XXXX"
+                  placeholder="Staff invite code"
                   className="h-10 rounded-sm uppercase tracking-widest text-xs"
                 />
-                <Button type="button" onClick={checkStaffCode} disabled={staffCodeChecking} className="h-10 rounded-sm uppercase tracking-widest text-[10px] bg-primary text-primary-foreground">
-                  {staffCodeChecking ? "…" : "Verify"}
+                <Button type="button" onClick={checkStaffCode} disabled={staffCodeChecking} className="h-10 rounded-sm uppercase tracking-widest text-[10px] bg-primary text-primary-foreground whitespace-nowrap">
+                  {staffCodeChecking ? "…" : "Validate Code"}
                 </Button>
               </div>
               {staffCodeError && <div className="text-[11px] text-destructive">{staffCodeError}</div>}
@@ -309,18 +273,18 @@ const Signup = () => {
               <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="h-11 rounded-sm" />
               <p className="text-xs text-muted-foreground mt-1">Min 8 characters. Checked against known breached passwords.</p>
             </div>
-            {!inviteToken && !showStaffCode && (
+            {!inviteToken && !staffCodeInvite && (
               <div>
-                <Label className="eyebrow mb-2 block">Admin Invite Code</Label>
-                <Input value={adminCode} onChange={(e) => setAdminCode(e.target.value.toUpperCase())} required className="h-11 rounded-sm uppercase tracking-widest" placeholder="XXXX-XXXX-XXXX-XXXX" />
-                <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-widest">Required for admin/leadership access.</p>
+                <Label className="eyebrow mb-2 block">Admin Invite Code (optional)</Label>
+                <Input value={adminCode} onChange={(e) => setAdminCode(e.target.value.toUpperCase())} className="h-11 rounded-sm uppercase tracking-widest" placeholder="XXXX-XXXX-XXXX-XXXX" />
+                <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-widest">For admin/leadership access only.</p>
               </div>
             )}
           </div>
 
           <Button
             type="submit"
-            disabled={busy || (!!inviteToken && (inviteLoading || !!inviteError || !invite)) || (showStaffCode && !staffCodeInvite && !invite)}
+            disabled={busy || (!!inviteToken && (inviteLoading || !!inviteError || !invite)) || (!invite && !staffCodeInvite && !adminCode)}
             className="w-full h-11 rounded-sm uppercase tracking-widest text-xs bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {busy ? "Creating…" : "Accept & Create Account"}
