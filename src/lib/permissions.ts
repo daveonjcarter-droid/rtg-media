@@ -139,10 +139,10 @@ export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
   community:          [HEAD, "admin", "editor", "social_manager", "social_articles_lead"],
   permissions:        [HEAD],
   settings:           [HEAD, "admin"],
-  crew:                [HEAD, "admin", "booking_manager"],
+  crew:                [HEAD, "admin", "booking_manager", "project_manager"],
   "portfolio-approvals": [HEAD, "admin", "editor", "media_manager"],
-  "my-profile":        [HEAD, "admin", "editor", "writer", "social_manager", "booking_manager", "media_manager", "social_articles_lead", "crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
-  "my-availability":   ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff", HEAD, "admin", "booking_manager"],
+  "my-profile":        [HEAD, "admin", "editor", "writer", "social_manager", "booking_manager", "media_manager", "social_articles_lead", "project_manager", "crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
+  "my-availability":   ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff", HEAD, "admin", "booking_manager", "project_manager"],
   "my-bookings":       ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
   "my-portfolio":      ["crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
   "profile-management": [HEAD, "admin", "owner", "co_ceo"],
@@ -150,7 +150,7 @@ export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
   "signup-codes":       [HEAD, "admin", "owner", "co_ceo"],
   "staff-approvals":    [HEAD, "admin", "owner", "co_ceo"],
   "role-management":    [HEAD, "owner", "co_ceo"],
-  availability:         [HEAD, "admin", "owner", "co_ceo", "editor", "booking_manager"],
+  availability:         [HEAD, "admin", "owner", "co_ceo", "editor", "booking_manager", "project_manager"],
   audit:                [HEAD, "owner", "co_ceo"],
 };
 
@@ -178,6 +178,6 @@ export const canManageBilling = (roles: AppRole[]) =>
   roles.includes("head_admin") || roles.includes("owner");
 
 export const primaryRole = (roles: AppRole[]): AppRole => {
-  const order: AppRole[] = ["owner", "co_ceo", "head_admin", "admin", "social_articles_lead", "editor", "journalist", "writer", "booking_manager", "social_manager", "media_manager", "designer", "producer", "crew", "intern", "client"];
+  const order: AppRole[] = ["owner", "co_ceo", "head_admin", "admin", "social_articles_lead", "editor", "journalist", "project_manager", "writer", "booking_manager", "social_manager", "media_manager", "designer", "producer", "crew", "intern", "client"];
   return order.find((r) => roles.includes(r)) ?? "client";
 };
