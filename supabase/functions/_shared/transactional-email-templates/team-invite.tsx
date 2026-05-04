@@ -314,3 +314,31 @@ const footerMuted: React.CSSProperties = {
   margin: '14px 0 0',
   lineHeight: 1.6,
 }
+const codeBlock: React.CSSProperties = {
+  border: '1px solid #2a2a2a',
+  backgroundColor: '#0a0a0a',
+  borderLeft: '3px solid #e11d2e',
+  padding: '18px 20px',
+  margin: '24px 0 16px',
+}
+const codeLabel: React.CSSProperties = {
+  fontSize: '10px',
+  letterSpacing: '0.22em',
+  color: '#e11d2e',
+  fontWeight: 700,
+  margin: '0 0 8px',
+}
+const codeValue: React.CSSProperties = {
+  fontSize: '20px',
+  fontFamily: 'ui-monospace, Menlo, Consolas, monospace',
+  color: '#ffffff',
+  letterSpacing: '0.08em',
+  fontWeight: 700,
+  margin: '0 0 10px',
+}
+const codeHelp: React.CSSProperties = {
+  fontSize: '11px',
+  color: '#a3a3a3',
+  lineHeight: 1.55,
+  margin: 0,
+}
