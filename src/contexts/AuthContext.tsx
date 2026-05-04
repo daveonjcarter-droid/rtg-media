@@ -50,7 +50,7 @@ type AuthContextValue = {
   roles: AppRole[];
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string, displayName: string, adminInviteCode?: string, staffInviteCode?: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, displayName: string, adminInviteCode?: string, staffInviteCode?: string, signupCode?: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   hasRole: (role: AppRole) => boolean;
   refreshRoles: () => Promise<void>;
@@ -98,11 +98,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { error: error?.message ?? null };
   };
 
-  const signUp = async (email: string, password: string, displayName: string, adminInviteCode?: string, staffInviteCode?: string) => {
+  const signUp = async (email: string, password: string, displayName: string, adminInviteCode?: string, staffInviteCode?: string, signupCode?: string) => {
     const redirectUrl = `${window.location.origin}/dashboard`;
     const data: Record<string, string> = { display_name: displayName };
     if (adminInviteCode) data.admin_invite_code = adminInviteCode;
     if (staffInviteCode) data.staff_invite_code = staffInviteCode;
+    if (signupCode) data.signup_code = signupCode;
     const { error } = await supabase.auth.signUp({
       email,
       password,

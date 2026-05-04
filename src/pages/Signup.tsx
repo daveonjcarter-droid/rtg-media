@@ -80,14 +80,10 @@ const Signup = () => {
       parsed.data.name,
       adminCode.trim() || undefined,
       undefined,
+      codeAccepted ? signupCode.trim() : undefined,
     );
-    if (error) { setBusy(false); toast.error(error); return; }
-
-    // Pass signup_code via raw_user_meta_data — the trigger will redeem it
-    if (codeAccepted && signupCode.trim()) {
-      await supabase.auth.updateUser({ data: { signup_code: signupCode.trim() } });
-    }
     setBusy(false);
+    if (error) { toast.error(error); return; }
     toast.success("Account created");
     navigate("/dashboard", { replace: true });
   };
