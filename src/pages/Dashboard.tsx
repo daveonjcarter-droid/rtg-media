@@ -30,6 +30,9 @@ import CommandCenterOverview from "@/components/dashboard/sections/CommandCenter
 import AuditLogSection from "@/components/dashboard/sections/AuditLogSection";
 import GlobalSearch from "@/components/dashboard/GlobalSearch";
 import NotificationsBell from "@/components/dashboard/NotificationsBell";
+import PendingAccess from "@/pages/PendingAccess";
+import SignupCodesManager from "@/components/dashboard/SignupCodesManager";
+import RoleManagementSection from "@/components/dashboard/RoleManagementSection";
 import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -148,6 +151,8 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "applicants",        label: "Applicants",       icon: Inbox,           group: "Admin" },
   { id: "profile-management", label: "Profile Management", icon: IdCard,        group: "Admin" },
   { id: "admin-invites",     label: "Admin Invite Codes", icon: KeyRound,       group: "Admin" },
+  { id: "signup-codes",      label: "Signup Codes",     icon: KeyRound,        group: "Admin" },
+  { id: "role-management",   label: "Role Management",  icon: ShieldCheck,     group: "Admin" },
   { id: "permissions",       label: "Role Permissions", icon: ShieldCheck,     group: "Admin" },
   { id: "audit",             label: "Audit Log",        icon: ShieldCheck,     group: "Admin" },
   { id: "site-updates",      label: "Quick Site Updates", icon: Wand2,         group: "Admin" },
@@ -172,9 +177,14 @@ const STATUS_LABEL: Record<Status, string> = {
 };
 
 const Dashboard = () => {
-  const { user, roles, signOut, hasRole } = useAuth();
+  const { user, roles, signOut, hasRole, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { section: urlSection } = useParams<{ section?: string }>();
+
+  // Pending Access gate — user signed in but no roles assigned yet
+  if (!authLoading && user && roles.length === 0) {
+    return <PendingAccess />;
+  }
   // "my-profile" is available to every signed-in user — profiles are default, roles control extras.
   const navItems = useMemo(
     () => ALL_NAV.filter((n) => n.id === "my-profile" || can(roles, n.id)),
@@ -565,6 +575,8 @@ const Dashboard = () => {
             {section === "portfolio-approvals" && <PortfolioApprovalsQueue />}
             {section === "profile-management" && <ProfileManagement />}
             {section === "admin-invites" && <AdminInvitesManager />}
+            {section === "signup-codes" && <SignupCodesManager />}
+            {section === "role-management" && <RoleManagementSection isHeadAdmin={isHeadAdmin(roles)} />}
             {section === "my-profile" && <CrewProfilePanel />}
             {section === "my-availability" && <MyAvailabilitySection />}
             {section === "my-bookings" && <MyAssignedBookings />}

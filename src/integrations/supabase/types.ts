@@ -1519,6 +1519,18 @@ export type Database = {
       }
       role_permissions: {
         Row: {
+          access_analytics: boolean
+          access_articles: boolean
+          access_audit: boolean
+          access_bookings: boolean
+          access_calendar: boolean
+          access_dashboard: boolean
+          access_invites: boolean
+          access_pricing: boolean
+          access_production: boolean
+          access_role_management: boolean
+          access_staff: boolean
+          access_website_content: boolean
           booking_can_override_availability: boolean
           editor_can_publish: boolean
           id: string
@@ -1530,6 +1542,18 @@ export type Database = {
           writer_can_edit_published: boolean
         }
         Insert: {
+          access_analytics?: boolean
+          access_articles?: boolean
+          access_audit?: boolean
+          access_bookings?: boolean
+          access_calendar?: boolean
+          access_dashboard?: boolean
+          access_invites?: boolean
+          access_pricing?: boolean
+          access_production?: boolean
+          access_role_management?: boolean
+          access_staff?: boolean
+          access_website_content?: boolean
           booking_can_override_availability?: boolean
           editor_can_publish?: boolean
           id?: string
@@ -1541,6 +1565,18 @@ export type Database = {
           writer_can_edit_published?: boolean
         }
         Update: {
+          access_analytics?: boolean
+          access_articles?: boolean
+          access_audit?: boolean
+          access_bookings?: boolean
+          access_calendar?: boolean
+          access_dashboard?: boolean
+          access_invites?: boolean
+          access_pricing?: boolean
+          access_production?: boolean
+          access_role_management?: boolean
+          access_staff?: boolean
+          access_website_content?: boolean
           booking_can_override_availability?: boolean
           editor_can_publish?: boolean
           id?: string
@@ -1658,6 +1694,74 @@ export type Database = {
           slug?: string | null
           sort_order?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      signup_code_redemptions: {
+        Row: {
+          code_id: string
+          id: string
+          redeemed_at: string
+          user_id: string
+        }
+        Insert: {
+          code_id: string
+          id?: string
+          redeemed_at?: string
+          user_id: string
+        }
+        Update: {
+          code_id?: string
+          id?: string
+          redeemed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signup_code_redemptions_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "signup_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      signup_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          label: string | null
+          max_uses: number
+          status: string
+          updated_at: string
+          used_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          label?: string | null
+          max_uses?: number
+          status?: string
+          updated_at?: string
+          used_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          label?: string | null
+          max_uses?: number
+          status?: string
+          updated_at?: string
+          used_count?: number
         }
         Relationships: []
       }
@@ -2154,6 +2258,11 @@ export type Database = {
         Args: { _code: string; _email: string; _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
       }
+      redeem_signup_code: {
+        Args: { _code: string; _user_id: string }
+        Returns: boolean
+      }
+      validate_signup_code: { Args: { _code: string }; Returns: Json }
     }
     Enums: {
       advertise_status: "new" | "in_review" | "accepted" | "declined"
