@@ -273,18 +273,18 @@ const Signup = () => {
               <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="h-11 rounded-sm" />
               <p className="text-xs text-muted-foreground mt-1">Min 8 characters. Checked against known breached passwords.</p>
             </div>
-            {!inviteToken && !showStaffCode && (
+            {!inviteToken && !staffCodeInvite && (
               <div>
-                <Label className="eyebrow mb-2 block">Admin Invite Code</Label>
-                <Input value={adminCode} onChange={(e) => setAdminCode(e.target.value.toUpperCase())} required className="h-11 rounded-sm uppercase tracking-widest" placeholder="XXXX-XXXX-XXXX-XXXX" />
-                <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-widest">Required for admin/leadership access.</p>
+                <Label className="eyebrow mb-2 block">Admin Invite Code (optional)</Label>
+                <Input value={adminCode} onChange={(e) => setAdminCode(e.target.value.toUpperCase())} className="h-11 rounded-sm uppercase tracking-widest" placeholder="XXXX-XXXX-XXXX-XXXX" />
+                <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-widest">For admin/leadership access only.</p>
               </div>
             )}
           </div>
 
           <Button
             type="submit"
-            disabled={busy || (!!inviteToken && (inviteLoading || !!inviteError || !invite)) || (showStaffCode && !staffCodeInvite && !invite)}
+            disabled={busy || (!!inviteToken && (inviteLoading || !!inviteError || !invite)) || (!invite && !staffCodeInvite && !adminCode)}
             className="w-full h-11 rounded-sm uppercase tracking-widest text-xs bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {busy ? "Creating…" : "Accept & Create Account"}
