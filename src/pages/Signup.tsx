@@ -194,9 +194,22 @@ const Signup = () => {
             {busy ? "Creating…" : "Accept & Create Account"}
           </Button>
 
-          <p className="text-xs text-muted-foreground text-center">
-            Already have access? <Link to="/login" className="text-primary hover:underline">Sign in</Link>
-          </p>
+          <div className="text-center space-y-2">
+            <p className="text-xs text-muted-foreground">
+              Have a staff code?{" "}
+              <Link to="/staff-code-signup" className="text-primary hover:underline">Sign up here</Link>
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Already have access? <Link to="/login" className="text-primary hover:underline">Sign in</Link>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default Signup;
         </form>
       </div>
     </div>
