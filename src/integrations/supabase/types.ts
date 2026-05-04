@@ -678,6 +678,7 @@ export type Database = {
           assignment_status: string
           base_cost: number | null
           budget: string | null
+          client_id: string | null
           created_at: string
           crew_price_modifier: number
           crew_request_type: string
@@ -722,6 +723,7 @@ export type Database = {
           assignment_status?: string
           base_cost?: number | null
           budget?: string | null
+          client_id?: string | null
           created_at?: string
           crew_price_modifier?: number
           crew_request_type?: string
@@ -766,6 +768,7 @@ export type Database = {
           assignment_status?: string
           base_cost?: number | null
           budget?: string | null
+          client_id?: string | null
           created_at?: string
           crew_price_modifier?: number
           crew_request_type?: string
@@ -961,6 +964,57 @@ export type Database = {
           sort_order?: number
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      clients: {
+        Row: {
+          artist_name: string | null
+          company: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          status: Database["public"]["Enums"]["client_status"]
+          tags: string[]
+          total_spend: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          artist_name?: string | null
+          company?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          status?: Database["public"]["Enums"]["client_status"]
+          tags?: string[]
+          total_spend?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          artist_name?: string | null
+          company?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          status?: Database["public"]["Enums"]["client_status"]
+          tags?: string[]
+          total_spend?: number
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1269,6 +1323,109 @@ export type Database = {
         }
         Relationships: []
       }
+      invoices: {
+        Row: {
+          amount_due: number
+          amount_paid: number
+          booking_id: string | null
+          client_id: string | null
+          created_at: string
+          created_by: string
+          currency: string
+          due_date: string | null
+          id: string
+          issued_at: string | null
+          number: string | null
+          paid_at: string | null
+          payment_method: string | null
+          payment_notes: string | null
+          payment_provider: Database["public"]["Enums"]["payment_provider"]
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          payment_url: string | null
+          project_id: string | null
+          quote_id: string | null
+          status: Database["public"]["Enums"]["invoice_status"]
+          stripe_checkout_session_id: string | null
+          stripe_customer_id: string | null
+          stripe_payment_intent_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_due?: number
+          amount_paid?: number
+          booking_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          created_by: string
+          currency?: string
+          due_date?: string | null
+          id?: string
+          issued_at?: string | null
+          number?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          payment_notes?: string | null
+          payment_provider?: Database["public"]["Enums"]["payment_provider"]
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_url?: string | null
+          project_id?: string | null
+          quote_id?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_due?: number
+          amount_paid?: number
+          booking_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          created_by?: string
+          currency?: string
+          due_date?: string | null
+          id?: string
+          issued_at?: string | null
+          number?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          payment_notes?: string | null
+          payment_provider?: Database["public"]["Enums"]["payment_provider"]
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_url?: string | null
+          project_id?: string | null
+          quote_id?: string | null
+          status?: Database["public"]["Enums"]["invoice_status"]
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           archived: boolean
@@ -1301,6 +1458,107 @@ export type Database = {
           source?: Database["public"]["Enums"]["lead_source"]
         }
         Relationships: []
+      }
+      message_threads: {
+        Row: {
+          booking_id: string | null
+          client_id: string | null
+          client_visible: boolean
+          created_at: string
+          created_by: string
+          id: string
+          kind: Database["public"]["Enums"]["thread_kind"]
+          last_message_at: string | null
+          participant_ids: string[]
+          project_id: string | null
+          subject: string | null
+          updated_at: string
+        }
+        Insert: {
+          booking_id?: string | null
+          client_id?: string | null
+          client_visible?: boolean
+          created_at?: string
+          created_by: string
+          id?: string
+          kind?: Database["public"]["Enums"]["thread_kind"]
+          last_message_at?: string | null
+          participant_ids?: string[]
+          project_id?: string | null
+          subject?: string | null
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string | null
+          client_id?: string | null
+          client_visible?: boolean
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["thread_kind"]
+          last_message_at?: string | null
+          participant_ids?: string[]
+          project_id?: string | null
+          subject?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_threads_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_threads_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          attachments: Json
+          body: string
+          created_at: string
+          id: string
+          mentions: string[]
+          read_by: string[]
+          sender_id: string
+          thread_id: string
+        }
+        Insert: {
+          attachments?: Json
+          body: string
+          created_at?: string
+          id?: string
+          mentions?: string[]
+          read_by?: string[]
+          sender_id: string
+          thread_id: string
+        }
+        Update: {
+          attachments?: Json
+          body?: string
+          created_at?: string
+          id?: string
+          mentions?: string[]
+          read_by?: string[]
+          sender_id?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "message_threads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       newsletter_subscribers: {
         Row: {
@@ -1556,6 +1814,42 @@ export type Database = {
         }
         Relationships: []
       }
+      project_clients: {
+        Row: {
+          client_id: string
+          created_at: string
+          is_primary: boolean
+          project_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          is_primary?: boolean
+          project_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          is_primary?: boolean
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_clients_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_clients_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_tasks: {
         Row: {
           assigned_to: string | null
@@ -1668,6 +1962,137 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      quote_line_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          kind: string
+          label: string
+          qty: number
+          quote_id: string
+          sort_order: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind?: string
+          label: string
+          qty?: number
+          quote_id: string
+          sort_order?: number
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind?: string
+          label?: string
+          qty?: number
+          quote_id?: string
+          sort_order?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quote_line_items_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quotes: {
+        Row: {
+          addons_total: number
+          approved_at: string | null
+          base_price: number
+          booking_id: string | null
+          client_id: string | null
+          created_at: string
+          created_by: string
+          currency: string
+          discount: number
+          id: string
+          notes: string | null
+          number: string | null
+          project_id: string | null
+          rejected_at: string | null
+          sent_at: string | null
+          status: Database["public"]["Enums"]["quote_status"]
+          tax: number
+          title: string
+          total: number
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          addons_total?: number
+          approved_at?: string | null
+          base_price?: number
+          booking_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          created_by: string
+          currency?: string
+          discount?: number
+          id?: string
+          notes?: string | null
+          number?: string | null
+          project_id?: string | null
+          rejected_at?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["quote_status"]
+          tax?: number
+          title?: string
+          total?: number
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          addons_total?: number
+          approved_at?: string | null
+          base_price?: number
+          booking_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          created_by?: string
+          currency?: string
+          discount?: number
+          id?: string
+          notes?: string | null
+          number?: string | null
+          project_id?: string | null
+          rejected_at?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["quote_status"]
+          tax?: number
+          title?: string
+          total?: number
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       role_permissions: {
         Row: {
@@ -2396,6 +2821,10 @@ export type Database = {
     }
     Functions: {
       bump_article_view: { Args: { article_uuid: string }; Returns: undefined }
+      can_access_thread: {
+        Args: { _thread_id: string; _uid: string }
+        Returns: boolean
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -2430,6 +2859,7 @@ export type Database = {
       }
       is_calendar_ops: { Args: { _uid: string }; Returns: boolean }
       is_pm_or_admin: { Args: { _uid: string }; Returns: boolean }
+      is_staff: { Args: { _uid: string }; Returns: boolean }
       link_staff_profile_to_user: {
         Args: { _profile_id: string; _user_id: string }
         Returns: undefined
@@ -2541,9 +2971,20 @@ export type Database = {
         | "content_drop"
         | "personal_block"
       calendar_related_type: "article" | "booking" | "project" | "none"
+      client_status: "lead" | "active" | "past" | "vip"
       contact_method: "email" | "phone" | "text"
       film_verdict: "recommended" | "mixed" | "not_recommended"
+      invoice_status:
+        | "draft"
+        | "sent"
+        | "partial"
+        | "paid"
+        | "overdue"
+        | "void"
+        | "refunded"
       lead_source: "booking" | "newsletter" | "advertise" | "contact" | "other"
+      payment_provider: "manual" | "stripe"
+      payment_status: "unpaid" | "partial" | "paid" | "failed" | "refunded"
       project_priority: "low" | "normal" | "high" | "urgent"
       project_status:
         | "idea"
@@ -2562,10 +3003,12 @@ export type Database = {
         | "campaign"
         | "client_booking"
         | "internal"
+      quote_status: "draft" | "sent" | "approved" | "rejected" | "expired"
       shoot_type: "studio" | "location" | "hybrid"
       social_platform: "instagram" | "tiktok" | "x" | "youtube"
       social_status: "draft" | "ready" | "posted" | "scheduled" | "archived"
       task_status: "todo" | "in_progress" | "blocked" | "review" | "completed"
+      thread_kind: "project" | "booking" | "client" | "direct" | "team"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2779,9 +3222,21 @@ export const Constants = {
         "personal_block",
       ],
       calendar_related_type: ["article", "booking", "project", "none"],
+      client_status: ["lead", "active", "past", "vip"],
       contact_method: ["email", "phone", "text"],
       film_verdict: ["recommended", "mixed", "not_recommended"],
+      invoice_status: [
+        "draft",
+        "sent",
+        "partial",
+        "paid",
+        "overdue",
+        "void",
+        "refunded",
+      ],
       lead_source: ["booking", "newsletter", "advertise", "contact", "other"],
+      payment_provider: ["manual", "stripe"],
+      payment_status: ["unpaid", "partial", "paid", "failed", "refunded"],
       project_priority: ["low", "normal", "high", "urgent"],
       project_status: [
         "idea",
@@ -2802,10 +3257,12 @@ export const Constants = {
         "client_booking",
         "internal",
       ],
+      quote_status: ["draft", "sent", "approved", "rejected", "expired"],
       shoot_type: ["studio", "location", "hybrid"],
       social_platform: ["instagram", "tiktok", "x", "youtube"],
       social_status: ["draft", "ready", "posted", "scheduled", "archived"],
       task_status: ["todo", "in_progress", "blocked", "review", "completed"],
+      thread_kind: ["project", "booking", "client", "direct", "team"],
     },
   },
 } as const

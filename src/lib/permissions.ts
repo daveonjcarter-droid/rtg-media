@@ -47,7 +47,11 @@ export type SectionId =
   | "projects"
   | "tasks"
   | "deadlines"
-  | "pm-dashboard";
+  | "pm-dashboard"
+  | "clients"
+  | "quotes"
+  | "invoices"
+  | "messages";
 
 export type Group = "Overview" | "Content" | "Pipeline" | "Studio" | "Ops" | "Ecosystem" | "Admin" | "Crew" | "My Work";
 
@@ -160,6 +164,10 @@ export const SECTION_ACCESS: Record<SectionId, AppRole[]> = {
   tasks:                [HEAD, "admin", "owner", "co_ceo", "editor", "writer", "journalist", "social_manager", "social_articles_lead", "booking_manager", "media_manager", "designer", "project_manager", "crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
   deadlines:            [HEAD, "admin", "owner", "co_ceo", "editor", "booking_manager", "project_manager", "social_articles_lead"],
   "pm-dashboard":       [HEAD, "admin", "owner", "co_ceo", "project_manager"],
+  clients:              [HEAD, "admin", "owner", "co_ceo", "editor", "booking_manager", "project_manager"],
+  quotes:               [HEAD, "admin", "owner", "co_ceo", "booking_manager", "project_manager"],
+  invoices:             [HEAD, "admin", "owner", "co_ceo", "booking_manager", "project_manager"],
+  messages:             [HEAD, "admin", "owner", "co_ceo", "editor", "writer", "journalist", "social_manager", "social_articles_lead", "booking_manager", "media_manager", "designer", "project_manager", "crew", "photographer", "videographer", "video_editor", "director", "producer", "audio_engineer", "grip_lighting", "makeup_artist", "production_assistant", "studio_staff"],
 };
 
 export const OWNERSHIP_ONLY: SectionId[] = [];

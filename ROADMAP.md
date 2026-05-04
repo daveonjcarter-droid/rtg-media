@@ -59,3 +59,26 @@ Legend: ✅ done · 🚧 in progress · ⬜ todo
 - Notifications live in `notifications`, written only by SECURITY DEFINER triggers.
 - Calendar shows `calendar_events` plus an overlay of task / project / booking / article deadlines (no mirroring).
 - Permissions use roles only; per-user override table comes in Phase 6.
+
+## Phase 2 — Business + Client Systems
+
+### ✅ Step 1: Client Portal + Messaging
+- `clients`, `project_clients`, `message_threads`, `messages` tables
+- `/portal` — client-facing dashboard (overview / projects / quotes / invoices / messages)
+- Realtime messaging with mention + participant notifications
+- RLS: clients see only their linked projects, sent quotes, non-draft invoices, client-visible threads
+
+### ✅ Step 3: Quotes + Invoices (Stripe-ready)
+- `quotes` + `quote_line_items` with auto-numbering (Q-YYYY-####)
+- `invoices` with payment_provider/status, stripe_*, payment_url, paid_at
+- PM discount cap enforced at 15% via trigger
+- Auto-rollup of `clients.total_spend` from paid invoices
+
+### ✅ Step 4: CRM
+- Clients section (list/filter/create/detail)
+- Linked projects, bookings, quotes, invoices on detail view
+
+### ⏳ Remaining Phase 2
+- Analytics dashboard, Content/social workflow, File delivery, Newsletter
+
+## Phase 3 — Not started

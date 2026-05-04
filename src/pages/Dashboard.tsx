@@ -38,6 +38,10 @@ import ProjectsSection from "@/components/dashboard/sections/ProjectsSection";
 import TasksSection from "@/components/dashboard/sections/TasksSection";
 import DeadlinesSection from "@/components/dashboard/sections/DeadlinesSection";
 import PMDashboardSection from "@/components/dashboard/sections/PMDashboardSection";
+import ClientsSection from "@/components/dashboard/sections/ClientsSection";
+import QuotesSection from "@/components/dashboard/sections/QuotesSection";
+import InvoicesSection from "@/components/dashboard/sections/InvoicesSection";
+import MessagesSection from "@/components/dashboard/sections/MessagesSection";
 import PersonalNotificationsBell from "@/components/dashboard/PersonalNotificationsBell";
 import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 import { Button } from "@/components/ui/button";
@@ -138,6 +142,10 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "tasks",             label: "Tasks",            icon: CheckSquare,     group: "Ops" },
   { id: "deadlines",         label: "Deadlines",        icon: Clock,           group: "Ops" },
   { id: "bookings",          label: "Bookings",         icon: Briefcase,       group: "Ops" },
+  { id: "clients",           label: "Clients (CRM)",    icon: Users,           group: "Ops" },
+  { id: "quotes",            label: "Quotes",           icon: FileText,        group: "Ops" },
+  { id: "invoices",          label: "Invoices",         icon: FileText,        group: "Ops" },
+  { id: "messages",          label: "Messages",         icon: Mail,            group: "Ops" },
   { id: "leads",             label: "Leads",            icon: Mail,            group: "Ops" },
   { id: "production",        label: "Production Services", icon: Camera,       group: "Ops" },
   { id: "staff",             label: "Staff & Crew",     icon: Users,           group: "Ops" },
@@ -572,6 +580,10 @@ const Dashboard = () => {
               {section === "tasks" && <TasksSection />}
               {section === "deadlines" && <DeadlinesSection />}
               {section === "pm-dashboard" && <PMDashboardSection />}
+              {section === "clients" && <ClientsSection />}
+              {section === "quotes" && <QuotesSection />}
+              {section === "invoices" && <InvoicesSection />}
+              {section === "messages" && <MessagesSection />}
             {section === "users" && <UsersView />}
             {section === "invites" && <InvitesManager />}
             {section === "applicants" && <ApplicantsManager />}
