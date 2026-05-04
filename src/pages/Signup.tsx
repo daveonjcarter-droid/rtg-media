@@ -38,17 +38,24 @@ const Signup = () => {
 
   const validateCode = async () => {
     const code = signupCode.trim();
-    if (!code) { setCodeError("Enter your invite code."); return; }
+    if (!code) {
+      setCodeError("Invalid code. Please check the code and try again.");
+      return;
+    }
     setValidating(true);
     setCodeError(null);
     const { data, error } = await supabase.rpc("validate_signup_code" as any, { _code: code });
     setValidating(false);
-    if (error) { setCodeError(error.message); return; }
+    if (error) {
+      setCodeAccepted(false);
+      setCodeError("Invalid code. Please check the code and try again.");
+      return;
+    }
     const result = (data as any) ?? {};
     if (!result.valid) {
       setCodeAccepted(false);
       setCodeLabel(null);
-      setCodeError(result.error || "Invalid code.");
+      setCodeError(result.error || "Invalid code. Please check the code and try again.");
       return;
     }
     setCodeAccepted(true);
