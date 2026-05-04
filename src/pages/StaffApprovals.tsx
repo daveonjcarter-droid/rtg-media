@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, type AppRole } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Check, ShieldCheck, RefreshCw, Clock } from "lucide-react";
 import logoLight from "@/assets/rtg-logo-light.png";
@@ -15,14 +16,20 @@ type PendingUser = {
   created_at: string;
 };
 
+const APPROVABLE_ROLES: AppRole[] = [
+  "editor", "journalist", "photographer", "videographer",
+  "booking_manager", "social_manager", "media_manager", "designer",
+  "project_manager", "crew", "admin",
+];
+
 const StaffApprovals = () => {
   const { user, roles, loading: authLoading } = useAuth();
   const [allowed, setAllowed] = useState<boolean | null>(null);
   const [rows, setRows] = useState<PendingUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [chosen, setChosen] = useState<Record<string, AppRole>>({});
 
-  // Check role_type from profile_meta (admin or owner) — also accept user_roles admin/owner/head_admin
   useEffect(() => {
     if (authLoading) return;
     if (!user) { setAllowed(false); return; }
@@ -55,18 +62,31 @@ const StaffApprovals = () => {
   useEffect(() => { if (allowed) load(); }, [allowed]);
 
   const approve = async (u: PendingUser) => {
+    const role: AppRole = chosen[u.user_id] ?? ("crew" as AppRole);
     setBusy(u.user_id);
-    const { data, error } = await supabase
-      .from("profile_meta")
-      .update({ role_type: "staff", status: "active" })
-      .eq("user_id", u.user_id)
-      .select();
-    console.log("[StaffApprovals] approve", { user_id: u.user_id, data, error });
-    if (error) {
-      toast.error(error.message);
+    console.log("[StaffApprovals] approve", { user_id: u.user_id, role });
+
+    const { error: rErr } = await supabase
+      .from("user_roles")
+      .insert({ user_id: u.user_id, role: role as any });
+    if (rErr && !String(rErr.message).toLowerCase().includes("duplicate")) {
+      console.error("[StaffApprovals] user_roles insert error:", rErr);
+      toast.error(rErr.message);
       setBusy(null);
       return;
     }
+
+    const { error: mErr } = await supabase
+      .from("profile_meta")
+      .update({ role_type: role, status: "active" })
+      .eq("user_id", u.user_id);
+    if (mErr) {
+      console.error("[StaffApprovals] profile_meta update error:", mErr);
+      toast.error(mErr.message);
+      setBusy(null);
+      return;
+    }
+
     toast.success("User approved.");
     setRows((r) => r.filter((x) => x.user_id !== u.user_id));
     setBusy(null);
@@ -128,6 +148,21 @@ const StaffApprovals = () => {
                     Signed up {new Date(u.created_at).toLocaleDateString()}
                   </div>
                 </div>
+                <Select
+                  value={chosen[u.user_id] ?? "crew"}
+                  onValueChange={(v) => setChosen((p) => ({ ...p, [u.user_id]: v as AppRole }))}
+                >
+                  <SelectTrigger className="h-10 w-full sm:w-[200px] rounded-sm bg-background uppercase tracking-widest text-[10px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {APPROVABLE_ROLES.map((r) => (
+                      <SelectItem key={r} value={r} className="text-xs uppercase tracking-widest">
+                        {r.replace("_", " ")}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Button
                   onClick={() => approve(u)}
                   disabled={busy === u.user_id}
