@@ -116,46 +116,16 @@ const Signup = () => {
   const activeInvite = invite || staffCodeInvite;
   const emailLocked = useMemo(() => !!activeInvite, [activeInvite]);
 
-  // INVITE-ONLY: block when no token, no admin code, no staff code attempt
-  if (!inviteToken && !adminCodeParam && !adminCode && !showStaffCode) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-6">
-        <div className="w-full max-w-md text-center space-y-6">
-          <Link to="/" className="inline-flex">
-            <img src={logoLight} alt="RTG Media" className="h-12 mx-auto" />
-          </Link>
-          <div className="eyebrow text-primary">Access Restricted</div>
-          <h1 className="font-display text-3xl uppercase">Invite-only signup</h1>
-          <p className="text-sm text-muted-foreground">
-            RTG Media accounts are created by invitation only. Use the link from your invite email,
-            or enter a code below if you have one.
-          </p>
-          <div className="space-y-3 text-left">
-            <div>
-              <Label className="eyebrow">Admin Invite Code</Label>
-              <Input value={adminCode} onChange={(e) => setAdminCode(e.target.value.toUpperCase())} placeholder="XXXX-XXXX-XXXX-XXXX" className="h-11 rounded-sm uppercase tracking-widest mt-1" />
-            </div>
-            <div className="text-center text-[10px] uppercase tracking-widest text-muted-foreground">— or —</div>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setShowStaffCode(true)}
-              className="w-full h-11 rounded-sm uppercase tracking-widest text-xs"
-            >
-              Use staff invite code
-            </Button>
-          </div>
-          <div className="flex justify-center pt-2">
-            <Link to="/login" className="inline-block">
-              <Button className="h-11 rounded-sm uppercase tracking-widest text-xs bg-primary text-primary-foreground hover:bg-primary/90">
-                Sign in
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Always show backup code UI when there's no valid invite token loaded
+  const inviteInvalidOrMissing = !invite && (!inviteToken || !!inviteError);
+
+  useEffect(() => {
+    if (inviteInvalidOrMissing) {
+      setShowStaffCode(true);
+      // eslint-disable-next-line no-console
+      console.log("Backup invite code UI rendered");
+    }
+  }, [inviteInvalidOrMissing]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
