@@ -22,6 +22,7 @@ import Dashboard from "./pages/Dashboard.tsx";
 import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
 import StaffCodeSignup from "./pages/StaffCodeSignup.tsx";
+import StaffApprovals from "./pages/StaffApprovals.tsx";
 import Apply from "./pages/Apply.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -67,6 +68,7 @@ const App = () => (
               {/* Private */}
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/dashboard/:section" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/staff-approvals" element={<ProtectedRoute><StaffApprovals /></ProtectedRoute>} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>
