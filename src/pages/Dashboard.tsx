@@ -33,6 +33,7 @@ import NotificationsBell from "@/components/dashboard/NotificationsBell";
 import PendingAccess from "@/pages/PendingAccess";
 import SignupCodesManager from "@/components/dashboard/SignupCodesManager";
 import RoleManagementSection from "@/components/dashboard/RoleManagementSection";
+import StaffApprovalsSection from "@/components/dashboard/StaffApprovalsSection";
 import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -152,6 +153,7 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "profile-management", label: "Profile Management", icon: IdCard,        group: "Admin" },
   { id: "admin-invites",     label: "Admin Invite Codes", icon: KeyRound,       group: "Admin" },
   { id: "signup-codes",      label: "Signup Codes",     icon: KeyRound,        group: "Admin" },
+  { id: "staff-approvals",   label: "Staff Approvals",  icon: ShieldCheck,     group: "Admin" },
   { id: "role-management",   label: "Role Management",  icon: ShieldCheck,     group: "Admin" },
   { id: "permissions",       label: "Role Permissions", icon: ShieldCheck,     group: "Admin" },
   { id: "audit",             label: "Audit Log",        icon: ShieldCheck,     group: "Admin" },
@@ -576,6 +578,7 @@ const Dashboard = () => {
             {section === "profile-management" && <ProfileManagement />}
             {section === "admin-invites" && <AdminInvitesManager />}
             {section === "signup-codes" && <SignupCodesManager />}
+            {section === "staff-approvals" && <StaffApprovalsSection />}
             {section === "role-management" && <RoleManagementSection isHeadAdmin={isHeadAdmin(roles)} />}
             {section === "my-profile" && <CrewProfilePanel />}
             {section === "my-availability" && <MyAvailabilitySection />}
