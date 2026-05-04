@@ -151,6 +151,8 @@ const ALL_NAV: { id: SectionId; label: string; icon: any; group: Group }[] = [
   { id: "applicants",        label: "Applicants",       icon: Inbox,           group: "Admin" },
   { id: "profile-management", label: "Profile Management", icon: IdCard,        group: "Admin" },
   { id: "admin-invites",     label: "Admin Invite Codes", icon: KeyRound,       group: "Admin" },
+  { id: "signup-codes",      label: "Signup Codes",     icon: KeyRound,        group: "Admin" },
+  { id: "role-management",   label: "Role Management",  icon: ShieldCheck,     group: "Admin" },
   { id: "permissions",       label: "Role Permissions", icon: ShieldCheck,     group: "Admin" },
   { id: "audit",             label: "Audit Log",        icon: ShieldCheck,     group: "Admin" },
   { id: "site-updates",      label: "Quick Site Updates", icon: Wand2,         group: "Admin" },
@@ -573,6 +575,8 @@ const Dashboard = () => {
             {section === "portfolio-approvals" && <PortfolioApprovalsQueue />}
             {section === "profile-management" && <ProfileManagement />}
             {section === "admin-invites" && <AdminInvitesManager />}
+            {section === "signup-codes" && <SignupCodesManager />}
+            {section === "role-management" && <RoleManagementSection isHeadAdmin={isHeadAdmin(roles)} />}
             {section === "my-profile" && <CrewProfilePanel />}
             {section === "my-availability" && <MyAvailabilitySection />}
             {section === "my-bookings" && <MyAssignedBookings />}
