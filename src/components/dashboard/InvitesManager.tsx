@@ -40,6 +40,8 @@ type Invite = {
   accepted_at: string | null;
   invite_token: string | null;
   invite_url: string | null;
+  invite_code: string | null;
+  expires_at: string | null;
   email_delivery_status: EmailDeliveryStatus;
   email_sent_at: string | null;
   email_error: string | null;
@@ -47,10 +49,13 @@ type Invite = {
 
 type Profile = { id: string; display_name: string | null };
 
+const isExpired = (inv: Invite) => !!(inv.expires_at && new Date(inv.expires_at) < new Date()) && inv.status === "pending";
+
 const statusBadge = {
-  pending: { icon: Clock, cls: "bg-gold/15 text-gold border-gold/30" },
-  active: { icon: CheckCircle2, cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" },
-  disabled: { icon: Ban, cls: "bg-muted/40 text-muted-foreground border-border" },
+  pending: { icon: Clock, cls: "bg-gold/15 text-gold border-gold/30", label: "Pending" },
+  active: { icon: CheckCircle2, cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30", label: "Used" },
+  disabled: { icon: Ban, cls: "bg-muted/40 text-muted-foreground border-border", label: "Revoked" },
+  expired: { icon: AlertTriangle, cls: "bg-destructive/15 text-destructive border-destructive/30", label: "Expired" },
 };
 
 const emailStatusBadge: Record<EmailDeliveryStatus, { icon: any; cls: string; label: string }> = {
@@ -72,8 +77,18 @@ const emptyInvite = (type: InviteType): Invite => ({
   portfolio_required: type !== "staff", availability_required: type !== "staff",
   status: "pending", notes: "", created_at: "", accepted_at: null,
   invite_token: null, invite_url: null,
+  invite_code: null, expires_at: null,
   email_delivery_status: "pending", email_sent_at: null, email_error: null,
 });
+
+const generateBackupCode = () => {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let s = "";
+  const buf = new Uint8Array(12);
+  crypto.getRandomValues(buf);
+  for (let i = 0; i < 12; i++) s += alphabet[buf[i] % alphabet.length];
+  return `${s.slice(0,4)}-${s.slice(4,8)}-${s.slice(8,12)}`;
+};
 
 const generateInviteToken = () => {
   const bytes = new Uint8Array(32);
