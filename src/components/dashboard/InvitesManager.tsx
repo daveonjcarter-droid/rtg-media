@@ -385,7 +385,8 @@ export default function InvitesManager() {
       ) : (
         <div className="border border-border rounded-sm divide-y divide-border">
           {visible.map((inv) => {
-            const Sb = statusBadge[inv.status];
+            const expired = isExpired(inv);
+            const Sb = expired ? statusBadge.expired : statusBadge[inv.status];
             const Tb = typeBadge[(inv.invite_type ?? "staff") as InviteType];
             const Eb = emailStatusBadge[(inv.email_delivery_status ?? "pending") as EmailDeliveryStatus];
             const supervisor = profiles.find((p) => p.id === inv.reports_to);
@@ -398,7 +399,7 @@ export default function InvitesManager() {
                     </span>
                     <span className="font-medium text-sm break-all">{inv.full_name || inv.email}</span>
                     <span className={`inline-flex items-center gap-1 text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-sm border ${Sb.cls}`}>
-                      <Sb.icon className="h-2.5 w-2.5" /> {inv.status}
+                      <Sb.icon className="h-2.5 w-2.5" /> {Sb.label}
                     </span>
                     <span className={`inline-flex items-center gap-1 text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-sm border ${Eb.cls}`}>
                       <Eb.icon className="h-2.5 w-2.5" /> {Eb.label}
@@ -413,9 +414,18 @@ export default function InvitesManager() {
                       </span>
                     ))}
                   </div>
+                  {inv.invite_code && inv.status === "pending" && (
+                    <div className="mt-1.5 text-[10px] text-muted-foreground flex items-center gap-2 flex-wrap">
+                      <span>Backup code:</span>
+                      <code className="text-[10px] px-1.5 py-0.5 rounded-sm bg-surface/60 border border-border tracking-widest text-foreground">{inv.invite_code}</code>
+                    </div>
+                  )}
                   <div className="flex flex-wrap gap-3 text-[10px] text-muted-foreground mt-1.5">
                     {supervisor && (<span>Reports to: <span className="text-foreground">{supervisor.display_name ?? supervisor.id.slice(0,8)}</span></span>)}
                     {inv.default_rate != null && (<span>Rate: <span className="text-foreground">${inv.default_rate}</span></span>)}
+                    {inv.expires_at && inv.status === "pending" && (
+                      <span>Expires: <span className={expired ? "text-destructive" : "text-foreground"}>{new Date(inv.expires_at).toLocaleDateString()}</span></span>
+                    )}
                     {inv.portfolio_required && <span className="text-foreground">Portfolio req</span>}
                     {inv.availability_required && <span className="text-foreground">Availability req</span>}
                     {inv.email_sent_at && (<span>Sent: <span className="text-foreground">{new Date(inv.email_sent_at).toLocaleString()}</span></span>)}
@@ -433,13 +443,19 @@ export default function InvitesManager() {
                   <button onClick={() => copyLink(inv)} className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest px-2 py-1 border border-border rounded-sm hover:border-foreground/40 min-h-[32px]" title="Copy invite link">
                     <Link2 className="h-3 w-3" /> Copy link
                   </button>
+                  <button onClick={() => copyCode(inv)} className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest px-2 py-1 border border-border rounded-sm hover:border-foreground/40 min-h-[32px]" title="Copy backup invite code">
+                    <KeyRound className="h-3 w-3" /> Copy code
+                  </button>
+                  <button onClick={() => regenerateCode(inv)} className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest px-2 py-1 border border-border rounded-sm hover:border-foreground/40 min-h-[32px]" title="Regenerate backup code (resets 7-day expiry)">
+                    <RefreshCw className="h-3 w-3" /> New code
+                  </button>
                   {inv.status !== "disabled" && (
                     <button onClick={() => revoke(inv.id)} className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest px-2 py-1 border border-border rounded-sm hover:border-destructive hover:text-destructive min-h-[32px]" title="Revoke invite">
                       <XCircle className="h-3 w-3" /> Revoke
                     </button>
                   )}
                   {inv.status !== "active" && (
-                    <button onClick={() => setStatus(inv.id, "active")} className="text-[10px] uppercase tracking-widest px-2 py-1 border border-border rounded-sm hover:border-foreground/40 min-h-[32px]">Activate</button>
+                    <button onClick={() => setStatus(inv.id, "active")} className="text-[10px] uppercase tracking-widest px-2 py-1 border border-border rounded-sm hover:border-foreground/40 min-h-[32px]">Mark Used</button>
                   )}
                   <button onClick={() => startEdit(inv)} className="h-8 w-8 rounded-sm border border-border hover:border-foreground/40 flex items-center justify-center" title="Edit">
                     <Pencil className="h-3 w-3" />
