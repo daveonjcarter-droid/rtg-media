@@ -210,10 +210,3 @@ const Signup = () => {
 };
 
 export default Signup;
-        </form>
-      </div>
-    </div>
-  );
-};
-
-export default Signup;
