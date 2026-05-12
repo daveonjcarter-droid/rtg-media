@@ -431,26 +431,15 @@ const Dashboard = () => {
         {navContent(false)}
       </aside>
 
-      {/* ============ MOBILE DRAWER ============ */}
-      {mobileNavOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 flex">
-          <button
-            aria-label="Close menu"
-            className="absolute inset-0 bg-ink/70 backdrop-blur-sm animate-in fade-in"
-            onClick={() => setMobileNavOpen(false)}
-          />
-          <aside className="relative w-[78vw] max-w-[300px] bg-sidebar border-r border-border flex flex-col animate-in slide-in-from-left duration-200 h-screen overflow-y-auto">
-            <button
-              onClick={() => setMobileNavOpen(false)}
-              aria-label="Close menu"
-              className="absolute top-3 right-3 z-10 h-7 w-7 rounded-sm border border-border flex items-center justify-center text-muted-foreground hover:text-foreground"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-            {navContent(true)}
-          </aside>
-        </div>
-      )}
+      {/* ============ MOBILE DRAWER (Shadcn Sheet) ============ */}
+      <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
+        <SheetContent
+          side="left"
+          className="lg:hidden p-0 w-[78vw] max-w-[300px] bg-sidebar border-r border-border overflow-y-auto"
+        >
+          {navContent(true)}
+        </SheetContent>
+      </Sheet>
 
       {/* ============ MAIN ============ */}
       <div className="flex-1 min-w-0 flex flex-col h-screen overflow-hidden">
