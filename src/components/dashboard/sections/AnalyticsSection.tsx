@@ -322,11 +322,6 @@ const AnalyticsSection = () => {
           <div>
             <div className="text-[11px] uppercase tracking-[0.25em] text-primary mb-2">Traffic</div>
             <h2 className="text-cream text-2xl md:text-4xl uppercase tracking-tight font-semibold">Site Traffic Trends</h2>
-            {!hasAnyData && (
-              <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-2">
-                Sample preview · live data appears as visitors interact
-              </div>
-            )}
           </div>
           <div className="flex flex-wrap gap-2">
             {([7, 30, 90, 365] as Range[]).map((r) => (
