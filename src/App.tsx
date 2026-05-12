@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,7 +21,6 @@ import Fest from "./pages/Fest.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
-import StaffCodeSignup from "./pages/StaffCodeSignup.tsx";
 import StaffApprovals from "./pages/StaffApprovals.tsx";
 import ClientPortal from "./pages/ClientPortal.tsx";
 import Apply from "./pages/Apply.tsx";
@@ -63,7 +62,7 @@ const App = () => (
               {/* Auth */}
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
-              <Route path="/staff-code-signup" element={<StaffCodeSignup />} />
+              <Route path="/staff-code-signup" element={<Navigate to="/signup" replace />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
 
               {/* Private */}

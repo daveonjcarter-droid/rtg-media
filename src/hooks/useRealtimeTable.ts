@@ -23,7 +23,7 @@ export const useRealtimeTable = (
       timer = setTimeout(() => cbRef.current(), debounceMs);
     };
     const channel = supabase
-      .channel(`rt-${table}-${Math.random().toString(36).slice(2, 8)}`)
+      .channel(`rt-${table}-${event}`)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .on("postgres_changes" as any, { event, schema: "public", table }, trigger)
       .subscribe();

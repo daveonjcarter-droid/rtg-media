@@ -23,15 +23,6 @@ const RTG_COLORS = {
 };
 const PIE_COLORS = ["#EF3340", "#F4F1EA", "#D9A441", "#29A8FF", "#18C58F", "#a78bfa", "#fb923c"];
 
-const SAMPLE_TRAFFIC = [
-  { date: "Mon", pageViews: 120, uniqueVisitors: 80, articleReads: 45, bookingClicks: 8, bookingSubmits: 2, newsletterSignups: 3 },
-  { date: "Tue", pageViews: 145, uniqueVisitors: 92, articleReads: 55, bookingClicks: 12, bookingSubmits: 3, newsletterSignups: 4 },
-  { date: "Wed", pageViews: 132, uniqueVisitors: 88, articleReads: 61, bookingClicks: 10, bookingSubmits: 2, newsletterSignups: 5 },
-  { date: "Thu", pageViews: 180, uniqueVisitors: 110, articleReads: 75, bookingClicks: 18, bookingSubmits: 5, newsletterSignups: 7 },
-  { date: "Fri", pageViews: 210, uniqueVisitors: 130, articleReads: 92, bookingClicks: 24, bookingSubmits: 8, newsletterSignups: 10 },
-  { date: "Sat", pageViews: 260, uniqueVisitors: 160, articleReads: 120, bookingClicks: 31, bookingSubmits: 11, newsletterSignups: 14 },
-  { date: "Sun", pageViews: 240, uniqueVisitors: 150, articleReads: 112, bookingClicks: 28, bookingSubmits: 9, newsletterSignups: 12 },
-];
 
 type PV = {
   created_at: string;
@@ -331,11 +322,6 @@ const AnalyticsSection = () => {
           <div>
             <div className="text-[11px] uppercase tracking-[0.25em] text-primary mb-2">Traffic</div>
             <h2 className="text-cream text-2xl md:text-4xl uppercase tracking-tight font-semibold">Site Traffic Trends</h2>
-            {!hasAnyData && (
-              <div className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-2">
-                Sample preview · live data appears as visitors interact
-              </div>
-            )}
           </div>
           <div className="flex flex-wrap gap-2">
             {([7, 30, 90, 365] as Range[]).map((r) => (
@@ -354,23 +340,29 @@ const AnalyticsSection = () => {
           </div>
         </div>
         <div style={{ height: 420 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={hasAnyData ? trafficData : SAMPLE_TRAFFIC} margin={{ top: 10, right: 16, left: -10, bottom: 0 }}>
-              <CartesianGrid stroke="rgba(244,241,234,0.08)" vertical={false} />
-              <XAxis dataKey="date" stroke="rgba(244,241,234,0.55)" fontSize={11} tickLine={false} axisLine={false} />
-              <YAxis stroke="rgba(244,241,234,0.55)" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
-              <Tooltip
-                contentStyle={{ background: "#080808", border: "1px solid rgba(244,241,234,0.18)", color: "#f4f1ea", fontSize: 11, borderRadius: 2 }}
-                labelStyle={{ color: "#f4f1ea" }}
-              />
-              <Legend wrapperStyle={{ fontSize: 11, paddingTop: 12 }} />
-              <Line type="monotone" dataKey="pageViews" stroke={RTG_COLORS.pageViews} strokeWidth={3} dot={false} name="Page Views" />
-              <Line type="monotone" dataKey="uniqueVisitors" stroke={RTG_COLORS.visitors} strokeWidth={2} dot={false} name="Unique Visitors" />
-              <Line type="monotone" dataKey="articleReads" stroke={RTG_COLORS.articleReads} strokeWidth={2} dot={false} name="Article Reads" />
-              <Line type="monotone" dataKey="bookingClicks" stroke={RTG_COLORS.bookingClicks} strokeWidth={2} dot={false} name="Booking Clicks" />
-              <Line type="monotone" dataKey="bookingSubmits" stroke={RTG_COLORS.bookingSubmits} strokeWidth={2} dot={false} name="Booking Submits" />
-            </LineChart>
-          </ResponsiveContainer>
+          {hasAnyData ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={trafficData} margin={{ top: 10, right: 16, left: -10, bottom: 0 }}>
+                <CartesianGrid stroke="rgba(244,241,234,0.08)" vertical={false} />
+                <XAxis dataKey="date" stroke="rgba(244,241,234,0.55)" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="rgba(244,241,234,0.55)" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{ background: "#080808", border: "1px solid rgba(244,241,234,0.18)", color: "#f4f1ea", fontSize: 11, borderRadius: 2 }}
+                  labelStyle={{ color: "#f4f1ea" }}
+                />
+                <Legend wrapperStyle={{ fontSize: 11, paddingTop: 12 }} />
+                <Line type="monotone" dataKey="pageViews" stroke={RTG_COLORS.pageViews} strokeWidth={3} dot={false} name="Page Views" />
+                <Line type="monotone" dataKey="uniqueVisitors" stroke={RTG_COLORS.visitors} strokeWidth={2} dot={false} name="Unique Visitors" />
+                <Line type="monotone" dataKey="articleReads" stroke={RTG_COLORS.articleReads} strokeWidth={2} dot={false} name="Article Reads" />
+                <Line type="monotone" dataKey="bookingClicks" stroke={RTG_COLORS.bookingClicks} strokeWidth={2} dot={false} name="Booking Clicks" />
+                <Line type="monotone" dataKey="bookingSubmits" stroke={RTG_COLORS.bookingSubmits} strokeWidth={2} dot={false} name="Booking Submits" />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full flex items-center justify-center">
+              <EmptyState icon={TrendingUp} title="No traffic data yet for this period" />
+            </div>
+          )}
         </div>
       </div>
 

@@ -3,10 +3,10 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth, AppRole } from "@/contexts/AuthContext";
 
 const ProtectedRoute = ({ children, requireRoles }: { children: ReactNode; requireRoles?: AppRole[] }) => {
-  const { user, roles, loading } = useAuth();
+  const { user, roles, loading, rolesLoaded } = useAuth();
   const location = useLocation();
 
-  if (loading) {
+  if (loading || !rolesLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-muted-foreground text-sm uppercase tracking-widest">Loading…</div>
