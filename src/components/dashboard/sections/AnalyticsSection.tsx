@@ -23,15 +23,6 @@ const RTG_COLORS = {
 };
 const PIE_COLORS = ["#EF3340", "#F4F1EA", "#D9A441", "#29A8FF", "#18C58F", "#a78bfa", "#fb923c"];
 
-const SAMPLE_TRAFFIC = [
-  { date: "Mon", pageViews: 120, uniqueVisitors: 80, articleReads: 45, bookingClicks: 8, bookingSubmits: 2, newsletterSignups: 3 },
-  { date: "Tue", pageViews: 145, uniqueVisitors: 92, articleReads: 55, bookingClicks: 12, bookingSubmits: 3, newsletterSignups: 4 },
-  { date: "Wed", pageViews: 132, uniqueVisitors: 88, articleReads: 61, bookingClicks: 10, bookingSubmits: 2, newsletterSignups: 5 },
-  { date: "Thu", pageViews: 180, uniqueVisitors: 110, articleReads: 75, bookingClicks: 18, bookingSubmits: 5, newsletterSignups: 7 },
-  { date: "Fri", pageViews: 210, uniqueVisitors: 130, articleReads: 92, bookingClicks: 24, bookingSubmits: 8, newsletterSignups: 10 },
-  { date: "Sat", pageViews: 260, uniqueVisitors: 160, articleReads: 120, bookingClicks: 31, bookingSubmits: 11, newsletterSignups: 14 },
-  { date: "Sun", pageViews: 240, uniqueVisitors: 150, articleReads: 112, bookingClicks: 28, bookingSubmits: 9, newsletterSignups: 12 },
-];
 
 type PV = {
   created_at: string;
