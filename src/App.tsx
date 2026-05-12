@@ -21,7 +21,6 @@ import Fest from "./pages/Fest.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
-import StaffCodeSignup from "./pages/StaffCodeSignup.tsx";
 import StaffApprovals from "./pages/StaffApprovals.tsx";
 import ClientPortal from "./pages/ClientPortal.tsx";
 import Apply from "./pages/Apply.tsx";
