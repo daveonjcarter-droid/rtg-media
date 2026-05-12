@@ -215,6 +215,9 @@ const Book = () => {
     const crewMod = CREW_PACKAGES[form.crew_request_type].priceModifier;
     const budget = (form.service_details.budget as string) || null;
 
+    const serviceDetails: Record<string, unknown> = { ...form.service_details };
+    if (!form.project_date) serviceDetails.date_flexible = true;
+
     const payload = {
       name: form.name.trim(),
       email: form.email.trim(),
@@ -222,7 +225,7 @@ const Book = () => {
       instagram: form.instagram.trim() || null,
       service: spec.label,
       service_type: spec.id,
-      service_details: form.service_details,
+      service_details: serviceDetails,
       service_id: matchedService?.id ?? null,
       project_date: form.project_date ? format(form.project_date, "yyyy-MM-dd") : null,
       project_time: form.project_time,
@@ -235,7 +238,8 @@ const Book = () => {
         ? (form.service_details.project_summary as string)
         : "",
       requested_staff_id: form.staff_id,
-      assigned_staff_id: form.staff_id,
+      // Assigned staff must be confirmed by an admin in the dashboard.
+      assigned_staff_id: null,
       no_preference: form.no_preference,
       assignment_status: "needs_assignment",
       crew_request_type: form.crew_request_type,
@@ -248,17 +252,24 @@ const Book = () => {
       .from("bookings").insert(payload as any).select("id").maybeSingle();
 
     if (!error) {
-      await supabase.from("leads").insert({
-        name: payload.name, email: payload.email, phone: payload.phone, source: "booking" as const,
-      } as any);
-      logActivity({
-        kind: "booking_received",
-        title: `${payload.name} requested ${spec.label}`,
-        detail: form.staff_id
-          ? `Requested specific crew member`
-          : "No preference — RTG to assign",
-        meta: { booking_id: data?.id, service_type: spec.id },
-      });
+      await supabase.from("leads").upsert(
+        {
+          name: payload.name, email: payload.email, phone: payload.phone, source: "booking" as const,
+        } as any,
+        { onConflict: "email", ignoreDuplicates: true },
+      );
+      try {
+        await logActivity({
+          kind: "booking_received",
+          title: `${payload.name} requested ${spec.label}`,
+          detail: form.staff_id
+            ? `Requested specific crew member`
+            : "No preference — RTG to assign",
+          meta: { booking_id: data?.id, service_type: spec.id },
+        });
+      } catch (e) {
+        console.warn("logActivity failed (non-blocking):", e);
+      }
       const { trackEvent } = await import("@/lib/tracking");
       trackEvent("booking_submit", { booking_id: data?.id, service_type: spec.id });
     }
