@@ -340,23 +340,29 @@ const AnalyticsSection = () => {
           </div>
         </div>
         <div style={{ height: 420 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={hasAnyData ? trafficData : SAMPLE_TRAFFIC} margin={{ top: 10, right: 16, left: -10, bottom: 0 }}>
-              <CartesianGrid stroke="rgba(244,241,234,0.08)" vertical={false} />
-              <XAxis dataKey="date" stroke="rgba(244,241,234,0.55)" fontSize={11} tickLine={false} axisLine={false} />
-              <YAxis stroke="rgba(244,241,234,0.55)" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
-              <Tooltip
-                contentStyle={{ background: "#080808", border: "1px solid rgba(244,241,234,0.18)", color: "#f4f1ea", fontSize: 11, borderRadius: 2 }}
-                labelStyle={{ color: "#f4f1ea" }}
-              />
-              <Legend wrapperStyle={{ fontSize: 11, paddingTop: 12 }} />
-              <Line type="monotone" dataKey="pageViews" stroke={RTG_COLORS.pageViews} strokeWidth={3} dot={false} name="Page Views" />
-              <Line type="monotone" dataKey="uniqueVisitors" stroke={RTG_COLORS.visitors} strokeWidth={2} dot={false} name="Unique Visitors" />
-              <Line type="monotone" dataKey="articleReads" stroke={RTG_COLORS.articleReads} strokeWidth={2} dot={false} name="Article Reads" />
-              <Line type="monotone" dataKey="bookingClicks" stroke={RTG_COLORS.bookingClicks} strokeWidth={2} dot={false} name="Booking Clicks" />
-              <Line type="monotone" dataKey="bookingSubmits" stroke={RTG_COLORS.bookingSubmits} strokeWidth={2} dot={false} name="Booking Submits" />
-            </LineChart>
-          </ResponsiveContainer>
+          {hasAnyData ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={trafficData} margin={{ top: 10, right: 16, left: -10, bottom: 0 }}>
+                <CartesianGrid stroke="rgba(244,241,234,0.08)" vertical={false} />
+                <XAxis dataKey="date" stroke="rgba(244,241,234,0.55)" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="rgba(244,241,234,0.55)" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{ background: "#080808", border: "1px solid rgba(244,241,234,0.18)", color: "#f4f1ea", fontSize: 11, borderRadius: 2 }}
+                  labelStyle={{ color: "#f4f1ea" }}
+                />
+                <Legend wrapperStyle={{ fontSize: 11, paddingTop: 12 }} />
+                <Line type="monotone" dataKey="pageViews" stroke={RTG_COLORS.pageViews} strokeWidth={3} dot={false} name="Page Views" />
+                <Line type="monotone" dataKey="uniqueVisitors" stroke={RTG_COLORS.visitors} strokeWidth={2} dot={false} name="Unique Visitors" />
+                <Line type="monotone" dataKey="articleReads" stroke={RTG_COLORS.articleReads} strokeWidth={2} dot={false} name="Article Reads" />
+                <Line type="monotone" dataKey="bookingClicks" stroke={RTG_COLORS.bookingClicks} strokeWidth={2} dot={false} name="Booking Clicks" />
+                <Line type="monotone" dataKey="bookingSubmits" stroke={RTG_COLORS.bookingSubmits} strokeWidth={2} dot={false} name="Booking Submits" />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full flex items-center justify-center">
+              <EmptyState icon={TrendingUp} title="No traffic data yet for this period" />
+            </div>
+          )}
         </div>
       </div>
 
