@@ -62,7 +62,7 @@ const App = () => (
               {/* Auth */}
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
-              <Route path="/staff-code-signup" element={<StaffCodeSignup />} />
+              <Route path="/staff-code-signup" element={<Navigate to="/signup" replace />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
 
               {/* Private */}
