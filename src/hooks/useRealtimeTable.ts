@@ -22,11 +22,12 @@ export const useRealtimeTable = (
       if (timer) clearTimeout(timer);
       timer = setTimeout(() => cbRef.current(), debounceMs);
     };
-    const channel = supabase
-      .channel(`rt-${table}-${event}`)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .on("postgres_changes" as any, { event, schema: "public", table }, trigger)
-      .subscribe();
+    const channel = supabase.channel(
+      `rt-${table}-${event}-${Math.random().toString(36).slice(2, 10)}`,
+    );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (channel as any).on("postgres_changes", { event, schema: "public", table }, trigger);
+    channel.subscribe();
     return () => {
       if (timer) clearTimeout(timer);
       supabase.removeChannel(channel);
