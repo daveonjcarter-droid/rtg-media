@@ -55,6 +55,7 @@ type AuthContextValue = {
   signOut: () => Promise<void>;
   hasRole: (role: AppRole) => boolean;
   refreshRoles: () => Promise<void>;
+  rolesLoaded: boolean;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -64,31 +65,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
+  const [rolesLoaded, setRolesLoaded] = useState(false);
 
   const loadRoles = async (userId: string) => {
     const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
     setRoles((data ?? []).map((r) => r.role as AppRole));
+    setRolesLoaded(true);
   };
 
   useEffect(() => {
-    // Listener FIRST
+    // onAuthStateChange is the single source of truth.
     const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => {
       setSession(sess);
       setUser(sess?.user ?? null);
       if (sess?.user) {
+        setRolesLoaded(false);
         // Defer to avoid deadlocks
-        setTimeout(() => loadRoles(sess.user.id), 0);
+        setTimeout(() => {
+          loadRoles(sess.user.id).finally(() => setLoading(false));
+        }, 0);
       } else {
         setRoles([]);
+        setRolesLoaded(true);
+        setLoading(false);
       }
     });
 
-    // Then existing session
+    // getSession only handles the unauthenticated boot case.
     supabase.auth.getSession().then(({ data: { session: sess } }) => {
-      setSession(sess);
-      setUser(sess?.user ?? null);
-      if (sess?.user) loadRoles(sess.user.id).finally(() => setLoading(false));
-      else setLoading(false);
+      if (!sess?.user) {
+        setRolesLoaded(true);
+        setLoading(false);
+      }
     });
 
     return () => sub.subscription.unsubscribe();
