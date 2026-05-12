@@ -129,7 +129,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const refreshRoles = async () => { if (user) await loadRoles(user.id); };
 
   return (
-    <AuthContext.Provider value={{ user, session, roles, loading, signIn, signUp, signOut, hasRole, refreshRoles }}>
+    <AuthContext.Provider value={{ user, session, roles, loading, signIn, signUp, signOut, hasRole, refreshRoles, rolesLoaded }}>
       {children}
     </AuthContext.Provider>
   );
