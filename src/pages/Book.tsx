@@ -41,7 +41,7 @@ type Service = {
 };
 
 const TRUST = [
-  { icon: ShieldCheck, label: "Black-owned & operated" },
+  { icon: ShieldCheck, label: "Independent & operated" },
   { icon: Clock, label: "48-hour response" },
   { icon: Users, label: "Full in-house crew" },
   { icon: Star, label: "Cinematic quality" },

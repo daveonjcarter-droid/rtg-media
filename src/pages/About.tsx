@@ -26,7 +26,7 @@ const About = () => (
       <div>
         <div className="eyebrow mb-4">Our Story</div>
         <p className="text-2xl md:text-3xl font-display uppercase leading-tight">
-          RTG Media is a Black-owned Chicago media company built by young creatives — documenting culture and creating visual stories that last.
+          RTG Media is a Chicago media company built by young creatives — documenting culture and creating visual stories that last.
         </p>
       </div>
       <div className="space-y-5 text-muted-foreground leading-relaxed">
