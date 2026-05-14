@@ -92,7 +92,7 @@ const Index = () => {
               Live from Chicago
             </div>
             <div className="hidden md:block text-right text-cream/70 text-[10px] uppercase tracking-[0.3em] max-w-xs">
-              A BLACK-OWNED MEDIA & PRODUCTION COMPANY. FOUNDED BY DAVEON J. CARTER & BRENDYN SHIELDS.
+              A MEDIA & PRODUCTION COMPANY. FOUNDED BY DAVEON J. CARTER & BRENDYN SHIELDS.
             </div>
           </div>
 
@@ -220,8 +220,6 @@ const Index = () => {
               <span>Chicago</span>
               <span>·</span>
               <span>Independent</span>
-              <span>·</span>
-              <span>Black-owned</span>
               <span>·</span>
               <span>Issue 001</span>
             </div>

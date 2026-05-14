@@ -35,7 +35,7 @@ const SiteFooter = () => (
       </div>
 
       <p className="mt-6 max-w-xl mx-auto text-sm md:text-base text-cream/65 leading-relaxed uppercase tracking-[0.05em]">
-        A BLACK-OWNED MEDIA & PRODUCTION COMPANY. FOUNDED BY DAVEON J. CARTER & BRENDYN SHIELDS.
+        A MEDIA & PRODUCTION COMPANY. FOUNDED BY DAVEON J. CARTER & BRENDYN SHIELDS.
       </p>
 
       {/* Socials */}
