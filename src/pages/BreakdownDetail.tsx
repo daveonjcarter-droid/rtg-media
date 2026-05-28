@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Play, BookOpen, Film, Clock } from "lucide-react";
 import SiteLayout from "@/components/site/SiteLayout";
