@@ -496,59 +496,67 @@ export const RtgMagazineArticle = ({
         </div>
       </div>
 
-      {/* HEADLINE */}
+      {/* HEADLINE — ghost numeral overlaps the headline instead of floating in empty space */}
       <header className="container-rtg pt-12 pb-8 md:pt-20 md:pb-12">
-        <div className="mx-auto max-w-4xl">
-          <div className="mb-6 flex items-center gap-2 text-[10px] uppercase tracking-[0.32em] text-muted-foreground">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            <span className="text-cream">{cat}</span>
-            <span className="text-border">/</span>
-            <span>Issue 001</span>
-          </div>
-          <h1 className="font-condensed uppercase leading-[0.88] text-5xl md:text-7xl lg:text-[6rem]">
-            <span className="block text-cream">{top}</span>
-            {out && <span className="block text-hollow-primary">{out}</span>}
-          </h1>
-          {article.excerpt && (
-            <p className="mt-7 max-w-2xl font-editorial text-lg md:text-xl text-muted-foreground leading-relaxed">
-              {article.excerpt}
-            </p>
-          )}
-
-          {/* BYLINE BAR */}
-          <div className="mt-10 flex items-center justify-between gap-4 border-y border-border py-4">
-            <div className="flex items-center gap-3">
-              <span className="flex h-8 w-8 items-center justify-center border border-primary font-condensed text-sm text-primary">
-                {initial}
-              </span>
-              <span className="text-[10px] uppercase tracking-[0.3em] text-foreground/80">
-                By {author}
-              </span>
+        <div className="relative mx-auto max-w-4xl">
+          <span
+            aria-hidden
+            className="rtg-ghost pointer-events-none select-none -top-10 -left-4 md:-top-20 md:-left-10 text-[14rem] md:text-[24rem] leading-none"
+          >
+            {no}
+          </span>
+          <div className="relative">
+            <div className="mb-6 flex items-center gap-2 text-[10px] uppercase tracking-[0.32em] text-muted-foreground">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+              <span className="text-cream">{cat}</span>
+              <span className="text-border">/</span>
+              <span>Issue 001</span>
             </div>
-            <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-              {date && <span>{date}</span>}
-              <span className="text-primary">✳</span>
-              <span>{readTime(article)}</span>
+            <h1 className="font-condensed uppercase leading-[0.88] text-5xl md:text-7xl lg:text-[6rem]">
+              <span className="block text-cream">{top}</span>
+              {out && <span className="block text-hollow-primary">{out}</span>}
+            </h1>
+            {article.excerpt && (
+              <p className="mt-7 max-w-2xl font-editorial text-lg md:text-xl text-muted-foreground leading-relaxed">
+                {article.excerpt}
+              </p>
+            )}
+
+            {/* BYLINE BAR */}
+            <div className="mt-10 flex items-center justify-between gap-4 border-y border-border py-4">
+              <div className="flex items-center gap-3">
+                <span className="flex h-8 w-8 items-center justify-center border border-primary font-condensed text-sm text-primary">
+                  {initial}
+                </span>
+                <span className="text-[10px] uppercase tracking-[0.3em] text-foreground/80">
+                  By {author}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+                {date && <span>{date}</span>}
+                <span className="text-primary">✳</span>
+                <span>{readTime(article)}</span>
+              </div>
             </div>
           </div>
         </div>
       </header>
 
-      {/* HERO IMAGE */}
+      {/* HERO IMAGE — bleeds to the container edges */}
       {article.cover_image_url && (
         <section className="container-rtg pb-12 md:pb-16">
-          <div className="relative mx-auto max-w-5xl">
-            <span className="rtg-ghost -top-12 -right-2 text-[10rem] md:text-[16rem]" aria-hidden>
-              {no}
-            </span>
-            <Frame className="relative p-2">
-              <img
-                src={article.cover_image_url}
-                alt={article.title}
-                className="aspect-[16/9] w-full object-cover"
-              />
-            </Frame>
-          </div>
+          <figure className="relative rtg-photo-wrap border border-border bg-ink">
+            <img
+              src={article.cover_image_url}
+              alt={article.title}
+              className="rtg-photo block aspect-[21/9] w-full object-cover"
+            />
+            <CornerFrame />
+            <figcaption className="mt-3 flex items-center justify-between gap-4 text-[10px] uppercase tracking-[0.28em] text-muted-foreground">
+              <span className="truncate">{article.title}</span>
+              <span className="shrink-0 text-primary/80">Photo · RTG Archive</span>
+            </figcaption>
+          </figure>
         </section>
       )}
 
