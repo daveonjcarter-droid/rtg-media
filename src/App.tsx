@@ -27,7 +27,10 @@ import StaffApprovals from "./pages/StaffApprovals.tsx";
 import ClientPortal from "./pages/ClientPortal.tsx";
 import Apply from "./pages/Apply.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
+import Membership from "./pages/Membership.tsx";
+import CheckoutReturn from "./pages/CheckoutReturn.tsx";
 import NotFound from "./pages/NotFound.tsx";
+
 import FloatingLogo from "@/components/site/FloatingLogo";
 import PageTransition from "@/components/site/PageTransition";
 import ScrollToTop from "@/components/site/ScrollToTop";
@@ -61,6 +64,9 @@ const App = () => (
               <Route path="/fest" element={<Fest />} />
               <Route path="/picks" element={<Picks />} />
               <Route path="/apply" element={<Apply />} />
+              <Route path="/membership" element={<Membership />} />
+              <Route path="/checkout/return" element={<CheckoutReturn />} />
+
 
               {/* Auth */}
               <Route path="/login" element={<Login />} />

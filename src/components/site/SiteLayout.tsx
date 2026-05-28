@@ -1,9 +1,11 @@
 import { ReactNode } from "react";
 import SiteNav from "./SiteNav";
 import SiteFooter from "./SiteFooter";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 const SiteLayout = ({ children }: { children: ReactNode }) => (
   <div className="min-h-screen flex flex-col bg-background">
+    <PaymentTestModeBanner />
     <SiteNav />
     <main className="flex-1">{children}</main>
     <SiteFooter />
@@ -14,3 +16,4 @@ const SiteLayout = ({ children }: { children: ReactNode }) => (
 );
 
 export default SiteLayout;
+
