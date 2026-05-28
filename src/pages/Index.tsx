@@ -101,7 +101,7 @@ const Index = () => {
             {heroLines.map((line, i) => {
               const isHollow = i === heroLines.length - 1 && heroLines.length > 1;
               return (
-                <span key={i} className={`block max-w-full ${i > 0 ? "-mt-[0.45em]" : ""} ${isHollow ? "" : "relative z-10"}`}>
+                <span key={i} className={`block max-w-full ${i > 0 ? "-mt-[0.15em]" : ""} ${isHollow ? "" : "relative z-10"}`}>
                   <span
                     className={isHollow ? "text-hollow-primary mask-reveal delay-500" : "hero-rise"}
                     style={!isHollow ? { animationDelay: `${i * 140 + 200}ms` } : undefined}
