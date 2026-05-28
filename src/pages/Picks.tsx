@@ -1,0 +1,64 @@
+import { useMemo } from "react";
+import SiteLayout from "@/components/site/SiteLayout";
+import {
+  ArtistPicksGrid,
+  IssueRule,
+  PublicCountdown,
+  useCurrentPicks,
+  dueAt,
+  type Pick,
+} from "@/components/site/ArtistPicks";
+import { IssueRule as MagIssueRule } from "@/components/site/RtgMagazine";
+
+const Picks = () => {
+  const { picks, loading } = useCurrentPicks();
+
+  const nextDrop = useMemo(() => {
+    const all = [picks.mainstream, picks.independent].filter(Boolean) as Pick[];
+    if (!all.length) return null;
+    return all.reduce((soonest, p) =>
+      dueAt(p.published_at) < dueAt(soonest.published_at) ? p : soonest
+    );
+  }, [picks]);
+
+  return (
+    <SiteLayout>
+      <div className="rtg-stage grain-heavy">
+        {/* MASTHEAD */}
+        <section className="border-b border-border">
+          <div className="container-rtg pt-16 md:pt-24 pb-10 md:pb-14">
+            <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+              <div>
+                <div className="mb-4 flex items-center gap-2 text-[10px] uppercase tracking-[0.32em] text-primary">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  RTG Picks · Artist of the Week
+                </div>
+                <h1 className="rtg-period font-condensed uppercase leading-[0.85] text-cream text-7xl md:text-[10rem]">
+                  Picks
+                </h1>
+              </div>
+              <div className="md:text-right">
+                <p className="max-w-sm text-sm text-muted-foreground">
+                  Every week, two names from RTG: one from the mainstream, one from the underground.
+                </p>
+                <div className="mt-4 text-[10px] uppercase tracking-[0.32em] text-muted-foreground">
+                  <PublicCountdown pick={nextDrop} />
+                </div>
+              </div>
+            </div>
+            <div className="mt-10">
+              <MagIssueRule>Issue 001 · Spring 2026</MagIssueRule>
+            </div>
+          </div>
+        </section>
+
+        {/* TWO-UP CARDS */}
+        <section className="container-rtg py-14 md:py-20">
+          <ArtistPicksGrid picks={picks} loading={loading} />
+        </section>
+      </div>
+    </SiteLayout>
+  );
+};
+
+export default Picks;
