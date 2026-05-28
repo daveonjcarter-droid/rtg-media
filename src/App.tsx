@@ -59,6 +59,7 @@ const App = () => (
               <Route path="/team/:slug" element={<TeamProfile />} />
               <Route path="/advertise" element={<Advertise />} />
               <Route path="/fest" element={<Fest />} />
+              <Route path="/picks" element={<Picks />} />
               <Route path="/apply" element={<Apply />} />
 
               {/* Auth */}
