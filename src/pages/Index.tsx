@@ -71,7 +71,7 @@ const Index = () => {
       <section className="relative min-h-[100svh] overflow-hidden bg-ink grain-heavy light-leak">
         {content.hero.backgroundImage ? (
           <>
-            <img src={content.hero.backgroundImage} alt="" className="absolute inset-0 w-full h-full object-cover opacity-50" />
+            <img src={content.hero.backgroundImage} alt="" width={1920} height={1080} fetchPriority="high" decoding="async" className="absolute inset-0 w-full h-full object-cover opacity-50" />
             <div className="absolute inset-0 bg-gradient-to-b from-ink/40 via-ink/60 to-ink" />
           </>
         ) : (
