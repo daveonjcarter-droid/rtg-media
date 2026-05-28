@@ -7,6 +7,9 @@ const SiteLayout = ({ children }: { children: ReactNode }) => (
     <SiteNav />
     <main className="flex-1">{children}</main>
     <SiteFooter />
+    {/* Site-wide editorial texture — never interactive */}
+    <div aria-hidden className="rtg-site-vignette" />
+    <div aria-hidden className="rtg-site-grain" />
   </div>
 );
 
