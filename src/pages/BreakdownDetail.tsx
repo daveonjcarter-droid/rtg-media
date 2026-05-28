@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Play, BookOpen, Film, Clock } from "lucide-react";
 import SiteLayout from "@/components/site/SiteLayout";
@@ -81,6 +82,17 @@ const BreakdownDetail = () => {
 
   return (
     <SiteLayout>
+      <Helmet>
+        <title>{`${episode.title} — RTG Breakdown`}</title>
+        {episode.summary && <meta name="description" content={episode.summary.slice(0, 160)} />}
+        <link rel="canonical" href={`https://runnerstogreatness.com/breakdown/${episode.slug}`} />
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={`${episode.title} — RTG Breakdown`} />
+        {episode.summary && <meta property="og:description" content={episode.summary.slice(0, 200)} />}
+        <meta property="og:url" content={`https://runnerstogreatness.com/breakdown/${episode.slug}`} />
+        {episode.cover_image_url && <meta property="og:image" content={episode.cover_image_url} />}
+        <meta name="twitter:card" content="summary_large_image" />
+      </Helmet>
       {/* HERO */}
       <section className="relative bg-ink text-cream border-b border-border overflow-hidden grain-heavy">
         {episode.cover_image_url && (
