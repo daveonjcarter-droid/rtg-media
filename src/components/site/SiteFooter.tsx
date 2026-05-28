@@ -101,15 +101,22 @@ const SiteFooter = () => (
 
     {/* ============ COLOPHON ============ */}
     <div className="relative border-t border-border/70">
-      <div className="container-rtg py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] uppercase tracking-[0.3em] text-cream/45">
-        <span>© {new Date().getFullYear()} RTG MEDIA LLC. ALL RIGHTS RESERVED.</span>
-        <span className="flex items-center gap-3">
-          <span>Chicago</span>
-          <span className="h-1 w-1 rounded-full bg-cream/30" />
-          <a href="https://runnerstogreatness.com" className="hover:text-primary transition-colors normal-case tracking-normal">
-            runnerstogreatness.com
-          </a>
+      <div className="container-rtg py-7 flex flex-col items-center gap-4 md:flex-row md:justify-between">
+        <span className="text-[11px] uppercase tracking-[0.3em] text-cream/45">
+          © {new Date().getFullYear()} RTG Media LLC · All rights reserved
         </span>
+        <span
+          className="font-gothic text-cream/80 text-xl md:text-2xl leading-none tracking-[0.04em]"
+          aria-label="Issue 001 · Chicago · 2026"
+        >
+          Issue 001 · Chicago · MMXXVI
+        </span>
+        <a
+          href="https://runnerstogreatness.com"
+          className="text-[11px] uppercase tracking-[0.3em] text-cream/45 hover:text-primary transition-colors"
+        >
+          runnerstogreatness.com
+        </a>
       </div>
     </div>
   </footer>
