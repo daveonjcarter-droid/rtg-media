@@ -143,13 +143,22 @@ const Articles = () => {
                   {filtered.length} {filtered.length === 1 ? "Story" : "Stories"}
                 </div>
               </div>
-              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 md:gap-10">
-                {filtered.map((a, i) => (
-                  <Reveal key={a.id}>
-                    <MagCard a={a} index={i} />
-                  </Reveal>
-                ))}
-              </div>
+
+              {/* Featured (newest) — full-bleed two-column card */}
+              {filtered.length > 0 && (
+                <div className="mb-12 md:mb-16">
+                  <MagCard a={filtered[0]} index={0} featured />
+                </div>
+              )}
+
+              {/* Rest of the grid */}
+              {filtered.length > 1 && (
+                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 md:gap-10">
+                  {filtered.slice(1).map((a, i) => (
+                    <MagCard key={a.id} a={a} index={i + 1} />
+                  ))}
+                </div>
+              )}
             </>
           )}
         </section>
