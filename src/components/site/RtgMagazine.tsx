@@ -147,7 +147,15 @@ export const AsteriskTicker = () => (
 
 /* ---------- the article card ---------- */
 
-export const MagCard = ({ a, index = 0 }: { a: MagArticle; index?: number }) => {
+export const MagCard = ({
+  a,
+  index = 0,
+  featured = false,
+}: {
+  a: MagArticle;
+  index?: number;
+  featured?: boolean;
+}) => {
   const no = articleNo(a, index + 1);
   const { top, out } = splitTitle(a.title);
   const cat = (a.category || "RTG").toUpperCase();
@@ -155,6 +163,67 @@ export const MagCard = ({ a, index = 0 }: { a: MagArticle; index?: number }) => 
   const onKey = (e: KeyboardEvent<HTMLAnchorElement>) => {
     if (e.key === "Enter") (e.currentTarget as HTMLAnchorElement).click();
   };
+
+  if (featured) {
+    return (
+      <Link
+        to={`/articles/${a.slug || a.id}`}
+        onKeyDown={onKey}
+        className="group relative block border border-border bg-card transition-all duration-500 hover:border-primary/60 hover:shadow-[0_28px_60px_-22px_hsl(var(--primary)/0.55)] focus-visible:outline-none focus-visible:border-primary"
+        aria-label={a.title}
+      >
+        <div className="grid md:grid-cols-5">
+          {/* BLEED HERO */}
+          <div className="relative md:col-span-3 rtg-photo-wrap aspect-[16/10] md:aspect-auto md:min-h-[420px] bg-ink overflow-hidden">
+            {a.cover_image_url ? (
+              <img
+                src={a.cover_image_url}
+                alt={a.title}
+                className="rtg-photo h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-ink via-background to-surface">
+                <span className="font-gothic text-7xl text-primary/40">RTG</span>
+              </div>
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent z-[2]" />
+            <div className="absolute left-4 top-4 z-[3]">
+              <FlagTag>{cat}</FlagTag>
+            </div>
+            <CornerFrame />
+          </div>
+
+          {/* COPY */}
+          <div className="relative md:col-span-2 overflow-hidden p-7 md:p-10 flex flex-col justify-between">
+            <span className="rtg-ghost -top-6 right-2 text-[12rem] md:text-[16rem]">{no}</span>
+            <div className="relative">
+              <div className="mb-4 flex items-center gap-2 text-[10px] uppercase tracking-[0.32em] text-primary">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                The Cover · Issue 001 · No. {no}
+              </div>
+              <h2 className="font-condensed uppercase leading-[0.9] text-4xl md:text-[3.25rem] -mt-1">
+                <span className="block text-cream">{top}</span>
+                {out && <span className="block text-hollow-primary">{out}</span>}
+              </h2>
+              {a.excerpt && (
+                <p className="mt-5 line-clamp-4 font-editorial text-base md:text-lg text-muted-foreground leading-relaxed">
+                  {a.excerpt}
+                </p>
+              )}
+            </div>
+            <div className="relative mt-8 flex items-center gap-2 text-[10px] uppercase tracking-[0.28em] text-muted-foreground border-t border-border pt-4">
+              {a.writer_name && <span className="text-foreground/80">By {a.writer_name}</span>}
+              {a.writer_name && <span className="text-primary">✳</span>}
+              {date && <span>{date}</span>}
+              <span className="text-primary">✳</span>
+              <span>{readTime(a)}</span>
+            </div>
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
   return (
     <Link
       to={`/articles/${a.slug || a.id}`}
@@ -163,21 +232,21 @@ export const MagCard = ({ a, index = 0 }: { a: MagArticle; index?: number }) => 
       aria-label={a.title}
     >
       {/* THUMB */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-ink">
+      <div className="relative aspect-[4/3] overflow-hidden bg-ink rtg-photo-wrap">
         {a.cover_image_url ? (
           <img
             src={a.cover_image_url}
             alt={a.title}
             loading="lazy"
-            className="h-full w-full object-cover grayscale transition-all duration-700 group-hover:scale-[1.06] group-hover:grayscale-0"
+            className="rtg-photo h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.06]"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-ink via-background to-surface">
             <span className="font-gothic text-5xl text-primary/40">RTG</span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" />
-        <div className="absolute left-3 top-3">
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent z-[2]" />
+        <div className="absolute left-3 top-3 z-[3]">
           <FlagTag size="sm">{cat}</FlagTag>
         </div>
         <CornerFrame />
@@ -210,6 +279,7 @@ export const MagCard = ({ a, index = 0 }: { a: MagArticle; index?: number }) => 
     </Link>
   );
 };
+
 
 /* ---------- "MORE FROM ISSUE 001" related strip ---------- */
 
