@@ -71,6 +71,14 @@ const App = () => (
               {/* Private */}
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/dashboard/:section" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route
+                path="/admin/picks"
+                element={
+                  <ProtectedRoute requireRoles={["admin","head_admin","owner","co_ceo"]}>
+                    <PicksAdmin />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/staff-approvals" element={<ProtectedRoute><StaffApprovals /></ProtectedRoute>} />
               <Route path="/portal" element={<ClientPortal />} />
               <Route path="/portal/:tab" element={<ClientPortal />} />
