@@ -14,7 +14,7 @@ const MENUS: NavEntry[] = [
     items: [
       { label: "Articles", to: "/articles" },
       { label: "RTG Breakdown", to: "/breakdown" },
-      { label: "RTG Picks", to: "/articles" },
+      { label: "RTG Picks", to: "/picks" },
     ],
   },
   {

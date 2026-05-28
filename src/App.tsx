@@ -18,6 +18,8 @@ import Team from "./pages/Team.tsx";
 import TeamProfile from "./pages/TeamProfile.tsx";
 import Advertise from "./pages/Advertise.tsx";
 import Fest from "./pages/Fest.tsx";
+import Picks from "./pages/Picks.tsx";
+import PicksAdmin from "./pages/PicksAdmin.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
@@ -57,6 +59,7 @@ const App = () => (
               <Route path="/team/:slug" element={<TeamProfile />} />
               <Route path="/advertise" element={<Advertise />} />
               <Route path="/fest" element={<Fest />} />
+              <Route path="/picks" element={<Picks />} />
               <Route path="/apply" element={<Apply />} />
 
               {/* Auth */}
@@ -68,6 +71,14 @@ const App = () => (
               {/* Private */}
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/dashboard/:section" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route
+                path="/admin/picks"
+                element={
+                  <ProtectedRoute requireRoles={["admin","head_admin","owner","co_ceo"]}>
+                    <PicksAdmin />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/staff-approvals" element={<ProtectedRoute><StaffApprovals /></ProtectedRoute>} />
               <Route path="/portal" element={<ClientPortal />} />
               <Route path="/portal/:tab" element={<ClientPortal />} />

@@ -1665,6 +1665,48 @@ export type Database = {
         }
         Relationships: []
       }
+      picks: {
+        Row: {
+          artist_name: string
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          is_current: boolean
+          link: string | null
+          published_at: string
+          updated_at: string
+        }
+        Insert: {
+          artist_name: string
+          category: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_current?: boolean
+          link?: string | null
+          published_at?: string
+          updated_at?: string
+        }
+        Update: {
+          artist_name?: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_current?: boolean
+          link?: string | null
+          published_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       portfolio_items: {
         Row: {
           approval_status: string
@@ -2872,6 +2914,34 @@ export type Database = {
           source_queue: string
         }
         Returns: number
+      }
+      publish_pick: {
+        Args: {
+          _artist_name: string
+          _category: string
+          _description: string
+          _image_url: string
+          _link: string
+        }
+        Returns: {
+          artist_name: string
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          is_current: boolean
+          link: string | null
+          published_at: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "picks"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
