@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import SiteLayout from "@/components/site/SiteLayout";
+import PageSeo from "@/components/site/PageSeo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -307,6 +308,7 @@ const Book = () => {
 
   return (
     <SiteLayout>
+      <PageSeo title="Book a Shoot — Photo, Video & Music Video Production | RTG Media" description="Request a booking with RTG Media. Place a deposit and lock in your production date for photo, video, music video, or live event work." path="/book" />
       <section className="container-rtg pt-12 md:pt-16 pb-6">
         <div className="eyebrow mb-3">Book RTG</div>
         <h1 className="font-display text-4xl md:text-6xl uppercase leading-none">Start a Project.</h1>

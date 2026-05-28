@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Check, Sparkles, ArrowUpRight } from "lucide-react";
 import SiteLayout from "@/components/site/SiteLayout";
+import PageSeo from "@/components/site/PageSeo";
 import { Button } from "@/components/ui/button";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 import { useAuth } from "@/contexts/AuthContext";
@@ -36,6 +37,7 @@ export default function Membership() {
 
   return (
     <SiteLayout>
+      <PageSeo title="RTG Plus — Membership & Subscriber Perks | RTG Media" description="Join RTG Plus for member-only stories, early access, and behind-the-scenes drops from RTG Media. Monthly or yearly." path="/membership" />
       <section className="relative bg-ink text-cream py-20 md:py-28 grain-heavy border-b border-border">
         <div className="container-rtg">
           <div className="eyebrow text-primary mb-4 flex items-center gap-2">

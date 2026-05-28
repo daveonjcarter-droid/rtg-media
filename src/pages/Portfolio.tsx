@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Camera, Video } from "lucide-react";
 import SiteLayout from "@/components/site/SiteLayout";
+import PageSeo from "@/components/site/PageSeo";
 import EmptyState from "@/components/site/EmptyState";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -44,6 +45,7 @@ const Portfolio = () => {
 
   return (
     <SiteLayout>
+      <PageSeo title="Portfolio — Selected Production Work | RTG Media" description="Selected photo, video, music video, and brand production work from the RTG Media studio in Chicago." path="/portfolio" />
       <section className="container-rtg pt-16 md:pt-20 pb-10 border-b border-border">
         <div className="eyebrow mb-3">Selected Work</div>
         <h1 className="font-display text-5xl md:text-7xl uppercase leading-none">Portfolio</h1>

@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import PageSeo from "@/components/site/PageSeo";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
@@ -212,6 +213,7 @@ export default function Apply() {
 
   return (
     <SiteLayout>
+      <PageSeo title="Apply to Join RTG Media — Contributors & Crew" description="Apply to join the RTG Media team: writers, directors, photographers, producers, and contributors shaping the next era of culture." path="/apply" />
       <section className="container-rtg py-16 md:py-24 max-w-3xl mx-auto">
         <div className="text-center mb-10">
           <div className="eyebrow text-primary mb-3">Apply to join RTG</div>

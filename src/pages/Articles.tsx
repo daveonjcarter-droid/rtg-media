@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Newspaper } from "lucide-react";
 import SiteLayout from "@/components/site/SiteLayout";
+import PageSeo from "@/components/site/PageSeo";
 import EmptyState from "@/components/site/EmptyState";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -55,6 +56,7 @@ const Articles = () => {
 
   return (
     <SiteLayout>
+      <PageSeo title="Articles — Features, Interviews & Reviews | RTG Media" description="Long-form features, interviews, film and music reviews, and cultural reporting from the RTG editorial team." path="/articles" />
       <div className="rtg-stage grain-heavy">
         {/* MASTHEAD */}
         <section className="border-b border-border">

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Users, ArrowRight } from "lucide-react";
 import SiteLayout from "@/components/site/SiteLayout";
+import PageSeo from "@/components/site/PageSeo";
 import EmptyState from "@/components/site/EmptyState";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -35,6 +36,7 @@ const Team = () => {
 
   return (
     <SiteLayout>
+      <PageSeo title="The Team — Writers, Directors & Producers | RTG Media" description="Meet the writers, directors, photographers, and producers building RTG Media — a Chicago cultural media brand." path="/team" />
       <section className="container-rtg pt-16 md:pt-20 pb-10 border-b border-border">
         <div className="eyebrow mb-3">The People Behind The Brand</div>
         <h1 className="font-display text-5xl md:text-7xl uppercase leading-none">The Team</h1>

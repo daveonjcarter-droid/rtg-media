@@ -1,5 +1,6 @@
 import { useState } from "react";
 import SiteLayout from "@/components/site/SiteLayout";
+import PageSeo from "@/components/site/PageSeo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -42,6 +43,7 @@ const Fest = () => {
 
   return (
     <SiteLayout>
+      <PageSeo title="RTG Fest — Live Events & Festival Coverage" description="RTG Fest: live music, film, and culture event coverage from the Runners To Greatness team." path="/fest" />
       {/* HERO */}
       <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden bg-ink text-cream">
         <div aria-hidden className="absolute inset-0 grain opacity-60" />
