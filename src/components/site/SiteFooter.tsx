@@ -109,7 +109,7 @@ const SiteFooter = () => (
           className="font-gothic text-cream/80 md:text-2xl leading-none tracking-[0.04em] text-4xl"
           aria-label="Chicago"
         >
-          &nbsp;· Chicago ·&nbsp;
+          · Chicago ·
         </span>
         <a
           href="https://runnerstogreatness.com"
