@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -74,6 +75,32 @@ const Services = () => {
 
   return (
     <SiteLayout>
+      <Helmet>
+        <title>Production Services — Photo, Video, Music Videos | RTG Media</title>
+        <meta name="description" content="RTG Media production services: editorial photography, cinematic videography, music videos, film, editing, live events, podcast, and brand content — based in Chicago." />
+        <link rel="canonical" href="https://runnerstogreatness.com/services" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Production Services — RTG Media" />
+        <meta property="og:url" content="https://runnerstogreatness.com/services" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": services.map((s) => ({
+            "@type": "Service",
+            name: s.name,
+            description: s.short_description || undefined,
+            serviceType: s.name,
+            url: `https://runnerstogreatness.com/services${s.slug ? `#${s.slug}` : ""}`,
+            provider: { "@type": "Organization", name: "RTG Media", url: "https://runnerstogreatness.com" },
+            areaServed: { "@type": "City", name: "Chicago" },
+            offers: s.base_price != null ? {
+              "@type": "Offer",
+              price: s.sale_price ?? s.base_price,
+              priceCurrency: "USD",
+              priceSpecification: { "@type": "PriceSpecification", price: s.sale_price ?? s.base_price, priceCurrency: "USD", description: s.pricing_model },
+            } : undefined,
+          })),
+        })}</script>
+      </Helmet>
       <section className="relative h-[55vh] overflow-hidden grain">
         <img src={servicesStudio} alt="RTG Media production studio" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
