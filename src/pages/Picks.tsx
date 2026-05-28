@@ -2,13 +2,12 @@ import { useMemo } from "react";
 import SiteLayout from "@/components/site/SiteLayout";
 import {
   ArtistPicksGrid,
-  IssueRule,
   PublicCountdown,
   useCurrentPicks,
   dueAt,
   type Pick,
 } from "@/components/site/ArtistPicks";
-import { IssueRule as MagIssueRule } from "@/components/site/RtgMagazine";
+import { IssueRule } from "@/components/site/RtgMagazine";
 
 const Picks = () => {
   const { picks, loading } = useCurrentPicks();
