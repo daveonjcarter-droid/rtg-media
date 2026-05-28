@@ -106,10 +106,10 @@ const SiteFooter = () => (
           © {new Date().getFullYear()} RTG Media LLC · All rights reserved
         </span>
         <span
-          className="font-gothic text-cream/80 text-xl md:text-2xl leading-none tracking-[0.04em]"
-          aria-label="Issue 001 · Chicago · 2026"
+          className="font-gothic text-cream/80 md:text-2xl leading-none tracking-[0.04em] text-4xl"
+          aria-label="Chicago"
         >
-          Issue 001 · Chicago · MMXXVI
+          &nbsp;· Chicago ·&nbsp;
         </span>
         <a
           href="https://runnerstogreatness.com"
