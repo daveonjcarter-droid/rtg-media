@@ -1,11 +1,49 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { Newspaper, ArrowLeft, ArrowUpRight, Star, Award, Clock, Calendar as CalendarIcon, Film as FilmIcon, User, AlertTriangle, Check, X, Music, Mic, Layers, Radio, MapPin, Gamepad2, Building2, Tv2 } from "lucide-react";
 import SiteLayout from "@/components/site/SiteLayout";
 import EmptyState from "@/components/site/EmptyState";
 import { supabase } from "@/integrations/supabase/client";
 import { StarRatingDisplay, type ReviewBlock } from "@/components/dashboard/ReviewBlocks";
 import { RtgMagazineArticle, type MagArticle } from "@/components/site/RtgMagazine";
+
+const SITE_URL = "https://runnerstogreatness.com";
+
+const ArticleSeo = ({ article }: { article: Article }) => {
+  const title = article.seo_title || article.title;
+  const description = article.seo_description || article.excerpt || "";
+  const url = `${SITE_URL}/articles/${article.slug || article.id}`;
+  const image = article.cover_image_url || undefined;
+  return (
+    <Helmet>
+      <title>{`${title} — RTG Media`}</title>
+      {description && <meta name="description" content={description} />}
+      <link rel="canonical" href={url} />
+      <meta property="og:type" content="article" />
+      <meta property="og:title" content={title} />
+      {description && <meta property="og:description" content={description} />}
+      <meta property="og:url" content={url} />
+      {image && <meta property="og:image" content={image} />}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={title} />
+      {description && <meta name="twitter:description" content={description} />}
+      {image && <meta name="twitter:image" content={image} />}
+      {article.published_at && <meta property="article:published_time" content={article.published_at} />}
+      <script type="application/ld+json">{JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: title,
+        description,
+        image: image ? [image] : undefined,
+        datePublished: article.published_at || undefined,
+        author: article.writer_name ? { "@type": "Person", name: article.writer_name } : undefined,
+        mainEntityOfPage: url,
+      })}</script>
+    </Helmet>
+  );
+};
+
 
 type Article = {
   id: string;
