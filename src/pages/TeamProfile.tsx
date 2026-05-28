@@ -99,6 +99,16 @@ const TeamProfile = () => {
 
   return (
     <SiteLayout>
+      <Helmet>
+        <title>{`${staff.display_name}${staff.role_title ? ` — ${staff.role_title}` : ""} | RTG Media`}</title>
+        {staff.bio && <meta name="description" content={staff.bio.slice(0, 160)} />}
+        <link rel="canonical" href={`https://runnerstogreatness.com/team/${staff.slug}`} />
+        <meta property="og:type" content="profile" />
+        <meta property="og:title" content={`${staff.display_name} — RTG Media`} />
+        {staff.bio && <meta property="og:description" content={staff.bio.slice(0, 200)} />}
+        <meta property="og:url" content={`https://runnerstogreatness.com/team/${staff.slug}`} />
+        {staff.photo_url && <meta property="og:image" content={staff.photo_url} />}
+      </Helmet>
       {/* Cover */}
       <section className="relative h-[40vh] md:h-[50vh] overflow-hidden grain bg-surface">
         {staff.cover_image_url && <img src={staff.cover_image_url} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />}
