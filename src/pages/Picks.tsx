@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import SiteLayout from "@/components/site/SiteLayout";
+import PageSeo from "@/components/site/PageSeo";
 import {
   ArtistPicksGrid,
   PublicCountdown,
@@ -22,6 +23,7 @@ const Picks = () => {
 
   return (
     <SiteLayout>
+      <PageSeo title="RTG Picks — Editor Recommendations in Music, Film & Culture" description="The RTG editors' running list of recommended music, films, gear, and cultural moments worth your attention." path="/picks" />
       <div className="rtg-stage grain-heavy">
         {/* MASTHEAD */}
         <section className="border-b border-border">

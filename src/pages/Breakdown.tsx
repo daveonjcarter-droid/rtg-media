@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Film, Play } from "lucide-react";
 import SiteLayout from "@/components/site/SiteLayout";
+import PageSeo from "@/components/site/PageSeo";
 import EmptyState from "@/components/site/EmptyState";
 import EpisodeCard from "@/components/site/EpisodeCard";
 import Reveal from "@/components/site/Reveal";
@@ -41,6 +42,7 @@ const Breakdown = () => {
 
   return (
     <SiteLayout>
+      <PageSeo title="The Breakdown — Episodes & Deep Dives | RTG Media" description="In-depth video and written breakdowns of the moments shaping music, sport, film, and culture — by RTG Media." path="/breakdown" />
       {/* HERO */}
       <section className="relative overflow-hidden grain-heavy border-b border-border bg-ink">
         <img src={breakdownBg} alt="" className="absolute inset-0 w-full h-full object-cover opacity-30 ken-burns" />

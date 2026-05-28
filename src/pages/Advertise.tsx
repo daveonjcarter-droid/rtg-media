@@ -1,5 +1,6 @@
 import { useState } from "react";
 import SiteLayout from "@/components/site/SiteLayout";
+import PageSeo from "@/components/site/PageSeo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -48,6 +49,7 @@ const Advertise = () => {
 
   return (
     <SiteLayout>
+      <PageSeo title="Advertise with RTG Media — Sponsorships & Brand Partnerships" description="Reach the RTG audience: sponsored articles, newsletter placements, video integrations, and banner partnerships across RTG Media." path="/advertise" />
       <section className="container-rtg pt-16 md:pt-20 pb-10 border-b border-border">
         <div className="eyebrow mb-3">Partnerships</div>
         <h1 className="font-display text-5xl md:text-7xl uppercase leading-none">Advertise<br />With RTG.</h1>

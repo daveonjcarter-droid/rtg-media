@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, ArrowUpRight, Camera, Video, Music, Film, Scissors, Radio, Mic, Sparkles, Newspaper, Users, Flame, Play } from "lucide-react";
 import SiteLayout from "@/components/site/SiteLayout";
+import PageSeo from "@/components/site/PageSeo";
 import NewsletterForm from "@/components/site/NewsletterForm";
 import EmptyState from "@/components/site/EmptyState";
 import Reveal from "@/components/site/Reveal";
@@ -67,6 +68,7 @@ const Index = () => {
 
   return (
     <SiteLayout>
+      <PageSeo title="RTG Media — We Document Culture. We Create Legacy." description="Chicago media and production company covering film, music, fashion, and the culture. Read RTG features, watch breakdowns, and book the studio." path="/" />
       {/* ============ HERO ============ */}
       <section className="relative min-h-[100svh] overflow-hidden bg-ink grain-heavy light-leak">
         {content.hero.backgroundImage ? (

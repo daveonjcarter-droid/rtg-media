@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import SiteLayout from "@/components/site/SiteLayout";
+import PageSeo from "@/components/site/PageSeo";
 import { Button } from "@/components/ui/button";
 import heroImg from "@/assets/hero-videographer.jpg";
 
@@ -11,6 +12,7 @@ const VALUES = [
 
 const About = () => (
   <SiteLayout>
+    <PageSeo title="About RTG Media — Our Mission & Story" description="The story behind Runners To Greatness: a Chicago-born cultural media brand and production studio documenting film, music, sport, and style." path="/about" />
     <section className="relative h-[60vh] overflow-hidden grain">
       <img src={heroImg} alt="" className="absolute inset-0 w-full h-full object-cover" />
       <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
