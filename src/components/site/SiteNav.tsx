@@ -51,8 +51,8 @@ const isMenu = (e: NavEntry): e is NavMenu => "items" in e;
 const rowClass =
   "group/row relative block px-5 py-3 outline-none transition-colors hover:bg-white/[0.03] focus-visible:bg-white/[0.03]";
 const titleClass =
-  "font-bold uppercase tracking-wider text-[14px] text-foreground transition-colors group-hover/row:text-primary group-focus-visible/row:text-primary";
-const descClass = "mt-0.5 text-[12px] text-muted-foreground";
+  "block font-bold uppercase tracking-wider text-[14px] text-foreground transition-colors group-hover/row:text-primary group-focus-visible/row:text-primary";
+const descClass = "block mt-[3px] text-[12px] text-muted-foreground normal-case tracking-normal";
 const glowClass =
   "pointer-events-none absolute inset-x-0 bottom-0 h-px bg-primary opacity-0 shadow-[0_0_18px_4px_hsl(var(--primary)/0.35)] transition-opacity group-hover/row:opacity-70 group-focus-visible/row:opacity-70";
 
