@@ -1,0 +1,25 @@
+# Runners To Greatness
+
+> A Chicago-born cultural media brand covering music, sport, style, and the creators shaping the next era — paired with an in-house production studio for shoots, music videos, and brand campaigns.
+
+Runners To Greatness (RTG) publishes long-form features, interviews, and editorial breakdowns alongside a working production arm that books photo, video, and creative services. The site also hosts RTG Plus memberships and event coverage.
+
+## Pages
+
+- [Home](/): Overview of RTG's editorial, production, and membership offerings.
+- [About](/about): The mission, the team, and the story behind Runners To Greatness.
+- [Articles](/articles): Latest editorial features, interviews, and cultural reporting.
+- [Breakdown](/breakdown): In-depth breakdowns of moments in music, sport, and culture.
+- [Services](/services): Production services — photo, video, music videos, brand work.
+- [Portfolio](/portfolio): Selected production work and case studies.
+- [Book a Shoot](/book): Request a booking and place a deposit for a production date.
+- [Team](/team): Writers, directors, photographers, and producers behind RTG.
+- [Advertise](/advertise): Sponsorship, sponsored articles, newsletters, and banner placements.
+- [Fest](/fest): RTG festival and live event coverage.
+- [Picks](/picks): Editor picks and recommendations across music, gear, and culture.
+- [Apply](/apply): Apply to join the RTG team or contributor network.
+- [Membership (RTG Plus)](/membership): Subscribe to RTG Plus for member-only content and perks.
+
+## Optional
+
+- [Sitemap](/sitemap.xml): Machine-readable index of public URLs.
