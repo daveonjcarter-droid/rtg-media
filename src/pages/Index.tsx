@@ -7,6 +7,7 @@ import EmptyState from "@/components/site/EmptyState";
 import Reveal from "@/components/site/Reveal";
 import EpisodeCard from "@/components/site/EpisodeCard";
 import PicksStrip from "@/components/site/PicksStrip";
+import { ArtistPicksHomeBlock } from "@/components/site/ArtistPicks";
 import CreatorGrid from "@/components/site/CreatorGrid";
 import ChicagoFeed from "@/components/site/ChicagoFeed";
 import RtgMark from "@/components/site/RtgMark";
