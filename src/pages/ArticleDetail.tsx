@@ -433,56 +433,13 @@ const VerdictCard = ({ article, v }: { article: Article; v: any }) => (
 
 const StandardArticleView = ({ article, related }: { article: Article; related: Article[] }) => (
   <SiteLayout>
-    <section className="border-b border-border bg-background">
-      <div className="container-rtg pt-16 md:pt-24 pb-10">
-        <Link to="/articles" className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground hover:text-primary mb-8">
-          <ArrowLeft className="h-3 w-3" /> All Stories
-        </Link>
-        <div className="max-w-3xl">
-          {article.category && (
-            <span className="inline-block bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-[0.25em] px-2 py-1 mb-5">
-              {article.category}
-            </span>
-          )}
-          <h1 className="type-mega text-4xl md:text-6xl lg:text-7xl leading-[0.92]">{article.title}</h1>
-          {article.excerpt && (
-            <p className="mt-6 text-lg md:text-xl text-muted-foreground font-editorial leading-relaxed">{article.excerpt}</p>
-          )}
-          <div className="mt-6 text-[10px] uppercase tracking-[0.3em] text-muted-foreground flex flex-wrap items-center gap-3">
-            {article.published_at && <span>{formatDate(article.published_at)}</span>}
-            {article.tags && article.tags.length > 0 && (
-              <>
-                <span className="text-border">·</span>
-                <span className="flex flex-wrap gap-2">
-                  {article.tags.slice(0, 4).map((t) => (
-                    <span key={t} className="border border-border px-2 py-0.5">{t}</span>
-                  ))}
-                </span>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-      {article.cover_image_url && (
-        <div className="container-rtg pb-12 md:pb-16">
-          <div className="aspect-[16/9] overflow-hidden border border-border">
-            <img src={article.cover_image_url} alt={article.title} className="w-full h-full object-cover" />
-          </div>
-        </div>
-      )}
-    </section>
-
-    {article.body && (
-      <section className="container-rtg py-14 md:py-20">
-        <article className="max-w-2xl mx-auto">
-          <div className="font-editorial text-lg md:text-xl leading-[1.7] text-foreground/90 whitespace-pre-line">{article.body}</div>
-        </article>
-      </section>
-    )}
-
-    <RelatedSection related={related} category={article.category ?? ""} eyebrow="More Like This" title={`More from ${article.category ?? "RTG"}`} />
+    <RtgMagazineArticle
+      article={article as unknown as MagArticle}
+      related={related as unknown as MagArticle[]}
+    />
   </SiteLayout>
 );
+
 
 /* ============================ FILM REVIEW ============================ */
 
