@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link, useParams } from "react-router-dom";
 import { Instagram, Twitter, Globe, Mail, MapPin, ArrowLeft, Camera, Video } from "lucide-react";
 import SiteLayout from "@/components/site/SiteLayout";
