@@ -5,6 +5,7 @@ import SiteLayout from "@/components/site/SiteLayout";
 import EmptyState from "@/components/site/EmptyState";
 import { supabase } from "@/integrations/supabase/client";
 import { StarRatingDisplay, type ReviewBlock } from "@/components/dashboard/ReviewBlocks";
+import { RtgMagazineArticle, type MagArticle } from "@/components/site/RtgMagazine";
 
 type Article = {
   id: string;
