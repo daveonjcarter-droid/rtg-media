@@ -210,14 +210,16 @@ const ArticleDetail = () => {
     );
   }
 
-  if (article.article_type === "film_review") return <FilmReviewView article={article} related={related} />;
-  if (article.article_type === "album_review" || article.article_type === "single_review") return <MusicReviewView article={article} related={related} />;
-  if (article.article_type === "game_review") return <GameReviewView article={article} related={related} />;
-  if (article.article_type === "interview") return <TypedView article={article} related={related} kind="interview" />;
-  if (article.article_type === "breakdown") return <TypedView article={article} related={related} kind="breakdown" />;
-  if (article.article_type === "news") return <TypedView article={article} related={related} kind="news" />;
+  let view;
+  if (article.article_type === "film_review") view = <FilmReviewView article={article} related={related} />;
+  else if (article.article_type === "album_review" || article.article_type === "single_review") view = <MusicReviewView article={article} related={related} />;
+  else if (article.article_type === "game_review") view = <GameReviewView article={article} related={related} />;
+  else if (article.article_type === "interview") view = <TypedView article={article} related={related} kind="interview" />;
+  else if (article.article_type === "breakdown") view = <TypedView article={article} related={related} kind="breakdown" />;
+  else if (article.article_type === "news") view = <TypedView article={article} related={related} kind="news" />;
+  else view = <StandardArticleView article={article} related={related} />;
 
-  return <StandardArticleView article={article} related={related} />;
+  return (<><ArticleSeo article={article} />{view}</>);
 };
 
 /* =========== Music Review (album / single) =========== */
