@@ -310,6 +310,9 @@ const Index = () => {
       </section>
 
       {/* ============ RTG PICKS ============ */}
+      {/* ============ RTG PICKS — ARTIST OF THE WEEK ============ */}
+      <ArtistPicksHomeBlock />
+
       <section className="relative bg-background py-20 md:py-28">
         <div className="container-rtg">
           <div className="flex items-end justify-between mb-8 pb-4 border-b border-border">
