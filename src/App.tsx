@@ -18,6 +18,8 @@ import Team from "./pages/Team.tsx";
 import TeamProfile from "./pages/TeamProfile.tsx";
 import Advertise from "./pages/Advertise.tsx";
 import Fest from "./pages/Fest.tsx";
+import Picks from "./pages/Picks.tsx";
+import PicksAdmin from "./pages/PicksAdmin.tsx";
 import Dashboard from "./pages/Dashboard.tsx";
 import Login from "./pages/Login.tsx";
 import Signup from "./pages/Signup.tsx";
