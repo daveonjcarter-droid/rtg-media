@@ -251,7 +251,7 @@ const Index = () => {
               <p className="mt-6 max-w-xl text-cream/75 text-base md:text-lg leading-relaxed">
                 Frame-by-frame breakdowns of the films, shows, music videos, trailers,
                 and culture moments shaping the conversation. We study the choices behind
-                the moment — story, visuals, editing, sound, performance, marketing, and impact.
+                the moment story, visuals, editing, sound, performance, marketing, and impact.
               </p>
             </div>
 
