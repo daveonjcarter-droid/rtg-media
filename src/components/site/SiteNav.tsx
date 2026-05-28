@@ -174,6 +174,20 @@ const SiteNav = () => {
     setOpenMobile(null);
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (!open) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <div className="container-rtg flex h-16 items-center justify-between gap-6">
@@ -204,88 +218,122 @@ const SiteNav = () => {
             asChild
             variant="default"
             size="sm"
-            className="btn-cinematic hidden md:inline-flex bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm uppercase tracking-wider"
+            className="btn-cinematic hidden lg:inline-flex bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm uppercase tracking-wider"
           >
             <Link to="/book">Book Now</Link>
           </Button>
           <button
-            className="lg:hidden p-2 -mr-2"
+            className="lg:hidden p-2 -mr-2 text-foreground relative z-[60]"
             onClick={() => setOpen(!open)}
-            aria-label="Toggle menu"
+            aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
           >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
       </div>
 
       {open && (
-        <div className="lg:hidden border-t border-border bg-background mobile-menu-in">
-          <div className="container-rtg py-4 flex flex-col gap-1">
-            {MENUS.map((entry) =>
-              isMenu(entry) ? (
-                <div key={entry.label} className="border-b border-border/50">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setOpenMobile((m) => (m === entry.label ? null : entry.label))
-                    }
-                    aria-expanded={openMobile === entry.label}
-                    className="w-full flex items-center justify-between py-3 uppercase tracking-wider text-sm font-medium text-muted-foreground"
-                  >
-                    {entry.label}
-                    {openMobile === entry.label ? (
-                      <ChevronUp className="h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4" />
-                    )}
-                  </button>
-                  {openMobile === entry.label && (
-                    <div className="pb-3 pl-3 flex flex-col">
-                      {entry.header && (
-                        <span className="py-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground/80">
-                          {entry.header}
-                        </span>
+        <div
+          className="lg:hidden fixed inset-x-0 bottom-0 top-16 z-40 flex flex-col animate-in fade-in-0 slide-in-from-top-2 duration-200"
+          style={{ backgroundColor: "#0a090b" }}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="flex-1 overflow-y-auto px-6 py-6">
+            <ul className="flex flex-col">
+              {MENUS.map((entry) => {
+                if (!isMenu(entry)) {
+                  return (
+                    <li key={entry.label} className="border-b border-white/[0.06]">
+                      <NavLink
+                        to={entry.to}
+                        onClick={() => setOpen(false)}
+                        className="group/row relative block py-5 font-display uppercase tracking-tight text-[2.75rem] leading-[0.95] text-foreground transition-colors hover:text-primary focus-visible:text-primary outline-none"
+                      >
+                        {entry.label}
+                        <span
+                          aria-hidden
+                          className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-primary opacity-0 shadow-[0_0_18px_4px_hsl(var(--primary)/0.35)] transition-opacity group-hover/row:opacity-70 group-focus-visible/row:opacity-70 group-active/row:opacity-70"
+                        />
+                      </NavLink>
+                    </li>
+                  );
+                }
+                const isOpenItem = openMobile === entry.label;
+                return (
+                  <li key={entry.label} className="border-b border-white/[0.06]">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOpenMobile((m) => (m === entry.label ? null : entry.label))
+                      }
+                      aria-expanded={isOpenItem}
+                      className="group/row relative w-full flex items-center justify-between py-5 text-left outline-none"
+                    >
+                      <span
+                        className={`font-display uppercase tracking-tight text-[2.75rem] leading-[0.95] transition-colors ${
+                          isOpenItem
+                            ? "text-primary"
+                            : "text-foreground group-hover/row:text-primary group-focus-visible/row:text-primary"
+                        }`}
+                      >
+                        {entry.label}
+                      </span>
+                      {isOpenItem ? (
+                        <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                      ) : (
+                        <ChevronDown className="h-5 w-5 text-muted-foreground" />
                       )}
-                      {entry.items.map((item) => (
-                        <Link
-                          key={item.label}
-                          to={item.to}
-                          onClick={() => setOpen(false)}
-                          className="py-2 hover:text-primary"
-                        >
-                          <span className="block text-sm font-bold uppercase tracking-wider text-foreground/90">
-                            {item.label}
+                      <span
+                        aria-hidden
+                        className={`pointer-events-none absolute inset-x-0 bottom-0 h-px bg-primary transition-opacity shadow-[0_0_18px_4px_hsl(var(--primary)/0.35)] ${
+                          isOpenItem
+                            ? "opacity-70"
+                            : "opacity-0 group-hover/row:opacity-70 group-focus-visible/row:opacity-70"
+                        }`}
+                      />
+                    </button>
+                    {isOpenItem && (
+                      <div className="pb-4 flex flex-col animate-in fade-in-0 slide-in-from-top-1 duration-150">
+                        {entry.header && (
+                          <span className="pt-1 pb-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground/80">
+                            {entry.header}
                           </span>
-                          {item.desc && (
-                            <span className="block text-[12px] text-muted-foreground">
-                              {item.desc}
+                        )}
+                        {entry.items.map((item) => (
+                          <Link
+                            key={item.label}
+                            to={item.to}
+                            onClick={() => setOpen(false)}
+                            className="group/sub relative block py-3 outline-none"
+                          >
+                            <span className="block font-bold uppercase tracking-wider text-[14px] text-foreground transition-colors group-hover/sub:text-primary group-focus-visible/sub:text-primary">
+                              {item.label}
                             </span>
-                          )}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <NavLink
-                  key={entry.label}
-                  to={entry.to}
-                  onClick={() => setOpen(false)}
-                  className={({ isActive }) =>
-                    `py-3 uppercase tracking-wider text-sm font-medium border-b border-border/50 ${
-                      isActive ? "text-foreground" : "text-muted-foreground"
-                    }`
-                  }
-                >
-                  {entry.label}
-                </NavLink>
-              )
-            )}
+                            {item.desc && (
+                              <span className="mt-0.5 block text-[12px] text-muted-foreground">
+                                {item.desc}
+                              </span>
+                            )}
+                            <span
+                              aria-hidden
+                              className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-primary opacity-0 shadow-[0_0_18px_4px_hsl(var(--primary)/0.35)] transition-opacity group-hover/sub:opacity-70 group-focus-visible/sub:opacity-70"
+                            />
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          <div className="px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 border-t border-white/[0.06]">
             <Link
               to="/book"
               onClick={() => setOpen(false)}
-              className="mt-3 text-center bg-primary text-primary-foreground py-3 uppercase tracking-wider text-sm font-medium rounded-sm"
+              className="block w-full text-center bg-primary text-primary-foreground py-4 uppercase tracking-wider text-sm font-bold rounded-sm hover:bg-primary/90 transition-colors"
             >
               Book Now
             </Link>
