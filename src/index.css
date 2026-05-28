@@ -718,4 +718,101 @@
       border-left-width: 12px;
     }
   }
+
+  /* ============ RTG MAGAZINE (Articles experience) ============ */
+
+  .rtg-stage {
+    position: relative;
+    background-color: hsl(var(--ink));
+    background-image:
+      radial-gradient(ellipse 60% 50% at 0% 0%, hsl(355 75% 28% / 0.40), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 100% 100%, hsl(355 75% 28% / 0.35), transparent 60%);
+  }
+
+  /* Red flag/banner tag (hexagon ends) with hard black offset shadow */
+  .rtg-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.32rem 0.85rem;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    font-family: 'Anton', 'Bebas Neue', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+    box-shadow: 4px 4px 0 hsl(0 0% 0% / 0.55);
+  }
+  .rtg-flag--sm { padding: 0.22rem 0.7rem; font-size: 0.6rem; box-shadow: 3px 3px 0 hsl(0 0% 0% / 0.55); }
+
+  /* Red square "period" appended after a headline */
+  .rtg-period::after {
+    content: "";
+    display: inline-block;
+    width: 0.55em;
+    height: 0.55em;
+    margin-left: 0.18em;
+    background: hsl(var(--primary));
+    vertical-align: baseline;
+    transform: translateY(-0.05em);
+  }
+
+  /* Ghost numeral watermark behind cards/hero */
+  .rtg-ghost {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+    font-family: 'Anton', 'Bebas Neue', sans-serif;
+    line-height: 0.8;
+    color: hsl(var(--cream) / 0.05);
+    letter-spacing: -0.04em;
+  }
+
+  /* Issue rule divider: — TEXT — */
+  .rtg-issue-rule {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.9rem;
+    color: hsl(var(--muted-foreground));
+    font-family: 'Archivo', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+  }
+  .rtg-issue-rule::before,
+  .rtg-issue-rule::after {
+    content: "";
+    width: 2.5rem;
+    height: 1px;
+    background: hsl(var(--muted-foreground) / 0.6);
+  }
+
+  /* Drop cap on first paragraph */
+  .rtg-dropcap > p:first-of-type::first-letter,
+  .rtg-dropcap::first-letter {
+    float: left;
+    font-family: 'Anton', 'Bebas Neue', sans-serif;
+    font-size: 5.2rem;
+    line-height: 0.85;
+    margin: 0.35rem 0.55rem 0 0;
+    color: hsl(var(--primary));
+    text-transform: uppercase;
+  }
+
+  /* Inline highlight from ==text== */
+  .rtg-mark {
+    background: transparent;
+    color: hsl(var(--cream));
+    border-bottom: 2px solid hsl(var(--primary));
+    padding-bottom: 1px;
+  }
+
+  /* Asterisk ticker */
+  .rtg-ticker {
+    display: flex;
+    width: max-content;
+    animation: marquee 60s linear infinite;
+  }
 }
