@@ -46,7 +46,7 @@ const Picks = () => {
               </div>
             </div>
             <div className="mt-10">
-              <MagIssueRule>Issue 001 · Spring 2026</MagIssueRule>
+              <IssueRule>Issue 001 · Spring 2026</IssueRule>
             </div>
           </div>
         </section>
