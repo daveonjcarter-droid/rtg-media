@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Newspaper } from "lucide-react";
 import SiteLayout from "@/components/site/SiteLayout";
 import EmptyState from "@/components/site/EmptyState";
-import Reveal from "@/components/site/Reveal";
 import { supabase } from "@/integrations/supabase/client";
 import {
   AsteriskTicker,
