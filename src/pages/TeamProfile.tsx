@@ -66,7 +66,7 @@ const TeamProfile = () => {
           "get_public_staff_contact" as never,
           { _slug: slug } as never,
         );
-        const c = Array.isArray(contact) ? (contact[0] as any) : (contact as any);
+        const c = Array.isArray(contact) ? ((contact as any)[0] ?? null) : ((contact as any) ?? null);
         sx.email = c?.email ?? null;
         sx.phone = c?.phone ?? null;
       }
