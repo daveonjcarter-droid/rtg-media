@@ -2964,6 +2964,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bump_article_share: { Args: { article_uuid: string }; Returns: undefined }
       bump_article_view: { Args: { article_uuid: string }; Returns: undefined }
       can_access_thread: {
         Args: { _thread_id: string; _uid: string }
@@ -2990,6 +2991,13 @@ export type Database = {
         Returns: undefined
       }
       generate_invite_code: { Args: never; Returns: string }
+      get_public_staff_contact: {
+        Args: { _slug: string }
+        Returns: {
+          email: string
+          phone: string
+        }[]
+      }
       get_user_roles: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]

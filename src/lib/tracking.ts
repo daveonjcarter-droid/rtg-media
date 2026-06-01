@@ -175,16 +175,9 @@ export const trackEvent = async (
 /** Increment shares counter when a user shares an article. */
 export const bumpArticleShare = async (articleId: string): Promise<void> => {
   try {
-    const { data } = await supabase
-      .from("article_engagement")
-      .select("shares")
-      .eq("article_id", articleId)
-      .maybeSingle();
-    const next = (data?.shares ?? 0) + 1;
-    await supabase
-      .from("article_engagement")
-      .upsert({ article_id: articleId, shares: next }, { onConflict: "article_id" });
+    await supabase.rpc("bump_article_share" as never, { article_uuid: articleId } as never);
   } catch {
     /* silent */
   }
 };
+
