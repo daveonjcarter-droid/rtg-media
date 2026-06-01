@@ -22,6 +22,7 @@ type Staff = {
   twitter: string | null;
   website: string | null;
   email: string | null;
+  phone: string | null;
   is_bookable: boolean;
 };
 
@@ -54,11 +55,21 @@ const TeamProfile = () => {
       setLoading(true);
       const { data: s } = await supabase
         .from("staff_profiles" as any)
-        .select("*")
+        .select("id,slug,display_name,role_title,bio,photo_url,cover_image_url,location,specialties,service_ids,instagram,twitter,website,is_bookable")
         .eq("slug", slug)
         .eq("is_public", true)
         .maybeSingle();
       const sx = s as any as Staff | null;
+      if (sx) {
+        // Email/phone are gated server-side by show_email_publicly / show_phone_publicly.
+        const { data: contact } = await supabase.rpc(
+          "get_public_staff_contact" as never,
+          { _slug: slug } as never,
+        );
+        const c = Array.isArray(contact) ? (contact[0] as any) : (contact as any);
+        sx.email = c?.email ?? null;
+        sx.phone = c?.phone ?? null;
+      }
       setStaff(sx);
       if (sx) {
         const [{ data: w }, { data: a }, { data: svcs }] = await Promise.all([
