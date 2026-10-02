@@ -1,0 +1,53 @@
+/* Director Mode — a production tool, deliberately utilitarian and visually apart from the prop. */
+
+.dgear {
+  position: fixed; right: 10px; bottom: 10px; z-index: 200;
+  width: 34px; height: 34px; padding: 7px;
+  color: var(--acid); background: rgba(11, 11, 10, 0.85);
+  border: 1px solid rgba(198, 255, 26, 0.4);
+  opacity: 0.9; transition: opacity 0.2s;
+}
+.dgear svg { width: 100%; height: 100%; }
+/* Performance Mode: nearly invisible on camera, still clickable by the crew. */
+.dgear--quiet { opacity: 0.07; border-color: transparent; background: transparent; color: #888; }
+.dgear--quiet:hover, .dgear.is-open { opacity: 1; }
+
+.director {
+  position: fixed; right: 10px; bottom: 54px; z-index: 210;
+  width: min(420px, calc(100vw - 20px));
+  max-height: calc(100dvh - 70px); overflow: auto;
+  background: #1a1a1a; color: #eee;
+  border: 1px solid #444; border-top: 4px solid #ff3bd4;
+  font-family: var(--f-mono); font-size: 12px;
+  padding: 0 14px 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+.director__head {
+  position: sticky; top: 0; background: #1a1a1a;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 0; margin-bottom: 6px; border-bottom: 1px solid #333;
+  font-weight: 600; letter-spacing: 0.14em; color: #ff3bd4;
+}
+.director__head button { color: #aaa; font-size: 11px; }
+.director h4 { font-size: 10px; letter-spacing: 0.16em; color: #888; margin: 16px 0 8px; font-weight: 500; }
+.director__row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.director__row--split > * { flex: 1; }
+.director__row--chips { gap: 6px; }
+.director__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.director__grid--3 { grid-template-columns: 1fr 1fr 1fr; }
+.dbtn { border: 1px solid #555; padding: 9px 8px; text-align: left; font-size: 11px; letter-spacing: 0.04em; background: #222; }
+.dbtn:hover { border-color: #ff3bd4; color: #fff; }
+.dbtn--primary { background: #ff3bd4; color: #111; border-color: #ff3bd4; font-weight: 700; text-align: center; }
+.dbtn--naomi { border-color: #3b7bff; }
+.dchip { border: 1px solid #555; padding: 5px 8px; font-size: 11px; background: #222; }
+.dchip:hover { border-color: #ff3bd4; }
+.dlabel { color: #888; font-size: 10px; width: 100%; }
+.director select, .director input:not([type="checkbox"]) {
+  flex: 1; min-width: 0; background: #111; color: #eee; border: 1px solid #555; padding: 7px 8px; font-family: var(--f-mono); font-size: 12px; border-radius: 0;
+}
+.dvalue { color: #fff; font-weight: 600; }
+.dvalue--big { font-size: 20px; padding: 0 10px; }
+.dtoggle { display: flex; gap: 10px; align-items: center; padding: 10px; border: 1px solid #333; margin: 8px 0 4px; cursor: pointer; }
+.dtoggle input { accent-color: #ff3bd4; width: 18px; height: 18px; }
+.director__foot { color: #777; font-size: 10px; margin-top: 14px; line-height: 1.6; }
+.director__foot code { color: #bbb; }
